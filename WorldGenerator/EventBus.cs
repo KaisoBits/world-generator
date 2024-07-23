@@ -11,6 +11,9 @@ public static class EventBus
     public static void PublishEvent(GameEvent ev)
     {
         _events.Add(ev);
+
+        foreach (Subscription sub in _subscribers.Where(s => ev.GetType().IsAssignableTo(s.Type)))
+            sub.Callback(ev);
     }
 
     public static Subscription Subscribe<T>(Action<T> callback) where T : GameEvent
@@ -27,7 +30,6 @@ public static class EventBus
         _subscribers.Remove(subscription);
     }
 }
-
 
 public readonly struct Subscription : IEquatable<Subscription>
 {

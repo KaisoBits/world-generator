@@ -4,9 +4,9 @@ namespace WorldGenerator;
 
 public class Generator
 {
-    public void PopulateTiles(Tile[,] tiles)
+    public void PopulateTiles(Tile[,] tiles, int buildingCount)
     {
-        List<Building> buildings = GenerateBuildings(10, tiles);
+        List<Building> buildings = GenerateBuildings(buildingCount, tiles);
     }
 
     private List<Building> GenerateBuildings(int count, Tile[,] tiles)
@@ -16,7 +16,8 @@ public class Generator
         {
             for (int j = 0; j < tiles.GetLength(1); j++)
             {
-                positions[j * tiles.GetLength(0) + i] = new Vector2i(i, j);
+                if (tiles[i, j].Contents is [])
+                    positions[j * tiles.GetLength(0) + i] = new Vector2i(i, j);
             }
         }
         Vector2i[] buildingPositions = Random.Shared.GetItems(positions, count);

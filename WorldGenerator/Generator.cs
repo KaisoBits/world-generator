@@ -24,7 +24,7 @@ public class Generator
 
         foreach (var pos in buildingPositions)
         {
-            Building building = new();
+            Building building = Building.EstablishCity("Forteca p.w. " + NameGenerator.GetDwarfName());
             tiles[pos.X, pos.Y].AddEntity(building);
             result.Add(building);
         }

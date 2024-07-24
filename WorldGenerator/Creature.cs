@@ -2,17 +2,30 @@
 
 namespace WorldGenerator;
 
-public class Creature// : IEntity
+public class Creature : Entity
 {
-    //public Layer Layer => Layer.Creatures;
+    public override Layer Layer => Layer.Creatures;
 
-    //public void AcceptRenderer(IRenderer renderer, RenderStates states)
-    //{
-    //    renderer.AcceptCreature(this, states);
-    //}
+    public override void OnSpawn()
+    {
+        base.OnSpawn();
 
-    //public static Creature GenerateCitizen()
-    //{
-    //    Creature creature = new Creature();
-    //}
+        SetState(State.Health, "100");
+    }
+
+    public override void AcceptRenderer(IRenderer renderer, RenderStates states)
+    {
+        renderer.AcceptCreature(this, states);
+    }
+
+    protected override void GatherConditions()
+    {
+        base.GatherConditions();
+
+        int health = GetStateInt(State.Health);
+        if (health <= 0)
+            SetCondition(Condition.DEAD);
+        else
+            ClearCondition(Condition.DEAD);
+    }
 }

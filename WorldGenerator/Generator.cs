@@ -1,32 +1,27 @@
-﻿using SFML.System;
-
-namespace WorldGenerator;
+﻿namespace WorldGenerator;
 
 public class Generator
 {
-    public void PopulateTiles(Tile[,] tiles, int buildingCount)
+    public void PopulateWorld(World world, int buildingCount)
     {
-        List<Building> buildings = GenerateBuildings(buildingCount, tiles);
+        List<Building> buildings = GenerateBuildings(buildingCount, world);
     }
 
-    private List<Building> GenerateBuildings(int count, Tile[,] tiles)
+    private List<Building> GenerateBuildings(int count, World world)
     {
-        Vector2i[] positions = new Vector2i[tiles.Length];
-        for (int i = 0; i < tiles.GetLength(0); i++)
-        {
-            for (int j = 0; j < tiles.GetLength(1); j++)
-            {
-                if (tiles[i, j].Contents is [])
-                    positions[j * tiles.GetLength(0) + i] = new Vector2i(i, j);
-            }
-        }
-        Vector2i[] buildingPositions = Random.Shared.GetItems(positions, count);
+        (int X, int Y)[] positions = world
+            .Where(t => t.Contents is [])
+            .Select(t => (t.X, t.Y))
+            .ToArray();
+
+
+        (int X, int Y)[] buildingPositions = Random.Shared.GetItems(positions, count);
         List<Building> result = [];
 
-        foreach (var pos in buildingPositions)
+        foreach (var (x, y) in buildingPositions)
         {
             Building building = Building.EstablishCity("Forteca p.w. " + NameGenerator.GetDwarfName());
-            tiles[pos.X, pos.Y].AddEntity(building);
+            world.SpawnEntity(building, x, y);
             result.Add(building);
         }
 

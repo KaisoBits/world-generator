@@ -2,38 +2,46 @@
 
 namespace WorldGenerator;
 
-public class Building : IEntity
+public class Building : Entity
 {
-    public Layer Layer => Layer.Buildings;
-
-    public required string Name { get; init; }
+    public override Layer Layer => Layer.Buildings;
 
     private readonly List<Creature> _population = [];
-    private readonly List<Visitation> _vistations = [];
 
     private Building() { }
+
+    public override void OnSpawn()
+    {
+        base.OnSpawn();
+
+        EventBus.PublishEvent(new BuildingEstablishedEvent(this));
+    }
 
     public void AddCitizen(Creature creature)
     {
         _population.Add(creature);
-        _vistations.Add(new Visitation(creature, this, VisitationPurpose.Citizen));
     }
 
-    public void AddGuest(Creature creature)
-    {
-        _vistations.Add(new Visitation(creature, this, VisitationPurpose.Guest));
-    }
-
-    public void AcceptRenderer(IRenderer renderer, RenderStates renderStates)
+    public override void AcceptRenderer(IRenderer renderer, RenderStates renderStates)
     {
         renderer.AcceptBuilding(this, renderStates);
     }
 
+    public override void GatherConditions()
+    {
+        base.GatherConditions();
+
+        int creatureCount = CurrentTile.Contents.Count(e => e is Creature);
+        if (creatureCount > 0)
+            ClearCondition(Condition.EMPTY);
+        else
+            SetCondition(Condition.EMPTY);
+    }
+
     public static Building EstablishCity(string name)
     {
-        Building building = new() { Name = name };
-
-        EventBus.PublishEvent(new BuildingEstablishedEvent(building));
+        Building building = new();
+        building.SetState(State.Name, name);
 
         return building;
     }

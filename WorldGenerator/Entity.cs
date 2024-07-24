@@ -6,15 +6,26 @@ public abstract class Entity : IEntity
 {
     private readonly HashSet<Condition> _conditions = [];
     private readonly Dictionary<State, string> _states = [];
+
+    public int X { get; internal set; }
+    public int Y { get; internal set; }
+
+    public ITileView CurrentTile => World.Instance[X, Y];
+
     public abstract Layer Layer { get; }
 
     public abstract void AcceptRenderer(IRenderer renderer, RenderStates states);
 
-    protected virtual void GatherConditions()
+    public virtual void Think()
+    {
+    }
+
+    public virtual void GatherConditions()
     {
     }
 
     public virtual void OnSpawn() { }
+    public virtual void OnDespawn() { }
 
     public bool IsInCondition(Condition condition)
     {

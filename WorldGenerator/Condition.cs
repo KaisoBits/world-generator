@@ -4,4 +4,5 @@ public enum Condition
 {
     DAMAGED,
     DEAD,
+    EMPTY,
 }

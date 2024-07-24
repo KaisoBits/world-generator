@@ -8,6 +8,6 @@ public class BuildingEstablishedEvent : GameEvent
 
     public BuildingEstablishedEvent(Building building)
     {
-        SetParameter("BUILDING_NAME", building.Name);
+        SetParameter("BUILDING_NAME", building.GetState(State.Name));
     }
 }

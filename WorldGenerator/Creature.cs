@@ -18,7 +18,7 @@ public class Creature : Entity
         renderer.AcceptCreature(this, states);
     }
 
-    protected override void GatherConditions()
+    public override void GatherConditions()
     {
         base.GatherConditions();
 

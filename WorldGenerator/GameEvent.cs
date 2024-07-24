@@ -7,9 +7,9 @@ public abstract class GameEvent
     public abstract EventType Type { get; }
     public virtual string? Message { get; }
 
-    private readonly Dictionary<string, string> _parameters = [];
+    private readonly Dictionary<string, string?> _parameters = [];
 
-    protected void SetParameter(string type, string value) 
+    protected void SetParameter(string type, string? value) 
     {
         _parameters[type] = value;
     }
@@ -28,7 +28,7 @@ public abstract class GameEvent
             if (!_parameters.TryGetValue(templateName, out string? value))
                 continue;
 
-            msg = msg[..param.Index] + value + msg[(param.Index + param.Length)..];
+            msg = msg[..param.Index] + (value ?? "<NULL>") + msg[(param.Index + param.Length)..];
         }
 
         return $"[{Type}] {msg}";

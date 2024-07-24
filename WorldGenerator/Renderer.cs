@@ -16,23 +16,19 @@ public class Renderer : IRenderer
         _castle.Scale = new Vector2f(0.055f, 0.055f);
     }
 
-    public void RenderTiles(Tile[,] tiles)
+    public void RenderWorld(World world)
     {
-        for (int x = 0; x < tiles.GetLength(0); x++)
+        foreach (ITileView tile in world)
         {
-            for (int y = 0; y < tiles.GetLength(1); y++)
+            Transform t = Transform.Identity;
+            t.Translate(new Vector2f(tile.X * 32, tile.Y * 32));
+            RenderStates rs = new(t);
+
+            _target.Draw(_grass, rs);
+
+            foreach (IEntity entity in tile.Contents)
             {
-                Transform t = Transform.Identity;
-                t.Translate(new Vector2f(x * 32, y * 32));
-                RenderStates rs = new(t);
-
-                _target.Draw(_grass, rs);
-
-                IEnumerable<IEntity> currTileContent = tiles[x, y].Contents;
-                foreach (IEntity entity in currTileContent)
-                {
-                    entity.AcceptRenderer(this, rs);
-                }
+                entity.AcceptRenderer(this, rs);
             }
         }
     }

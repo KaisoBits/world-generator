@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WorldGenerator;
+﻿namespace WorldGenerator;
 
 public class ConsoleInterface
 {
@@ -14,6 +8,6 @@ public class ConsoleInterface
         foreach (var item in listBottom)
             Console.WriteLine(item);
 
-        Subscription sub = EventBus.Subscribe<GameEvent>(ge => Console.WriteLine(ge));
+        Subscription sub = EventBus.Subscribe<GameEvent>(Console.WriteLine);
     }
 }

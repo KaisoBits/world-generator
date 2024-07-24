@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.ComponentModel;
 
 namespace WorldGenerator;
 
@@ -52,6 +51,8 @@ public class World : IReadOnlyCollection<ITileView>
         GetTileAt(x, y).AddEntity(entity);
         entity.X = x;
         entity.Y = y;
+
+        entity.OnSpawn();
     }
 
     public void MoveEntity(Entity entity, int x, int y)

@@ -14,6 +14,8 @@ public class Generator
             .Select(t => (t.X, t.Y))
             .ToArray();
 
+        if (positions is [])
+            return [];
 
         (int X, int Y)[] buildingPositions = Random.Shared.GetItems(positions, count);
         List<Building> result = [];

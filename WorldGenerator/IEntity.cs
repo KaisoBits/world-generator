@@ -8,7 +8,7 @@ public interface IEntity
     int X { get; }
     int Y { get; }
 
-    public ITileView CurrentTile { get; }
+    ITileView CurrentTile { get; }
 
     void GatherConditions();
     void Think();

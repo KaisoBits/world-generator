@@ -4,11 +4,14 @@ using SFML.System;
 using SFML.Window;
 using WorldGenerator;
 
-RenderWindow window = new(new VideoMode(800, 600), "World generator");
+const int worldX = 32;
+const int worldY = 16;
+
+RenderWindow window = new(new VideoMode(worldX * 32, worldY * 32), "World generator");
 window.Closed += (s, e) => window.Close();
 window.Resized += (s, e) => window.SetView(new View(new Vector2f(e.Width / 2, e.Height / 2), new Vector2f(e.Width, e.Height)));
 
-World.CreateWorld(25, 19);
+World.CreateWorld(worldX, worldY);
 
 Generator wg = new();
 wg.PopulateWorld(World.Instance, 5);
@@ -27,7 +30,7 @@ while (window.IsOpen)
 
     window.Clear(new Color(135, 206, 235));
 
-    if (sw.Elapsed >= TimeSpan.FromSeconds(1))
+    if (sw.Elapsed >= TimeSpan.FromSeconds(0.1))
     {
         wg.PopulateWorld(World.Instance, 1);
         sw.Restart();

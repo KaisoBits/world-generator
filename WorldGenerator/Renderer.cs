@@ -8,12 +8,13 @@ public class Renderer : IRenderer
     private readonly RenderTarget _target;
 
     private readonly Sprite _grass = new(new Texture("grass.png"));
-    private readonly Sprite _castle = new(new Texture("castle.png"));
+    private readonly Sprite _castle = new(new Texture("village.png"));
+
+    private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
 
     public Renderer(RenderTarget target)
     {
         _target = target;
-        _castle.Scale = new Vector2f(0.055f, 0.055f);
     }
 
     public void RenderWorld(World world)
@@ -28,18 +29,29 @@ public class Renderer : IRenderer
 
             foreach (IEntity entity in tile.Contents)
             {
-                entity.AcceptRenderer(this, rs);
+                _renderList.Add((entity, rs));
             }
         }
+
+        // TODO: Inplace sorting
+        foreach (var (entity, rs) in _renderList
+            .OrderBy(e => e.Ent.Layer)
+            .ThenBy(e => e.Ent.Y)
+            .ThenBy(e => e.Ent.X))
+        {
+            entity.AcceptRenderer(this, rs);
+        }
+
+        _renderList.Clear();
     }
 
-    public void AcceptBuilding(Building building, RenderStates renderStates)
+    public void AcceptBuilding(Building building, RenderStates states)
     {
-        _target.Draw(_castle, renderStates);
+        _target.Draw(_castle, states);
     }
 
     public void AcceptCreature(Creature creature, RenderStates states)
     {
-        throw new NotImplementedException();
+        //_target.Draw(_dwarf, states);
     }
 }

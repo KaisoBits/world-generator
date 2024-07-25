@@ -23,7 +23,7 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
         foreach (ITileView tile in world)
         {
             Transform t = Transform.Identity;
-            t.Translate(new Vector2f(tile.X * 32, tile.Y * 32));
+            t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
             RenderStates rs = new(t);
 
             _target.Draw(_grass, rs);
@@ -37,8 +37,8 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
         // TODO: Inplace sorting
         foreach (var (entity, rs) in _renderList
             .OrderBy(e => e.Ent.Layer)
-            .ThenBy(e => e.Ent.Y)
-            .ThenBy(e => e.Ent.X))
+            .ThenBy(e => e.Ent.Position.Y)
+            .ThenBy(e => e.Ent.Position.X))
         {
             entity.AcceptRenderer(this, rs);
         }

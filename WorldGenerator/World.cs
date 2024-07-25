@@ -4,6 +4,8 @@ namespace WorldGenerator;
 
 public class World : IReadOnlyCollection<ITileView>
 {
+    public int CurrentTick { get; private set; }
+
     public static World Instance { get; private set; } = default!;
 
     public int Width { get; }
@@ -11,6 +13,8 @@ public class World : IReadOnlyCollection<ITileView>
 
     private readonly Tile[] _tiles;
     public int Count => _tiles.Length;
+
+    private List<(IEntity entity, Position moveTo)> _moveSchedule = [];
 
     private World(int x, int y)
     {
@@ -32,11 +36,23 @@ public class World : IReadOnlyCollection<ITileView>
         foreach (var tile in _tiles)
             foreach (var contents in tile.Contents)
                 contents.Think();
+
+        foreach (var (ent, pos) in _moveSchedule)
+            MoveEntity(ent, pos);
+        _moveSchedule.Clear();
+
+
+        CurrentTick++;
     }
 
     public ITileView this[int x, int y]
     {
         get => GetTileAt(x, y);
+    }
+
+    public ITileView this[Position position]
+    {
+        get => GetTileAt(position);
     }
 
     public static void CreateWorld(int width, int height)
@@ -46,22 +62,28 @@ public class World : IReadOnlyCollection<ITileView>
         Instance = world;
     }
 
-    public void SpawnEntity(Entity entity, int x, int y)
+    public void SpawnEntity(Entity entity, Position position)
     {
-        GetTileAt(x, y).AddEntity(entity);
-        entity.X = x;
-        entity.Y = y;
+        GetTileAt(position).AddEntity(entity);
+        entity.Position = position;
 
         entity.OnSpawn();
     }
 
-    public void MoveEntity(Entity entity, int x, int y)
+    public void ScheduleMoveEntity(IEntity entity, Position targetPosition)
     {
-        if (x == entity.X && y == entity.Y)
+        _moveSchedule.Add((entity, targetPosition));
+    }
+
+    private void MoveEntity(IEntity entity, Position targetPosition)
+    {
+        if (entity.Position == targetPosition)
             return;
 
-        GetTileAt(entity.X, entity.Y).RemoveEntity(entity);
-        GetTileAt(x, y).AddEntity(entity);
+        GetTileAt(entity.Position).RemoveEntity(entity);
+        GetTileAt(targetPosition).AddEntity(entity);
+
+        ((Entity)entity).Position = targetPosition;
     }
 
     public IEnumerator<ITileView> GetEnumerator()
@@ -72,6 +94,11 @@ public class World : IReadOnlyCollection<ITileView>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    private Tile GetTileAt(Position position)
+    {
+        return GetTileAt(position.X, position.Y);
     }
 
     private Tile GetTileAt(int x, int y)

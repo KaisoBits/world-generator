@@ -10,17 +10,17 @@ public class Generator
 
     private List<Building> GenerateBuildings(int count, World world)
     {
-        (int X, int Y)[] emptyPositions = GetEmptyPositions(world);
+        Position[] emptyPositions = GetEmptyPositions(world);
         if (emptyPositions is[])
             return [];
 
-        (int X, int Y)[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
+        Position[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
         List<Building> result = [];
 
-        foreach (var (x, y) in buildingPositions)
+        foreach (Position pos in buildingPositions)
         {
             Building building = Building.EstablishCity("Forteca p.w. " + NameGenerator.GetDwarfName());
-            world.SpawnEntity(building, x, y);
+            world.SpawnEntity(building, pos);
             result.Add(building);
         }
 
@@ -29,28 +29,28 @@ public class Generator
 
     private List<Entity> GenerateCitizens(int count, World world)
     {
-        (int X, int Y)[] emptyPositions = GetEmptyPositions(world);
+        Position[] emptyPositions = GetEmptyPositions(world);
         if (emptyPositions is [])
             return [];
 
-        (int X, int Y)[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
+        Position[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
         List<Entity> result = [];
 
-        foreach (var (x, y) in buildingPositions)
+        foreach (Position pos in buildingPositions)
         {
             Entity ent = new Creature();
-            world.SpawnEntity(ent, x, y);
+            world.SpawnEntity(ent, pos);
             result.Add(ent);
         }
 
         return result;
     }
 
-    private (int X, int Y)[] GetEmptyPositions(World world)
+    private Position[] GetEmptyPositions(World world)
     {
-        (int X, int Y)[] positions = world
+        Position[] positions = world
             .Where(t => t.Contents is [])
-            .Select(t => (t.X, t.Y))
+            .Select(t => t.Position)
             .ToArray();
 
         return positions;

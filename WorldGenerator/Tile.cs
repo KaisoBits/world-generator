@@ -4,15 +4,13 @@ public class Tile : ITileView
 {
     public IReadOnlyList<IEntity> Contents => _contents;
 
-    public int X { get; }
-    public int Y { get; }
+    public Position Position { get; }
 
     private readonly List<IEntity> _contents = [];
 
     public Tile(int x, int y)
     {
-        X = x;
-        Y = y;
+        Position = new Position(x, y);
     }
 
     public void AddEntity(IEntity entity)

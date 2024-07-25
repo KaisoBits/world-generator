@@ -1,14 +1,20 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.Behaviours;
+using WorldGenerator.Schedulers;
+
+namespace WorldGenerator;
 
 public abstract class Entity : IEntity
 {
     private readonly HashSet<Condition> _conditions = [];
     private readonly Dictionary<State, string> _states = [];
 
-    public int X { get; internal set; }
-    public int Y { get; internal set; }
+    private readonly List<IBehaviour> _behaviours = [];
 
-    public ITileView CurrentTile => World.Instance[X, Y];
+    public IScheduler? CurrentScheduler { get; private set; }
+
+    public Position Position { get; internal set; }
+
+    public ITileView CurrentTile => World.Instance[Position];
 
     public abstract Layer Layer { get; }
 
@@ -16,6 +22,28 @@ public abstract class Entity : IEntity
 
     public virtual void Think()
     {
+        CurrentScheduler?.Tick();
+
+        if (CurrentScheduler == null)
+        {
+            foreach (var behaviour in _behaviours)
+            {
+                IScheduler? newScheduler = behaviour.DetermineScheduler(this);
+                if (newScheduler != null)
+                {
+                    CurrentScheduler = newScheduler;
+                    CurrentScheduler.Owner = this;
+                    CurrentScheduler.Start();
+                    CurrentScheduler.Tick();
+                }
+            }
+        }
+
+        if (CurrentScheduler != null)
+        {
+            if (CurrentScheduler is { State: SchedulerState.Completed } or { State: SchedulerState.Failed })
+                CurrentScheduler = null;
+        }
     }
 
     public virtual void GatherConditions()
@@ -25,13 +53,13 @@ public abstract class Entity : IEntity
     public virtual void OnSpawn() { }
     public virtual void OnDespawn() { }
 
-    public bool IsInCondition(Condition condition)
+    public bool InCondition(Condition condition)
     {
         return _conditions.Contains(condition);
     }
 
     public void SetCondition(Condition condition)
-    { 
+    {
         _conditions.Add(condition);
     }
 
@@ -58,5 +86,10 @@ public abstract class Entity : IEntity
     public float GetStateFloat(State state)
     {
         return float.Parse(_states[state]);
+    }
+
+    protected void AddBehaviour(IBehaviour behaviour)
+    {
+        _behaviours.Add(behaviour);
     }
 }

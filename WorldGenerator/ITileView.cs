@@ -2,7 +2,6 @@
 
 public interface ITileView
 {
-    int X { get; }
-    int Y { get; }
+    Position Position { get; }
     IReadOnlyList<IEntity> Contents { get; }
 }

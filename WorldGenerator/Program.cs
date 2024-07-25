@@ -14,7 +14,7 @@ window.Resized += (s, e) => window.SetView(new View(new Vector2f(e.Width / 2, e.
 World.CreateWorld(worldX, worldY);
 
 Generator wg = new();
-wg.PopulateWorld(World.Instance, 5);
+wg.PopulateWorld(World.Instance, 5, 5);
 
 ConsoleInterface ci = new();
 ci.StartDisplayingEvents();
@@ -32,7 +32,8 @@ while (window.IsOpen)
 
     if (sw.Elapsed >= TimeSpan.FromSeconds(0.1))
     {
-        wg.PopulateWorld(World.Instance, 1);
+        //wg.PopulateWorld(World.Instance, 1);
+
         sw.Restart();
     }
 

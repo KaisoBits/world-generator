@@ -1,6 +1,4 @@
-﻿using SFML.Graphics;
-
-namespace WorldGenerator;
+﻿namespace WorldGenerator;
 
 public abstract class Entity : IEntity
 {
@@ -14,7 +12,7 @@ public abstract class Entity : IEntity
 
     public abstract Layer Layer { get; }
 
-    public abstract void AcceptRenderer(IRenderer renderer, RenderStates states);
+    public abstract void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 
     public virtual void Think()
     {

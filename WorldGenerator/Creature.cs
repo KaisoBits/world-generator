@@ -13,9 +13,9 @@ public class Creature : Entity
         SetState(State.Health, "100");
     }
 
-    public override void AcceptRenderer(IRenderer renderer, RenderStates states)
+    public override void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
     {
-        renderer.AcceptCreature(this, states);
+        renderer.VisitCreature(this, state);
     }
 
     public override void GatherConditions()

@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace WorldGenerator;
 
-public class Renderer : IRenderer
+public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
 {
     private readonly RenderTarget _target;
 
@@ -12,7 +12,7 @@ public class Renderer : IRenderer
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
 
-    public Renderer(RenderTarget target)
+    public SfmlRenderer(RenderTarget target)
     {
         _target = target;
     }
@@ -45,12 +45,12 @@ public class Renderer : IRenderer
         _renderList.Clear();
     }
 
-    public void AcceptBuilding(Building building, RenderStates states)
+    public void VisitBuilding(Building building, RenderStates states)
     {
         _target.Draw(_castle, states);
     }
 
-    public void AcceptCreature(Creature creature, RenderStates states)
+    public void VisitCreature(Creature creature, RenderStates states)
     {
         //_target.Draw(_dwarf, states);
     }

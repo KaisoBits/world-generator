@@ -1,6 +1,4 @@
-﻿using SFML.Graphics;
-
-namespace WorldGenerator;
+﻿namespace WorldGenerator;
 
 public interface IEntity
 {
@@ -13,5 +11,5 @@ public interface IEntity
     void GatherConditions();
     void Think();
 
-    void AcceptRenderer(IRenderer renderer, RenderStates states);
+    void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 }

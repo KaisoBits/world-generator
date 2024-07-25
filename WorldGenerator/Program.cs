@@ -19,7 +19,7 @@ wg.PopulateWorld(World.Instance, 5);
 ConsoleInterface ci = new();
 ci.StartDisplayingEvents();
 
-Renderer rendered = new(window);
+IRenderer renderer = new SfmlRenderer(window);
 
 Stopwatch sw = new();
 sw.Start();
@@ -36,6 +36,6 @@ while (window.IsOpen)
         sw.Restart();
     }
 
-    rendered.RenderWorld(World.Instance);
+    renderer.RenderWorld(World.Instance);
     window.Display();
 }

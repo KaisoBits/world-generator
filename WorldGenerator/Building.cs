@@ -1,6 +1,4 @@
-﻿using SFML.Graphics;
-
-namespace WorldGenerator;
+﻿namespace WorldGenerator;
 
 public class Building : Entity
 {
@@ -22,9 +20,9 @@ public class Building : Entity
         _population.Add(creature);
     }
 
-    public override void AcceptRenderer(IRenderer renderer, RenderStates renderStates)
+    public override void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
     {
-        renderer.AcceptBuilding(this, renderStates);
+        renderer.VisitBuilding(this, state);
     }
 
     public override void GatherConditions()

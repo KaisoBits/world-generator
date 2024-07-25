@@ -19,7 +19,7 @@ public class Generator
 
         foreach (Position pos in buildingPositions)
         {
-            Building building = Building.EstablishCity("Forteca p.w. " + NameGenerator.GetDwarfName());
+            Building building = Building.EstablishCity(NameGenerator.GetFortressName());
             world.SpawnEntity(building, pos);
             result.Add(building);
         }

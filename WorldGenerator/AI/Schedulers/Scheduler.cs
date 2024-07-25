@@ -50,18 +50,19 @@ public abstract class Scheduler : IScheduler
         if (State == SchedulerState.New)
         {
             State = SchedulerState.Running;
-            _taskEnumerator.MoveNext();
-        }
-
-        if (_taskEnumerator.Current == null)
-        {
-            State = SchedulerState.Completed;
-            return;
+            if (!_taskEnumerator.MoveNext())
+            {
+                State = SchedulerState.Completed;
+                return;
+            }
         }
 
         SchedulerTaskResult result = _taskEnumerator.Current.Tick();
         if (result == SchedulerTaskResult.Completed)
-            _taskEnumerator.MoveNext();
+        {
+            if (!_taskEnumerator.MoveNext())
+                State = SchedulerState.Completed;
+        }
         if (result == SchedulerTaskResult.Failed)
             State = SchedulerState.Failed;
     }

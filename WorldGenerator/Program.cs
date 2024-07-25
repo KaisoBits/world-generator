@@ -30,7 +30,7 @@ while (window.IsOpen)
 
     window.Clear(new Color(135, 206, 235));
 
-    if (sw.Elapsed >= TimeSpan.FromSeconds(0.5))
+    if (sw.Elapsed >= TimeSpan.FromSeconds(0.1))
     {
         //wg.PopulateWorld(World.Instance, 1);
         World.Instance.Tick();

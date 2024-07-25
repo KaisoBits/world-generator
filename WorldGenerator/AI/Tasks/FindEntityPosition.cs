@@ -1,16 +1,18 @@
 ﻿namespace WorldGenerator.AI;
 
-public class FindNearestPathTo : ISchedulerTask
+public class FindEntityPosition : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
     private readonly Layer _layer;
     private readonly string _positionMemory;
+    private readonly bool _getFurthest;
 
-    public FindNearestPathTo(IScheduler parent, Layer layer, string positionMemory)
+    public FindEntityPosition(IScheduler parent, Layer layer, string positionMemory, bool max)
     {
         _scheduler = parent;
         _layer = layer;
         _positionMemory = positionMemory;
+        _getFurthest = max;
     }
 
     public SchedulerTaskResult Tick()
@@ -20,9 +22,11 @@ public class FindNearestPathTo : ISchedulerTask
 
         Position pos = _scheduler.Owner.Position;
 
-        ITileView? closestTile = World.Instance
-            .Where(t => t.Contents.Any(e => e.Layer == _layer))
-            .MinBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y));
+        IEnumerable<ITileView> tiles = World.Instance
+            .Where(t => t.Contents.Any(e => e.Layer == _layer));
+        ITileView? closestTile = _getFurthest ?
+            tiles.MaxBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y)) :
+            tiles.MinBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y));
 
         if (closestTile == null)
             return SchedulerTaskResult.Failed;

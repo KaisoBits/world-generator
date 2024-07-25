@@ -1,6 +1,4 @@
-﻿using WorldGenerator.Schedulers;
-
-namespace WorldGenerator.Behaviours;
+﻿namespace WorldGenerator.AI;
 
 // PURPOSE: I want to get to the closest city
 public class CitizenBehaviour : IBehaviour
@@ -12,7 +10,7 @@ public class CitizenBehaviour : IBehaviour
 
         if (Random.Shared.Next(1, 11) == 1)
             return new GoToNearestBuildingScheduler();
-        else 
+        else
             return null;
     }
 }

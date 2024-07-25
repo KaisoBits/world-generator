@@ -1,6 +1,4 @@
-﻿using WorldGenerator.Tasks;
-
-namespace WorldGenerator.Schedulers;
+﻿namespace WorldGenerator.AI;
 
 public class GoToNearestBuildingScheduler : Scheduler
 {

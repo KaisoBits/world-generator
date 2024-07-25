@@ -1,6 +1,4 @@
-﻿using WorldGenerator.Schedulers;
-
-namespace WorldGenerator.Behaviours;
+﻿namespace WorldGenerator.AI;
 
 public interface IBehaviour
 {

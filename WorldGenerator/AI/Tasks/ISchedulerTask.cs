@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.Tasks;
+﻿namespace WorldGenerator.AI;
 
 public enum SchedulerTaskResult { Continue, Completed, Failed };
 

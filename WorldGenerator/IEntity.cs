@@ -1,4 +1,4 @@
-﻿using WorldGenerator.Schedulers;
+﻿using WorldGenerator.AI;
 
 namespace WorldGenerator;
 

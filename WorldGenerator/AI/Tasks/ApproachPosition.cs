@@ -1,6 +1,4 @@
-﻿using WorldGenerator.Schedulers;
-
-namespace WorldGenerator.Tasks;
+﻿namespace WorldGenerator.AI;
 
 public class ApproachPosition : ISchedulerTask
 {

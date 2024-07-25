@@ -1,4 +1,4 @@
-﻿using WorldGenerator.Behaviours;
+﻿using WorldGenerator.AI;
 
 namespace WorldGenerator;
 

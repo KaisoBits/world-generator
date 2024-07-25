@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.Schedulers;
+﻿namespace WorldGenerator.AI;
 
 public interface IScheduler
 {

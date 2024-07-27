@@ -57,6 +57,8 @@ public readonly struct Position : IEquatable<Position>
         return new Position(Math.Abs(X), Math.Abs(Y));
     }
 
+    public float SimpleLen() => Math.Abs(X) + Math.Abs(Y);
+
     public override bool Equals(object? obj)
     {
         if (obj is Position other)

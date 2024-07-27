@@ -9,7 +9,7 @@ public class CitizenBehaviour : IBehaviour
         {
             if (entitiy.InCondition(Condition.IN_BUILDING))
             {
-                return new GoToFurthestBuildingScheduler();
+                return new GoToRandomBuildingScheduler();
             }
             else
             {

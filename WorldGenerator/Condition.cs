@@ -6,4 +6,5 @@ public enum Condition
     DEAD,
     EMPTY,
     IN_BUILDING,
+    JUST_ENTERED_BUILDING,
 }

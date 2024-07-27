@@ -2,16 +2,16 @@
 
 public class Generator
 {
-    public void PopulateWorld(World world, int buildingCount, int citizenCount)
+    public List<Entity> PopulateWorld(World world, int buildingCount, int citizenCount)
     {
         _ = GenerateBuildings(buildingCount, world);
-        _ = GenerateCitizens(citizenCount, world);
+        return GenerateCitizens(citizenCount, world);
     }
 
     private List<Building> GenerateBuildings(int count, World world)
     {
         Position[] emptyPositions = GetEmptyPositions(world);
-        if (emptyPositions is[])
+        if (emptyPositions is [])
             return [];
 
         Position[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
@@ -39,6 +39,7 @@ public class Generator
         foreach (Position pos in buildingPositions)
         {
             Entity ent = new Creature();
+            ent.SetState(State.Name, NameGenerator.GetDwarfName());
             world.SpawnEntity(ent, pos);
             result.Add(ent);
         }

@@ -1,13 +1,15 @@
 ﻿using WorldGenerator.AI;
 
-
 namespace WorldGenerator;
 
 public abstract class Entity : IEntity
 {
+    public IReadOnlyCollection<Condition> Conditions => _conditions;
     private readonly HashSet<Condition> _conditions = [];
+    public IReadOnlyDictionary<State, string> States => _states;
     private readonly Dictionary<State, string> _states = [];
 
+    public IReadOnlyCollection<IBehaviour> Behaviours => _behaviours;
     private readonly List<IBehaviour> _behaviours = [];
 
     public IScheduler? CurrentScheduler { get; private set; }

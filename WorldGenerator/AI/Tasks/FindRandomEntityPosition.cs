@@ -1,12 +1,12 @@
-﻿namespace WorldGenerator.AI;
+﻿namespace WorldGenerator.AI.Tasks;
 
-public class FindEntityPosition : ISchedulerTask
+public class FindRandomEntityPosition : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
     private readonly Layer _layer;
     private readonly string _positionMemory;
 
-    public FindEntityPosition(IScheduler parent, Layer layer, string positionMemory)
+    public FindRandomEntityPosition(IScheduler parent, Layer layer, string positionMemory)
     {
         _scheduler = parent;
         _layer = layer;
@@ -20,14 +20,15 @@ public class FindEntityPosition : ISchedulerTask
 
         Position pos = _scheduler.Owner.Position;
 
-        IEnumerable<ITileView> tiles = World.Instance
-            .Where(t => t.Contents.Any(e => e.Layer == _layer));
-        ITileView? closestTile = tiles.MinBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y));
+        ITileView[] tiles = World.Instance
+            .Where(t => t.Contents.Any(e => e.Layer == _layer)).ToArray();
 
-        if (closestTile == null)
+        if (tiles is [])
             return SchedulerTaskResult.Failed;
 
-        _scheduler.Remember(_positionMemory, closestTile.Position);
+        ITileView target = Random.Shared.GetItems(tiles, 1)[0];
+
+        _scheduler.Remember(_positionMemory, target.Position);
 
         return SchedulerTaskResult.Completed;
     }

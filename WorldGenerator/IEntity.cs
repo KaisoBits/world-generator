@@ -4,6 +4,9 @@ namespace WorldGenerator;
 
 public interface IEntity
 {
+    IReadOnlyCollection<Condition> Conditions { get; }
+    IReadOnlyDictionary<State, string> States { get; }
+
     IScheduler? CurrentScheduler { get; }
 
     Layer Layer { get; }

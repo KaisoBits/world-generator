@@ -6,7 +6,7 @@ public static class NameGenerator
     private static string[] _dwarfSurnamePrefixes = { "Ustu", "Asmel", "Iton", "Dodok", "Akru", "Tun", "Molda" };
     private static string[] _dwarfSurnames = { "thoslan", "statir", "degel", "mosus", "risen", "eskal", "vabok" };
     private static string[] _fortressNamePrefix = { "Tatek", "Anzish", "Idath", "Enor", "Midrim", "Argod", "Musod" };
-    private static string[] _fortressNameMain = { "Cenath", "Kuthdeng", "Tosid", "Neth", "Moldath", "Rashgur", "Kogan", "Shadust" };
+    private static string[] _fortressNameMain = { "cenath", "kuthdeng", "tosid", "neth", "moldath", "rashgur", "kogan", "shadust" };
 
     public static string GetDwarfName()
     {

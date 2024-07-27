@@ -9,7 +9,7 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
 
     private readonly Sprite _grass = new(new Texture("grass.png"));
     private readonly Sprite _castle = new(new Texture("village.png"));
-    private readonly Sprite _dwarf = new(new Texture("hero_placeholder.png"));
+    private readonly Sprite _dwarf = new(new Texture("dwarf.png"));
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
 

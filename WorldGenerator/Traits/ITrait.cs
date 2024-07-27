@@ -2,7 +2,7 @@
 
 public interface ITrait
 {
-    IEntity Owner { get; }
+    IEntity? Owner { get; }
 
     void Tick();
     void OnGain(IEntity owner);

@@ -19,7 +19,7 @@ public class TravelerTrait : Trait<TravelerTrait.Data>
         bool shouldTravel = Random.Shared.NextDouble() < TraitData.Chance;
         if (!shouldTravel)
             return;
-
+        
         if (creature.InCondition(Condition.IN_BUILDING))
             creature.SetScheduler(new GoToRandomBuildingScheduler());
         else

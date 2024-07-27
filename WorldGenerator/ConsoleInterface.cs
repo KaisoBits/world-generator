@@ -32,14 +32,11 @@ public class ConsoleInterface
 
         Console.WriteLine("---------------------------------------");
 
-        Console.WriteLine("AI DEBUG");
+        Console.WriteLine($"Traits: {string.Join(",", creature.Traits.Select(t => t.GetType().Name))}");
 
-        Console.WriteLine("  Traits:");
-        foreach (var item in creature.Traits)
-        {
-            Console.WriteLine($"    - {item.GetType().Name}");
-        }
-        Console.WriteLine();
+        Console.WriteLine("---------------------------------------");
+
+        Console.WriteLine("AI DEBUG:");
 
         Scheduler? scheduler = creature.CurrentScheduler as Scheduler;
         Console.WriteLine("  Scheduler:");

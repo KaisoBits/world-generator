@@ -21,9 +21,9 @@ public class TravelerTrait : Trait<TravelerTrait.Data>
             return;
         
         if (creature.InCondition(Condition.IN_BUILDING))
-            creature.SetScheduler(new GoToRandomBuildingScheduler());
+            creature.AssignScheduler(new GoToRandomBuildingScheduler());
         else
-            creature.SetScheduler(new GoToNearestBuildingScheduler());
+            creature.AssignScheduler(new GoToNearestBuildingScheduler());
     }
 
     public record class Data(float Chance);

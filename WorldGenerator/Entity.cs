@@ -3,8 +3,6 @@ using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
-public enum SetSchedulerResult { Success, Pending, Failed }
-
 public abstract class Entity : IEntity
 {
     public IReadOnlyCollection<Condition> Conditions => _conditions;
@@ -16,7 +14,7 @@ public abstract class Entity : IEntity
     private readonly List<ITrait> _traits = [];
 
     public IScheduler? CurrentScheduler { get; private set; }
-    private IScheduler? _pendingScheduler;
+    private (IScheduler Scheduler, AssignSchedulerResult Result)? _pendingScheduler;
 
     public Position Position { get; internal set; }
 
@@ -44,8 +42,14 @@ public abstract class Entity : IEntity
 
             if (CurrentScheduler.State is SchedulerState.Completed or SchedulerState.Failed or SchedulerState.Cancelled)
             {
-                CurrentScheduler = _pendingScheduler;
-                _pendingScheduler = null;
+                CurrentScheduler = _pendingScheduler?.Scheduler;
+                if (_pendingScheduler != null)
+                {
+                    // Inform any interested parties that assigning this scheduler succeeded
+                    // after it spent some time in the pending state
+                    _pendingScheduler.Value.Result.SignalSuccess();
+                    _pendingScheduler = null;
+                }
             }
         }
     }
@@ -57,36 +61,42 @@ public abstract class Entity : IEntity
     public virtual void OnSpawn() { }
     public virtual void OnDespawn() { }
 
-    public SetSchedulerResult SetScheduler(IScheduler newScheduler)
+    public IAssignSchedulerResult AssignScheduler(IScheduler newScheduler)
     {
         // There is no current scheduler - just assign the one we got asked for
         if (CurrentScheduler == null)
         {
             CurrentScheduler = newScheduler;
             CurrentScheduler.Owner = this;
-            return SetSchedulerResult.Success;
+            return AssignSchedulerResult.Success();
         }
 
         // There is a current scheduler and its priority is higher than the new one - don't assign it
         if (CurrentScheduler.Priority >= newScheduler.Priority)
         {
-            return SetSchedulerResult.Failed;
+            return AssignSchedulerResult.Fail();
         }
 
         // The current scheduler's priority is lower than the new one but we've already got a
         // pending scheduler which has higher priority than the new scheduler
-        if (_pendingScheduler != null && _pendingScheduler.Priority >= newScheduler.Priority)
+        if (_pendingScheduler != null && _pendingScheduler.Value.Scheduler.Priority >= newScheduler.Priority)
         {
-            return SetSchedulerResult.Failed;
+            return AssignSchedulerResult.Fail();
         }
 
         // If we reached this far, we have higher priority than both the current and pending schedulers.
         // If a pending scheduler exists, we can just override it
         if (_pendingScheduler != null)
         {
-            _pendingScheduler = newScheduler;
-            _pendingScheduler.Owner = this;
-            return SetSchedulerResult.Pending;
+            // Inform any interested parties that assigning this scheduler failed
+            // after it spent some time in the pending state and scheduler with
+            // more priority came along
+            _pendingScheduler.Value.Result.SignalFailed();
+
+            AssignSchedulerResult newResult = AssignSchedulerResult.Pending();
+            _pendingScheduler = (newScheduler, newResult);
+            newScheduler.Owner = this;
+            return newResult;
         }
 
         // There wasn't a pending scheduler before, so we cancel the current scheduler to "let it know" there's
@@ -96,14 +106,15 @@ public abstract class Entity : IEntity
         {
             CurrentScheduler = newScheduler;
             CurrentScheduler.Owner = this;
-            return SetSchedulerResult.Success;
+            return AssignSchedulerResult.Success();
         }
 
         // It didn't cancel immediately - means it must do some cleanup action
         // Let's schedule our future scheduler to be set once the old one is done cancelling
-        _pendingScheduler = newScheduler;
-        _pendingScheduler.Owner = this;
-        return SetSchedulerResult.Pending;
+        AssignSchedulerResult result = AssignSchedulerResult.Pending();
+        _pendingScheduler = (newScheduler, result);
+        newScheduler.Owner = this;
+        return result;
     }
 
     public bool InCondition(Condition condition)

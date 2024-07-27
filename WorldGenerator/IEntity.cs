@@ -20,7 +20,7 @@ public interface IEntity
 
     void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 
-    SetSchedulerResult SetScheduler(IScheduler scheduler);
+    IAssignSchedulerResult AssignScheduler(IScheduler scheduler);
 
     bool InCondition(Condition condition);
     void SetCondition(Condition condition);

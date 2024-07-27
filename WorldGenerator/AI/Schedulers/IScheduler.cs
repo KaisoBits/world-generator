@@ -1,9 +1,12 @@
-﻿namespace WorldGenerator.AI;
+﻿using WorldGenerator.AI.Schedulers;
+
+namespace WorldGenerator.AI;
 
 public interface IScheduler
 {
     IEntity? Owner { get; set; }
     SchedulerState State { get; }
+    SchedulerPriority Priority { get; }
 
     void Start();
 
@@ -17,5 +20,5 @@ public interface IScheduler
 
     bool Forget(string memoryName);
 
-    void OnCancel();
+    void Cancel();
 }

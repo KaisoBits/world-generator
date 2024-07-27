@@ -1,6 +1,5 @@
 ﻿using WorldGenerator.Memories;
 using WorldGenerator.Moodlets;
-using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -17,14 +16,6 @@ public class Creature : Entity
 
     public IReadOnlyCollection<CreatureMemory> Memories => _memories;
     private readonly List<CreatureMemory> _memories = [];
-
-    public override void OnSpawn()
-    {
-        base.OnSpawn();
-        AddTrait(new TravelerTrait(new(0.1f)));
-
-        SetState(State.Health, "100");
-    }
 
     public override void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
     {

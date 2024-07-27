@@ -1,6 +1,8 @@
-﻿namespace WorldGenerator.AI;
+﻿using WorldGenerator.AI.Schedulers;
 
-public enum SchedulerState { New, Running, Completed, Failed }
+namespace WorldGenerator.AI;
+
+public enum SchedulerState { New, Running, Completed, Failed, Cancelling, Cancelled }
 
 public abstract class Scheduler : IScheduler
 {
@@ -9,6 +11,8 @@ public abstract class Scheduler : IScheduler
     public IEntity? Owner { get; set; }
 
     public SchedulerState State { get; private set; }
+
+    public virtual SchedulerPriority Priority => SchedulerPriority.Default;
 
     public int CurrentTaskIndex { get; private set; } = -1;
 
@@ -44,7 +48,19 @@ public abstract class Scheduler : IScheduler
         return _memory.Remove(memoryName);
     }
 
-    public virtual void OnCancel() { }
+    protected virtual void OnCancel()
+    {
+        State = SchedulerState.Cancelled;
+    }
+
+    public void Cancel() 
+    {
+        if (State is SchedulerState.Cancelled or SchedulerState.Cancelling)
+            return;
+
+        State = SchedulerState.Cancelling;
+        OnCancel();
+    }
 
     public void Tick()
     {

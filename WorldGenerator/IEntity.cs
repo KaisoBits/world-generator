@@ -1,4 +1,5 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -19,7 +20,7 @@ public interface IEntity
 
     void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 
-    void SetScheduler(IScheduler scheduler);
+    SetSchedulerResult SetScheduler(IScheduler scheduler);
 
     bool InCondition(Condition condition);
     void SetCondition(Condition condition);
@@ -30,4 +31,6 @@ public interface IEntity
     string? GetState(State state);
     int GetStateInt(State state);
     float GetStateFloat(State state);
+
+    void AddTrait(ITrait trait);
 }

@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.Traits;
+
+namespace WorldGenerator;
 
 public class Generator
 {
@@ -40,6 +42,8 @@ public class Generator
         {
             Entity ent = new Creature();
             ent.SetState(State.Name, NameGenerator.GetDwarfName());
+            ent.SetState(State.Health, "100");
+            ent.AddTrait(new TravelerTrait(new(0.1f)));
             world.SpawnEntity(ent, pos);
             result.Add(ent);
         }

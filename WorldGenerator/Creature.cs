@@ -1,6 +1,6 @@
-﻿using WorldGenerator.AI;
-using WorldGenerator.Memories;
+﻿using WorldGenerator.Memories;
 using WorldGenerator.Moodlets;
+using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -21,7 +21,7 @@ public class Creature : Entity
     public override void OnSpawn()
     {
         base.OnSpawn();
-        AddBehaviour(new CitizenBehaviour());
+        AddTrait(new TravelerTrait(new(0.1f)));
 
         SetState(State.Health, "100");
     }

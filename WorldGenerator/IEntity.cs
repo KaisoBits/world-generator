@@ -19,6 +19,8 @@ public interface IEntity
 
     void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 
+    void SetScheduler(IScheduler scheduler);
+
     bool InCondition(Condition condition);
     void SetCondition(Condition condition);
     void ClearCondition(Condition condition);

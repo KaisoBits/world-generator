@@ -1,4 +1,5 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -9,8 +10,8 @@ public abstract class Entity : IEntity
     public IReadOnlyDictionary<State, string> States => _states;
     private readonly Dictionary<State, string> _states = [];
 
-    public IReadOnlyCollection<IBehaviour> Behaviours => _behaviours;
-    private readonly List<IBehaviour> _behaviours = [];
+    public IReadOnlyCollection<ITrait> Traits => _traits;
+    private readonly List<ITrait> _traits = [];
 
     public IScheduler? CurrentScheduler { get; private set; }
 
@@ -24,22 +25,12 @@ public abstract class Entity : IEntity
 
     public virtual void Think()
     {
-        CurrentScheduler?.Tick();
-
-        if (CurrentScheduler == null)
+        foreach (ITrait trait in _traits)
         {
-            foreach (var behaviour in _behaviours)
-            {
-                IScheduler? newScheduler = behaviour.DetermineScheduler(this);
-                if (newScheduler != null)
-                {
-                    CurrentScheduler = newScheduler;
-                    CurrentScheduler.Owner = this;
-                    CurrentScheduler.Start();
-                    CurrentScheduler.Tick();
-                }
-            }
+            trait.Tick();
         }
+
+        CurrentScheduler?.Tick();
 
         if (CurrentScheduler != null)
         {
@@ -54,6 +45,19 @@ public abstract class Entity : IEntity
 
     public virtual void OnSpawn() { }
     public virtual void OnDespawn() { }
+
+    public void SetScheduler(IScheduler? scheduler)
+    {
+        if (CurrentScheduler?.State is SchedulerState.Running or SchedulerState.New)
+            CurrentScheduler.OnCancel();
+
+        CurrentScheduler = scheduler;
+        if (scheduler != null)
+        {
+            scheduler.Owner = this;
+            scheduler.Start();
+        }
+    }
 
     public bool InCondition(Condition condition)
     {
@@ -90,8 +94,9 @@ public abstract class Entity : IEntity
         return float.Parse(_states[state]);
     }
 
-    protected void AddBehaviour(IBehaviour behaviour)
+    protected void AddTrait(ITrait trait)
     {
-        _behaviours.Add(behaviour);
+        _traits.Add(trait);
+        trait.OnGain(this);
     }
 }

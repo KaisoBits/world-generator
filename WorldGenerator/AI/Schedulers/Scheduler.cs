@@ -44,6 +44,8 @@ public abstract class Scheduler : IScheduler
         return _memory.Remove(memoryName);
     }
 
+    public virtual void OnCancel() { }
+
     public void Tick()
     {
         if (State == SchedulerState.Completed)

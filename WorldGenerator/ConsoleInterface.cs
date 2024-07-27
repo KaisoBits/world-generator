@@ -34,8 +34,8 @@ public class ConsoleInterface
 
         Console.WriteLine("AI DEBUG");
 
-        Console.WriteLine("  Behaviours:");
-        foreach (var item in creature.Behaviours)
+        Console.WriteLine("  Traits:");
+        foreach (var item in creature.Traits)
         {
             Console.WriteLine($"    - {item.GetType().Name}");
         }

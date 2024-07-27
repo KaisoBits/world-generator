@@ -16,4 +16,6 @@ public interface IScheduler
     void Remember(string memoryName, object? memoryData);
 
     bool Forget(string memoryName);
+
+    void OnCancel();
 }

@@ -1,4 +1,5 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.States;
 
 namespace WorldGenerator;
 
@@ -15,7 +16,7 @@ public class ConsoleInterface
 
     public void DisplayMoodletsAndMemory(Creature creature)
     {
-        Console.WriteLine($"Creature {creature.GetState(State.Name)} ({creature.MoodLevel})");
+        Console.WriteLine($"Creature {creature.GetState<NameState>()?.Name} ({creature.MoodLevel})");
         Console.WriteLine("---------------------------------------");
 
         Console.WriteLine("Moodlets:");
@@ -67,7 +68,7 @@ public class ConsoleInterface
         foreach (var item in creature.States)
         {
             Console.Write("  ");
-            Console.WriteLine($"- {item.Key}: {item.Value}");
+            Console.WriteLine($"- {item}");
         }
 
         Console.WriteLine("---------------------------------------");

@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.States;
+
+namespace WorldGenerator;
 
 public class Building : Entity
 {
@@ -31,15 +33,15 @@ public class Building : Entity
 
         int creatureCount = CurrentTile.Contents.Count(e => e is Creature);
         if (creatureCount > 0)
-            ClearCondition(Condition.EMPTY);
+            ClearCondition<IsEmptyCondition>();
         else
-            SetCondition(Condition.EMPTY);
+            SetCondition<IsEmptyCondition>();
     }
 
     public static Building EstablishCity(string name)
     {
         Building building = new();
-        building.SetState(State.Name, name);
+        building.SetState(new NameState(NameGenerator.GetFortressName()));
 
         return building;
     }

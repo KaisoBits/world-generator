@@ -1,12 +1,13 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.States;
 using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
 public interface IEntity
 {
-    IReadOnlyCollection<Condition> Conditions { get; }
-    IReadOnlyDictionary<State, string> States { get; }
+    ISet<ICondition> Conditions { get; }
+    IReadOnlyCollection<IState> States { get; }
 
     IScheduler? CurrentScheduler { get; }
 
@@ -22,15 +23,13 @@ public interface IEntity
 
     IAssignSchedulerResult AssignScheduler(IScheduler scheduler);
 
-    bool InCondition(Condition condition);
-    void SetCondition(Condition condition);
-    void ClearCondition(Condition condition);
+    bool InCondition<T>() where T : ICondition;
+    void SetCondition<T>() where T : ICondition;
+    bool ClearCondition<T>() where T : ICondition;
 
-    void SetState(State state, string value);
+    void SetState(IState state);
 
-    string? GetState(State state);
-    int GetStateInt(State state);
-    float GetStateFloat(State state);
+    T? GetState<T>() where T : class, IState;
 
     void AddTrait(ITrait trait);
 }

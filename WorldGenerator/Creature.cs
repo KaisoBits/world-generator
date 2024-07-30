@@ -1,5 +1,6 @@
 ﻿using WorldGenerator.Memories;
 using WorldGenerator.Moodlets;
+using WorldGenerator.States;
 
 namespace WorldGenerator;
 
@@ -26,25 +27,25 @@ public class Creature : Entity
     {
         base.GatherConditions();
 
-        int health = GetStateInt(State.Health);
+        int health = GetState<HealthState>()?.Health ?? 0;
         if (health <= 0)
-            SetCondition(Condition.DEAD);
+            SetCondition<DeadCondition>();
         else
-            ClearCondition(Condition.DEAD);
+            ClearCondition<DeadCondition>();
 
-        ClearCondition(Condition.JUST_ENTERED_BUILDING);
+        ClearCondition<JustEnteredBuildingCondition>();
 
         if (CurrentTile.Contents.Any(e => e.Layer == Layer.Buildings))
         {
-            if (!InCondition(Condition.IN_BUILDING))
+            if (!InCondition<InBuildingCondition>())
             {
-                SetCondition(Condition.IN_BUILDING);
-                SetCondition(Condition.JUST_ENTERED_BUILDING);
+                SetCondition<InBuildingCondition>();
+                SetCondition<JustEnteredBuildingCondition>();
             }
         }
         else
         {
-            ClearCondition(Condition.IN_BUILDING);
+            ClearCondition<InBuildingCondition>();
         }
     }
 
@@ -52,16 +53,16 @@ public class Creature : Entity
     {
         base.Think();
 
-        if (InCondition(Condition.IN_BUILDING))
+        if (InCondition<InBuildingCondition>())
         {
             ApplyMoodlet<InBuildingMoodlet>(World.Instance.CurrentTick + 5);
         }
 
-        if (InCondition(Condition.JUST_ENTERED_BUILDING))
+        if (InCondition<JustEnteredBuildingCondition>())
         {
             IEntity? building = CurrentTile.Contents.FirstOrDefault(e => e is Building);
             if (building != null)
-                Remember(new VisitedBuildingMemory(building.GetState(State.Name) ?? string.Empty));
+                Remember(new VisitedBuildingMemory(building.GetState<NameState>()?.Name ?? string.Empty));
         }
 
         RemoveExpiredMoodlets();

@@ -1,14 +1,17 @@
-﻿using WorldGenerator.AI;
+﻿using System.Runtime.InteropServices;
+using WorldGenerator.AI;
+using WorldGenerator.States;
 using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
 public abstract class Entity : IEntity
 {
-    public IReadOnlyCollection<Condition> Conditions => _conditions;
-    private readonly HashSet<Condition> _conditions = [];
-    public IReadOnlyDictionary<State, string> States => _states;
-    private readonly Dictionary<State, string> _states = [];
+    public ISet<ICondition> Conditions => _conditions;
+    private readonly HashSet<ICondition> _conditions = [];
+
+    public IReadOnlyCollection<IState> States => _states.Values;
+    private readonly Dictionary<Type, IState> _states = [];
 
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
@@ -117,39 +120,29 @@ public abstract class Entity : IEntity
         return result;
     }
 
-    public bool InCondition(Condition condition)
+    public bool InCondition<T>() where T : ICondition
     {
-        return _conditions.Contains(condition);
+        return _conditions.Contains(T.Instance);
     }
 
-    public void SetCondition(Condition condition)
+    public void SetCondition<T>() where T : ICondition
     {
-        _conditions.Add(condition);
+        _conditions.Add(T.Instance);
     }
 
-    public void ClearCondition(Condition condition)
+    public bool ClearCondition<T>() where T : ICondition
     {
-        _conditions.Remove(condition);
+        return _conditions.Remove(T.Instance);
     }
 
-    public void SetState(State state, string value)
+    public void SetState(IState state)
     {
-        _states[state] = value;
+        _states[state.GetType()] = state;
     }
 
-    public string? GetState(State state)
+    public T? GetState<T>() where T : class, IState
     {
-        return _states.GetValueOrDefault(state);
-    }
-
-    public int GetStateInt(State state)
-    {
-        return int.Parse(_states[state]);
-    }
-
-    public float GetStateFloat(State state)
-    {
-        return float.Parse(_states[state]);
+        return _states.GetValueOrDefault(typeof(T)) as T;
     }
 
     public void AddTrait(ITrait trait)

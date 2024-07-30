@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.States;
+
+namespace WorldGenerator;
 
 public class BuildingEstablishedEvent : GameEvent
 {
@@ -8,6 +10,6 @@ public class BuildingEstablishedEvent : GameEvent
 
     public BuildingEstablishedEvent(Building building)
     {
-        SetParameter("BUILDING_NAME", building.GetState(State.Name));
+        SetParameter("BUILDING_NAME", building.GetState<NameState>()?.Name);
     }
 }

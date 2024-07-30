@@ -1,4 +1,5 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.States;
 
 namespace WorldGenerator.Traits;
 
@@ -20,7 +21,7 @@ public class TravelerTrait : Trait<TravelerTrait.Data>
         if (!shouldTravel)
             return;
         
-        if (creature.InCondition(Condition.IN_BUILDING))
+        if (creature.InCondition<InBuildingCondition>())
             creature.AssignScheduler(new GoToRandomBuildingScheduler());
         else
             creature.AssignScheduler(new GoToNearestBuildingScheduler());

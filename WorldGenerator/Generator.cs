@@ -1,4 +1,5 @@
-﻿using WorldGenerator.Traits;
+﻿using WorldGenerator.States;
+using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -41,8 +42,8 @@ public class Generator
         foreach (Position pos in buildingPositions)
         {
             Entity ent = new Creature();
-            ent.SetState(State.Name, NameGenerator.GetDwarfName());
-            ent.SetState(State.Health, "100");
+            ent.SetState(new NameState(NameGenerator.GetDwarfName()));
+            ent.SetState(new HealthState(100));
             ent.AddTrait(new TravelerTrait(new(0.1f)));
             world.SpawnEntity(ent, pos);
             result.Add(ent);

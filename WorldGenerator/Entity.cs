@@ -19,7 +19,7 @@ public abstract class Entity : IEntity
     public IScheduler? CurrentScheduler { get; private set; }
     private (IScheduler Scheduler, AssignSchedulerResult Result)? _pendingScheduler;
 
-    public Position Position { get; internal set; }
+    public Vector Position { get; internal set; }
 
     public ITileView CurrentTile => World.Instance[Position];
 

@@ -13,14 +13,14 @@ public class Generator
 
     private List<Building> GenerateBuildings(int count, World world)
     {
-        Position[] emptyPositions = GetEmptyPositions(world);
+        Vector[] emptyPositions = GetEmptyPositions(world);
         if (emptyPositions is [])
             return [];
 
-        Position[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
+        Vector[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
         List<Building> result = [];
 
-        foreach (Position pos in buildingPositions)
+        foreach (Vector pos in buildingPositions)
         {
             Building building = Building.EstablishCity(NameGenerator.GetFortressName());
             world.SpawnEntity(building, pos);
@@ -32,14 +32,14 @@ public class Generator
 
     private List<Entity> GenerateCitizens(int count, World world)
     {
-        Position[] emptyPositions = GetEmptyPositions(world);
+        Vector[] emptyPositions = GetEmptyPositions(world);
         if (emptyPositions is [])
             return [];
 
-        Position[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
+        Vector[] buildingPositions = Random.Shared.GetItems(emptyPositions, count);
         List<Entity> result = [];
 
-        foreach (Position pos in buildingPositions)
+        foreach (Vector pos in buildingPositions)
         {
             Entity ent = new Creature();
             ent.SetState(new NameState(NameGenerator.GetDwarfName()));
@@ -52,9 +52,9 @@ public class Generator
         return result;
     }
 
-    private Position[] GetEmptyPositions(World world)
+    private Vector[] GetEmptyPositions(World world)
     {
-        Position[] positions = world
+        Vector[] positions = world
             .Where(t => t.Contents is [])
             .Select(t => t.Position)
             .ToArray();

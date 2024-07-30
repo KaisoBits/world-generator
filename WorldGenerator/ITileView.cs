@@ -2,6 +2,6 @@
 
 public interface ITileView
 {
-    Position Position { get; }
+    Vector Position { get; }
     IReadOnlyList<IEntity> Contents { get; }
 }

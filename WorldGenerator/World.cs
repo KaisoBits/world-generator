@@ -14,7 +14,7 @@ public class World : IReadOnlyCollection<ITileView>
     private readonly Tile[] _tiles;
     public int Count => _tiles.Length;
 
-    private List<(IEntity entity, Position moveTo)> _moveSchedule = [];
+    private readonly List<(IEntity Entity, Vector MoveTo)> _moveSchedule = [];
 
     private World(int x, int y)
     {
@@ -50,7 +50,7 @@ public class World : IReadOnlyCollection<ITileView>
         get => GetTileAt(x, y);
     }
 
-    public ITileView this[Position position]
+    public ITileView this[Vector position]
     {
         get => GetTileAt(position);
     }
@@ -62,7 +62,7 @@ public class World : IReadOnlyCollection<ITileView>
         Instance = world;
     }
 
-    public void SpawnEntity(Entity entity, Position position)
+    public void SpawnEntity(Entity entity, Vector position)
     {
         GetTileAt(position).AddEntity(entity);
         entity.Position = position;
@@ -70,12 +70,12 @@ public class World : IReadOnlyCollection<ITileView>
         entity.OnSpawn();
     }
 
-    public void ScheduleMoveEntity(IEntity entity, Position targetPosition)
+    public void ScheduleMoveEntity(IEntity entity, Vector targetPosition)
     {
         _moveSchedule.Add((entity, targetPosition));
     }
 
-    private void MoveEntity(IEntity entity, Position targetPosition)
+    private void MoveEntity(IEntity entity, Vector targetPosition)
     {
         if (entity.Position == targetPosition)
             return;
@@ -96,7 +96,7 @@ public class World : IReadOnlyCollection<ITileView>
         return GetEnumerator();
     }
 
-    private Tile GetTileAt(Position position)
+    private Tile GetTileAt(Vector position)
     {
         return GetTileAt(position.X, position.Y);
     }

@@ -18,7 +18,7 @@ public class FindRandomEntityPosition : ISchedulerTask
         if (_scheduler.Owner == null)
             return SchedulerTaskResult.Failed;
 
-        Position pos = _scheduler.Owner.Position;
+        Vector pos = _scheduler.Owner.Position;
 
         ITileView[] tiles = World.Instance
             .Where(t => t.Contents.Any(e => e.Layer == _layer)).ToArray();

@@ -12,7 +12,7 @@ public interface IEntity
     IScheduler? CurrentScheduler { get; }
 
     Layer Layer { get; }
-    public Position Position { get; }
+    public Vector Position { get; }
 
     ITileView CurrentTile { get; }
 

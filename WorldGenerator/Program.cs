@@ -35,14 +35,14 @@ while (window.IsOpen)
 {
     window.DispatchEvents();
 
-    window.Clear(new Color(135, 206, 235));
-
     if (sw.Elapsed >= TimeSpan.FromSeconds(0.3))
     {
+        sw.Restart();
+
+        window.Clear(new Color(135, 206, 235));
+
         if (running)
             World.Instance.Tick();
-
-        sw.Restart();
 
         Console.Clear();
         Console.WriteLine("Running: " + running);

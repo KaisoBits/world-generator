@@ -3,9 +3,9 @@
 public class ApproachPosition : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
-    private readonly Position _targetPosition;
+    private readonly Vector _targetPosition;
 
-    public ApproachPosition(IScheduler scheduler, Position targetPosition)
+    public ApproachPosition(IScheduler scheduler, Vector targetPosition)
     {
         _scheduler = scheduler;
         _targetPosition = targetPosition;
@@ -16,21 +16,21 @@ public class ApproachPosition : ISchedulerTask
         if (_scheduler.Owner == null)
             return SchedulerTaskResult.Failed;
 
-        Position currentPos = _scheduler.Owner.Position;
-        Position offset = _targetPosition - currentPos;
+        Vector currentPos = _scheduler.Owner.Position;
+        Vector offset = _targetPosition - currentPos;
 
-        if (offset == Position.Zero)
+        if (offset == Vector.Zero)
             return SchedulerTaskResult.Completed;
 
-        Position newPos;
+        Vector newPos;
         if (Math.Abs(offset.X) > Math.Abs(offset.Y))
         {
-            newPos = currentPos + new Position(offset.X / Math.Abs(offset.X), 0);
+            newPos = currentPos + new Vector(offset.X / Math.Abs(offset.X), 0);
             World.Instance.ScheduleMoveEntity(_scheduler.Owner, newPos);
         }
         else
         {
-            newPos = currentPos + new Position(0, offset.Y / Math.Abs(offset.Y));
+            newPos = currentPos + new Vector(0, offset.Y / Math.Abs(offset.Y));
             World.Instance.ScheduleMoveEntity(_scheduler.Owner, newPos);
         }
 

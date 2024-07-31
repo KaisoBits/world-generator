@@ -2,5 +2,5 @@
 
 public interface IRenderer
 {
-    void RenderWorld(World world);
+    void Render();
 }

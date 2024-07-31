@@ -1,11 +1,12 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 
 namespace WorldGenerator;
 
-public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
+public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, IDisposable
 {
-    private readonly RenderTarget _target;
+    private readonly RenderWindow _window;
 
     private readonly Sprite _grass = new(new Texture("grass.png"));
     private readonly Sprite _castle = new(new Texture("village.png"));
@@ -13,21 +14,38 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
     private readonly Sprite _mountain = new(new Texture("stone.png"));
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
+    private readonly World _world;
 
-    public SfmlRenderer(RenderTarget target)
+    public SfmlRenderer(World world)
     {
-        _target = target;
+        _world = world;
+
+        _window = new(new VideoMode((uint)world.Width * 32, (uint)world.Height * 32), "World generator");
+        _window.Closed += (s, e) => _window.Close();
+        _window.Resized += (s, e) => _window.SetView(new View(new Vector2f(e.Width / 2, e.Height / 2), new Vector2f(e.Width, e.Height)));
     }
 
-    public void RenderWorld(World world)
+    public void Dispose()
     {
-        foreach (ITileView tile in world)
+        _window.Dispose();
+        _grass.Dispose();
+        _castle.Dispose();
+        _dwarf.Dispose();
+        _mountain.Dispose();
+    }
+
+    public void Render()
+    {
+        _window.Clear(new Color(135, 206, 235));
+        _window.DispatchEvents();
+
+        foreach (ITileView tile in _world)
         {
             Transform t = Transform.Identity;
             t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
             RenderStates rs = new(t);
 
-            _target.Draw(_grass, rs);
+            _window.Draw(_grass, rs);
 
             foreach (IEntity entity in tile.Contents)
             {
@@ -44,21 +62,22 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
             entity.AcceptRenderer(this, rs);
         }
 
+        _window.Display();
         _renderList.Clear();
     }
 
     public void VisitBuilding(IEntity building, RenderStates states)
     {
-        _target.Draw(_castle, states);
+        _window.Draw(_castle, states);
     }
 
     public void VisitCreature(IEntity creature, RenderStates states)
     {
-        _target.Draw(_dwarf, states);
+        _window.Draw(_dwarf, states);
     }
 
     public void VisitMountain(IEntity ground, RenderStates states)
     {
-        _target.Draw(_mountain, states);
+        _window.Draw(_mountain, states);
     }
 }

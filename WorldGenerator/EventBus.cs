@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator;
 
-public static class EventBus
+public class EventBus
 {
     public static IReadOnlyList<GameEvent> EventList => _events;
     private static readonly List<GameEvent> _events = [];
@@ -8,7 +8,7 @@ public static class EventBus
     private static int _currSubIndex = 1;
     private static readonly List<Subscription> _subscribers = [];
 
-    public static void PublishEvent(GameEvent ev)
+    public void PublishEvent(GameEvent ev)
     {
         _events.Add(ev);
 
@@ -16,7 +16,7 @@ public static class EventBus
             sub.Callback(ev);
     }
 
-    public static Subscription Subscribe<T>(Action<T> callback) where T : GameEvent
+    public Subscription Subscribe<T>(Action<T> callback) where T : GameEvent
     {
         Subscription sub = new(_currSubIndex++, typeof(T), (GameEvent ev) => callback((T)ev));
 
@@ -25,7 +25,7 @@ public static class EventBus
         return sub;
     }
 
-    public static void Unsubscribe(Subscription subscription)
+    public void Unsubscribe(Subscription subscription)
     {
         _subscribers.Remove(subscription);
     }
@@ -46,7 +46,7 @@ public readonly struct Subscription : IEquatable<Subscription>
 
     public void Unsubscribe()
     {
-        EventBus.Unsubscribe(this);
+        //EventBus.Unsubscribe(this);
     }
 
     public override bool Equals(object? obj) => obj is Subscription other && Equals(other);

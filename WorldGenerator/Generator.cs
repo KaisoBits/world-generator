@@ -1,17 +1,28 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.Factories;
+
+namespace WorldGenerator;
 
 public class Generator
 {
-    public List<IEntity> PopulateWorld(World world, int buildingCount, int citizenCount)
-    {
-        _ = GenerateBuildings(buildingCount, world);
+    private readonly World _world;
+    private readonly EntityFactory _entityFactory;
 
-        return GenerateCitizens(citizenCount, world);
+    public Generator(World world, EntityFactory entityFactory)
+    {
+        _world = world;
+        _entityFactory = entityFactory;
     }
 
-    private List<IEntity> GenerateBuildings(int count, World world)
+    public List<IEntity> PopulateWorld(int buildingCount, int citizenCount)
     {
-        Vector[] emptyPositions = GetEmptyPositions(world);
+        _ = GenerateBuildings(buildingCount);
+
+        return GenerateCitizens(citizenCount);
+    }
+
+    private List<IEntity> GenerateBuildings(int count)
+    {
+        Vector[] emptyPositions = GetEmptyPositions(_world);
         if (emptyPositions is [])
             return [];
 
@@ -20,17 +31,17 @@ public class Generator
 
         foreach (Vector pos in buildingPositions)
         {
-            Entity building = Factory.CreateFromName("fortress");
-            world.SpawnEntity(building, pos);
+            Entity building = _entityFactory.CreateFromName("fortress");
+            _world.SpawnEntity(building, pos);
             result.Add(building);
         }
 
         return result;
     }
 
-    private List<IEntity> GenerateCitizens(int count, World world)
+    private List<IEntity> GenerateCitizens(int count)
     {
-        Vector[] emptyPositions = GetEmptyPositions(world);
+        Vector[] emptyPositions = GetEmptyPositions(_world);
         if (emptyPositions is [])
             return [];
 
@@ -39,8 +50,8 @@ public class Generator
 
         foreach (Vector pos in buildingPositions)
         {
-            Entity ent = Factory.CreateFromName("dwarf");
-            world.SpawnEntity(ent, pos);
+            Entity ent = _entityFactory.CreateFromName("dwarf");
+            _world.SpawnEntity(ent, pos);
             result.Add(ent);
         }
 

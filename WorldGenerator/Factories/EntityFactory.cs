@@ -1,19 +1,29 @@
-﻿using WorldGenerator.RenderActors;
+﻿using Microsoft.Extensions.DependencyInjection;
+using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
-namespace WorldGenerator;
+namespace WorldGenerator.Factories;
 
-public class Factory
+public sealed class EntityFactory
 {
-    // Placeholder
-    public static Entity CreateFromName(string name)
+    private readonly IServiceProvider _serviceProvider;
+    private readonly TraitFactory _traitFactory;
+
+    public EntityFactory(IServiceProvider serviceProvider, TraitFactory traitFactory)
     {
-        Entity result = new();
+        _serviceProvider = serviceProvider;
+        _traitFactory = traitFactory;
+    }
+
+    // Placeholder
+    public Entity CreateFromName(string name)
+    {
+        Entity result = ActivatorUtilities.CreateInstance<Entity>(_serviceProvider);
         switch (name)
         {
             case "dwarf":
-                result.AddTrait(new DwarfTrait(new DwarfTrait.Data(0.1f)));
+                result.AddTrait(_traitFactory.CreateTrait<DwarfTrait>());
                 result.SetState(new HealthState(100));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
                 result.Layer = Layer.Creatures;

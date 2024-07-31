@@ -1,10 +1,19 @@
-﻿namespace WorldGenerator.AI;
+﻿using WorldGenerator.Factories;
+
+namespace WorldGenerator.AI;
 
 public class GoToNearestBuildingScheduler : Scheduler
 {
+    private readonly SchedulerTaskFactory _schedulerTaskFactory;
+
+    public GoToNearestBuildingScheduler(SchedulerTaskFactory schedulerTaskFactory)
+    {
+        _schedulerTaskFactory = schedulerTaskFactory;
+    }
+
     public override IEnumerable<ISchedulerTask> GetTasks()
     {
-        yield return new FindEntityPosition(this, Layer.Buildings, "targetPosition");
-        yield return new ApproachPosition(this, (Vector)Recall("targetPosition")!);
+        yield return _schedulerTaskFactory.CreateTask<FindEntityPositionTask>(this).WithData(Layer.Buildings, "targetPosition");
+        yield return _schedulerTaskFactory.CreateTask<ApproachPosition>(this).WithData((Vector)Recall("targetPosition")!);
     }
 }

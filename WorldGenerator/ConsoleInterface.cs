@@ -11,7 +11,7 @@ public class ConsoleInterface
         foreach (var item in listBottom)
             Console.WriteLine(item);
 
-        Subscription sub = EventBus.Subscribe<GameEvent>(Console.WriteLine);
+        //Subscription sub = EventBus.Subscribe<GameEvent>(Console.WriteLine);
     }
 
     public void DisplayMoodletsAndMemory(IEntity creature)

@@ -6,8 +6,6 @@ public class World : IReadOnlyCollection<ITileView>
 {
     public int CurrentTick { get; private set; }
 
-    public static World Instance { get; private set; } = default!;
-
     public int Width { get; }
     public int Height { get; }
 
@@ -55,11 +53,9 @@ public class World : IReadOnlyCollection<ITileView>
         get => GetTileAt(position);
     }
 
-    public static void CreateWorld(int width, int height)
+    public static World CreateWorld(int width, int height)
     {
-        World world = new(width, height);
-
-        Instance = world;
+        return new(width, height);
     }
 
     public void SpawnEntity(Entity entity, Vector position)

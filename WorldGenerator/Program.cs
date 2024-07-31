@@ -1,54 +1,25 @@
-﻿using System.Diagnostics;
-using SFML.Graphics;
-using SFML.System;
-using SFML.Window;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using WorldGenerator;
+using WorldGenerator.Factories;
 
 const int worldX = 40;
 const int worldY = 30;
 
-bool running = true;
+HostApplicationBuilder builder = Host.CreateApplicationBuilder();
+builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));
+builder.Services.AddScoped<EventBus>();
 
-RenderWindow window = new(new VideoMode(worldX * 32, worldY * 32), "World generator");
-window.Closed += (s, e) => window.Close();
-window.Resized += (s, e) => window.SetView(new View(new Vector2f(e.Width / 2, e.Height / 2), new Vector2f(e.Width, e.Height)));
-window.MouseButtonPressed += (s, e) =>
-{
-    if (e.Button == Mouse.Button.Left)
-        running = !running;
-};
+builder.Services.AddScoped<EntityFactory>();
+builder.Services.AddScoped<TraitFactory>();
+builder.Services.AddScoped<SchedulerFactory>();
+builder.Services.AddScoped<SchedulerTaskFactory>();
 
-World.CreateWorld(worldX, worldY);
+builder.Services.AddScoped<Generator>();
+builder.Services.AddScoped<IRenderer, SfmlRenderer>();
 
-Generator wg = new();
-List<IEntity> entities = wg.PopulateWorld(World.Instance, 10, 10);
+builder.Services.AddHostedService<GameHostedService>();
 
-ConsoleInterface ci = new();
-//ci.StartDisplayingEvents();
+using IHost app = builder.Build();
+app.Run();
 
-IRenderer renderer = new SfmlRenderer(window);
-
-Stopwatch sw = new();
-sw.Start();
-
-while (window.IsOpen)
-{
-    window.DispatchEvents();
-
-    if (sw.Elapsed >= TimeSpan.FromSeconds(0.3))
-    {
-        sw.Restart();
-
-        window.Clear(new Color(135, 206, 235));
-
-        if (running)
-            World.Instance.Tick();
-
-        Console.Clear();
-        Console.WriteLine("Running: " + running);
-        //ci.DisplayMoodletsAndMemory(entities.OfType<Creature>().First());
-    }
-
-    renderer.RenderWorld(World.Instance);
-    window.Display();
-}

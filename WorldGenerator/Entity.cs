@@ -15,6 +15,7 @@ public sealed class Entity : IEntity
 
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
+    private readonly World _world;
 
     public IRenderActor? RenderActor { get; set; }
 
@@ -23,10 +24,15 @@ public sealed class Entity : IEntity
 
     public Vector Position { get; internal set; }
 
-    public ITileView CurrentTile => World.Instance[Position];
+    public ITileView CurrentTile => _world[Position];
 
     public Layer Layer { get; set; }
     public bool IsSpawned { get; private set; }
+
+    public Entity(World world)
+    {
+        _world = world;
+    }
 
     public void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
     {

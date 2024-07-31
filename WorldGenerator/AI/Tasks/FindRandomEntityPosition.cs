@@ -2,15 +2,23 @@
 
 public class FindRandomEntityPosition : ISchedulerTask
 {
+    private readonly World _world;
     private readonly IScheduler _scheduler;
-    private readonly Layer _layer;
-    private readonly string _positionMemory;
+    private Layer _layer = default!;
+    private string _positionMemory = default!;
 
-    public FindRandomEntityPosition(IScheduler parent, Layer layer, string positionMemory)
+    public FindRandomEntityPosition(World world, IScheduler parent)
     {
+        _world = world;
         _scheduler = parent;
+    }
+
+    public FindRandomEntityPosition WithData(Layer layer, string positionMemory)
+    {
         _layer = layer;
         _positionMemory = positionMemory;
+
+        return this;
     }
 
     public SchedulerTaskResult Tick()
@@ -20,7 +28,7 @@ public class FindRandomEntityPosition : ISchedulerTask
 
         Vector pos = _scheduler.Owner.Position;
 
-        ITileView[] tiles = World.Instance
+        ITileView[] tiles = _world
             .Where(t => t.Contents.Any(e => e.Layer == _layer)).ToArray();
 
         if (tiles is [])

@@ -1,16 +1,24 @@
 ﻿namespace WorldGenerator.AI;
 
-public class FindEntityPosition : ISchedulerTask
+public class FindEntityPositionTask : ISchedulerTask
 {
+    private readonly World _world;
     private readonly IScheduler _scheduler;
-    private readonly Layer _layer;
-    private readonly string _positionMemory;
+    private Layer _layer = default!;
+    private string _positionMemory = default!;
 
-    public FindEntityPosition(IScheduler parent, Layer layer, string positionMemory)
+    public FindEntityPositionTask(World world, IScheduler parent)
     {
+        _world = world;
         _scheduler = parent;
+    }
+
+    public FindEntityPositionTask WithData(Layer layer, string positionMemory)
+    {
         _layer = layer;
         _positionMemory = positionMemory;
+
+        return this;
     }
 
     public SchedulerTaskResult Tick()
@@ -20,7 +28,7 @@ public class FindEntityPosition : ISchedulerTask
 
         Vector pos = _scheduler.Owner.Position;
 
-        IEnumerable<ITileView> tiles = World.Instance
+        IEnumerable<ITileView> tiles = _world
             .Where(t => t.Contents.Any(e => e.Layer == _layer));
         ITileView? closestTile = tiles.MinBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y));
 

@@ -3,12 +3,6 @@
 public abstract class Trait<TData> : ITrait
 {
     public IEntity Owner { get; private set; } = default!;
-    public TData TraitData { get; }
-
-    protected Trait(TData data)
-    {
-        TraitData = data;
-    }
 
     public void Gain(IEntity owner) 
     {
@@ -16,6 +10,7 @@ public abstract class Trait<TData> : ITrait
 
         OnGain();
     }
+
     protected virtual void OnGain() { }
 
     public virtual void OnSpawn() { }

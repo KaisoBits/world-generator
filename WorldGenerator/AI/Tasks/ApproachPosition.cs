@@ -3,12 +3,20 @@
 public class ApproachPosition : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
-    private readonly Vector _targetPosition;
+    private readonly World _world;
+    private Vector _targetPosition;
 
-    public ApproachPosition(IScheduler scheduler, Vector targetPosition)
+    public ApproachPosition(IScheduler scheduler, World world)
     {
         _scheduler = scheduler;
+        _world = world;
+    }
+
+    public ApproachPosition WithData(Vector targetPosition)
+    {
         _targetPosition = targetPosition;
+
+        return this;
     }
 
     public SchedulerTaskResult Tick()
@@ -26,12 +34,12 @@ public class ApproachPosition : ISchedulerTask
         if (Math.Abs(offset.X) > Math.Abs(offset.Y))
         {
             newPos = currentPos + new Vector(offset.X / Math.Abs(offset.X), 0);
-            World.Instance.ScheduleMoveEntity(_scheduler.Owner, newPos);
+            _world.ScheduleMoveEntity(_scheduler.Owner, newPos);
         }
         else
         {
             newPos = currentPos + new Vector(0, offset.Y / Math.Abs(offset.Y));
-            World.Instance.ScheduleMoveEntity(_scheduler.Owner, newPos);
+            _world.ScheduleMoveEntity(_scheduler.Owner, newPos);
         }
 
         if (_targetPosition == newPos)

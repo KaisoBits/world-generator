@@ -31,13 +31,18 @@ public class GameHostedService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            _renderer.Update();
 
             if (sw.Elapsed >= TimeSpan.FromSeconds(0.3))
             {
                 sw.Restart();
 
                 if (_running)
+                {
                     _world.Tick();
+                }
+
+                _renderer.Render();
 
                 Console.Clear();
                 Console.WriteLine("Running: " + _running);

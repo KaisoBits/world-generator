@@ -36,10 +36,14 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
         _mountain.Dispose();
     }
 
+    public void Update()
+    {
+        _window.DispatchEvents();
+    }
+
     public void Render()
     {
         _window.Clear(new Color(135, 206, 235));
-        _window.DispatchEvents();
 
         foreach (ITileView tile in _world)
         {

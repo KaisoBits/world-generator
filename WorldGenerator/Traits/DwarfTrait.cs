@@ -1,6 +1,7 @@
 ﻿using WorldGenerator.AI;
 using WorldGenerator.EntityExtensions;
 using WorldGenerator.Factories;
+using WorldGenerator.Memories;
 using WorldGenerator.Moodlets;
 using WorldGenerator.States;
 
@@ -51,6 +52,15 @@ public sealed class DwarfTrait : Trait<DwarfTrait.Data>
     {
         if (Owner.InCondition<InBuildingCondition>())
             Owner.GetExtension<MoodExtension>().ApplyMoodlet<InBuildingMoodlet>(_world.CurrentTick + 5);
+
+        if (Owner.InCondition<JustEnteredBuildingCondition>())
+        {
+            Owner.GetExtension<MemoryExtension>().Remember(
+                new VisitedBuildingMemory(
+                    Owner.CurrentTile.Contents
+                    .FirstOrDefault(c => c.Layer == Layer.Buildings)
+                    ?.GetState<NameState>()?.Name ?? string.Empty));
+        }
 
         if (Owner.CurrentScheduler != null)
             return;

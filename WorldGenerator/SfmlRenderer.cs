@@ -12,7 +12,7 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
     private readonly Sprite _grass = new(new Texture("Resources/grass.png"));
     private readonly Sprite _castle = new(new Texture("Resources/village.png"));
     private readonly Sprite _dwarf = new(new Texture("Resources/dwarf.png"));
-    private readonly Sprite _mountain = new(new Texture("Resources/stone.png"));
+    private readonly Sprite _mountain = new(new Texture("Resources/mountain.png"));
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
     private readonly World _world;

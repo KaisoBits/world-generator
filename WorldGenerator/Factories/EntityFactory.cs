@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿
+using Microsoft.Extensions.DependencyInjection;
 using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
@@ -33,6 +34,10 @@ public sealed class EntityFactory
                 result.SetState(new NameState(NameGenerator.GetFortressName()));
                 result.Layer = Layer.Buildings;
                 result.RenderActor = BuildingRenderActor.Instance;
+                break;
+            case "mountain":
+                result.Layer = Layer.Ground;
+                result.RenderActor = MountainRenderActor.Instance;
                 break;
             default:
                 throw new Exception("Unknown entity type " + name);

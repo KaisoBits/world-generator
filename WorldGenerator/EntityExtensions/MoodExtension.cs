@@ -17,7 +17,7 @@ public class MoodExtension : EntityExtension
     }
     private int _moodLevel;
 
-    public IReadOnlyList<Moodlet> Moodlet => _moodlets;
+    public IReadOnlyList<Moodlet> Moodlets => _moodlets;
     private readonly List<Moodlet> _moodlets = [];
 
     private readonly World _world;

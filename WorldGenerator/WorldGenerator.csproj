@@ -13,16 +13,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="dwarf.png">
+    <None Update="Resources\dwarf.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="grass.png">
+    <None Update="Resources\grass.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="stone.png">
+    <None Update="Resources\stone.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="village.png">
+    <None Update="Resources\village.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

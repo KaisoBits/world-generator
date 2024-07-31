@@ -1,5 +1,4 @@
-﻿using WorldGenerator.AI.Tasks;
-using WorldGenerator.Factories;
+﻿using WorldGenerator.Factories;
 
 namespace WorldGenerator.AI;
 

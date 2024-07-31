@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.AI.Schedulers;
+﻿namespace WorldGenerator.AI;
 
 public enum SchedulerPriority
 {

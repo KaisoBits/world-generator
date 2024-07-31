@@ -2,7 +2,7 @@
 
 namespace WorldGenerator;
 
-public abstract class GameEvent
+public abstract partial class GameEvent
 {
     public abstract EventType Type { get; }
     public virtual string? Message { get; }
@@ -19,7 +19,7 @@ public abstract class GameEvent
         if (Message == null)
             return $"[{Type}]";
 
-        MatchCollection templates = Regex.Matches(Message, @"{(.*?)}");
+        MatchCollection templates = TemplateRegex().Matches(Message);
 
         string msg = Message;
         foreach (Match param in templates.Reverse())
@@ -33,4 +33,7 @@ public abstract class GameEvent
 
         return $"[{Type}] {msg}";
     }
+
+    [GeneratedRegex(@"{(.*?)}")]
+    private static partial Regex TemplateRegex();
 }

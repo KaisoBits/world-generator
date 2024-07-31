@@ -1,6 +1,4 @@
-﻿using WorldGenerator.AI.Schedulers;
-
-namespace WorldGenerator.AI;
+﻿namespace WorldGenerator.AI;
 
 public enum SchedulerState { New, Running, Completed, Failed, Cancelling, Cancelled }
 

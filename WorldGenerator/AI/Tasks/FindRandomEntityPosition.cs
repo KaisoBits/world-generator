@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.AI.Tasks;
+﻿namespace WorldGenerator.AI;
 
 public class FindRandomEntityPosition : ISchedulerTask
 {

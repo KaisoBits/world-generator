@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator;
+﻿namespace WorldGenerator.AI;
 
 public enum AssignSchedulerResultType { Success, Pending, Failed }
 

@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using Microsoft.Extensions.Hosting;
+using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
@@ -8,20 +9,21 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
 {
     private readonly RenderWindow _window;
 
-    private readonly Sprite _grass = new(new Texture("grass.png"));
-    private readonly Sprite _castle = new(new Texture("village.png"));
-    private readonly Sprite _dwarf = new(new Texture("dwarf.png"));
-    private readonly Sprite _mountain = new(new Texture("stone.png"));
+    private readonly Sprite _grass = new(new Texture("Resources/grass.png"));
+    private readonly Sprite _castle = new(new Texture("Resources/village.png"));
+    private readonly Sprite _dwarf = new(new Texture("Resources/dwarf.png"));
+    private readonly Sprite _mountain = new(new Texture("Resources/stone.png"));
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
     private readonly World _world;
+    private readonly IHostApplicationLifetime _lifetime;
 
-    public SfmlRenderer(World world)
+    public SfmlRenderer(World world, IHostApplicationLifetime lifetime)
     {
         _world = world;
-
+        _lifetime = lifetime;
         _window = new(new VideoMode((uint)world.Width * 32, (uint)world.Height * 32), "World generator");
-        _window.Closed += (s, e) => _window.Close();
+        _window.Closed += (s, e) => _lifetime.StopApplication();
         _window.Resized += (s, e) => _window.SetView(new View(new Vector2f(e.Width / 2, e.Height / 2), new Vector2f(e.Width, e.Height)));
     }
 

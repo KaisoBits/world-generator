@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator.Memories;
 
-public class VisitedBuildingMemory : CreatureMemory
+public class VisitedBuildingMemory : EntityMemory
 {
     private readonly string _buildingName;
 

@@ -7,22 +7,23 @@ public class GameHostedService : BackgroundService
 {
     private readonly World _world;
     private readonly Generator _generator;
+    private readonly ConsoleInterface _consoleInterface;
     private readonly IRenderer _renderer;
 
     bool _running = true;
 
-    public GameHostedService(World world, Generator generator, IRenderer renderer)
+    public GameHostedService(World world, Generator generator, ConsoleInterface consoleInterface, IRenderer renderer)
     {
         _world = world;
         _generator = generator;
+        _consoleInterface = consoleInterface;
         _renderer = renderer;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _generator.PopulateWorld(10, 10);
+        List<IEntity> entities = _generator.PopulateWorld(10, 10);
 
-        ConsoleInterface ci = new();
         //ci.StartDisplayingEvents();
 
         Stopwatch sw = new();
@@ -40,7 +41,7 @@ public class GameHostedService : BackgroundService
 
                 Console.Clear();
                 Console.WriteLine("Running: " + _running);
-                //ci.DisplayMoodletsAndMemory(entities.OfType<Creature>().First());
+                _consoleInterface.DisplayMoodletsAndMemory(entities.First());
             }
 
             _renderer.Render();

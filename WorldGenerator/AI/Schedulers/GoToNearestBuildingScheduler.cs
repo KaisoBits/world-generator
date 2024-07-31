@@ -14,6 +14,6 @@ public class GoToNearestBuildingScheduler : Scheduler
     public override IEnumerable<ISchedulerTask> GetTasks()
     {
         yield return _schedulerTaskFactory.CreateTask<FindEntityPositionTask>(this).WithData(Layer.Buildings, "targetPosition");
-        yield return _schedulerTaskFactory.CreateTask<ApproachPosition>(this).WithData((Vector)Recall("targetPosition")!);
+        yield return _schedulerTaskFactory.CreateTask<ApproachPosition>(this).WithData(Recall<Vector>("targetPosition")!);
     }
 }

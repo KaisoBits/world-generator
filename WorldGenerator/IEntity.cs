@@ -1,4 +1,6 @@
-﻿using WorldGenerator.AI;
+﻿using System.Diagnostics.CodeAnalysis;
+using WorldGenerator.AI;
+using WorldGenerator.EntityExtensions;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -35,4 +37,8 @@ public interface IEntity
     T? GetState<T>() where T : class, IState;
 
     void AddTrait(ITrait trait);
+
+    void EnableExtension<T>() where T : IEntityExtension;
+    T GetExtension<T>() where T : IEntityExtension;
+    bool TryGetExtension<T>([NotNullWhen(true)] out T? extension) where T : IEntityExtension;
 }

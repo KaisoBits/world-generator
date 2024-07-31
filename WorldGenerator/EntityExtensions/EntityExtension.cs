@@ -1,12 +1,11 @@
-﻿namespace WorldGenerator.Traits;
+﻿
+namespace WorldGenerator.EntityExtensions;
 
-public abstract class Trait<TData> : ITrait
+public class EntityExtension : IEntityExtension
 {
     public IEntity Owner { get; private set; } = default!;
 
-    public virtual IEnumerable<Type> RequiredExtensions => [];
-
-    public void Gain(IEntity owner) 
+    public void Gain(IEntity owner)
     {
         Owner = owner;
 
@@ -15,12 +14,11 @@ public abstract class Trait<TData> : ITrait
 
     protected virtual void OnGain() { }
 
-    public virtual void OnSpawn() { }
-
     public virtual void OnLose() { }
+
+    public virtual void OnSpawn() { }
 
     public virtual void Tick() { }
 
     public virtual void OnGatherConditions() { }
 }
-public class NullTraitData;

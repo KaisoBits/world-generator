@@ -1,4 +1,7 @@
-﻿using WorldGenerator.AI;
+﻿using System.Diagnostics.CodeAnalysis;
+using WorldGenerator.AI;
+using WorldGenerator.EntityExtensions;
+using WorldGenerator.Factories;
 using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
@@ -15,7 +18,9 @@ public sealed class Entity : IEntity
 
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
-    private readonly World _world;
+
+    public IReadOnlyCollection<IEntityExtension> Extensions => _extensions;
+    private readonly List<IEntityExtension> _extensions = [];
 
     public IRenderActor? RenderActor { get; set; }
 
@@ -29,9 +34,13 @@ public sealed class Entity : IEntity
     public Layer Layer { get; set; }
     public bool IsSpawned { get; private set; }
 
-    public Entity(World world)
+    private readonly World _world;
+    private readonly EntityExtensionFactory _entityExtensionFactory;
+
+    public Entity(World world, EntityExtensionFactory entityExtensionFactory)
     {
         _world = world;
+        _entityExtensionFactory = entityExtensionFactory;
     }
 
     public void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
@@ -42,9 +51,10 @@ public sealed class Entity : IEntity
     public void Think()
     {
         foreach (ITrait trait in _traits)
-        {
             trait.Tick();
-        }
+
+        foreach (IEntityExtension extension in _extensions)
+            extension.Tick();
 
         if (CurrentScheduler != null)
         {
@@ -72,17 +82,19 @@ public sealed class Entity : IEntity
     public void GatherConditions()
     {
         foreach (ITrait trait in _traits)
-        {
             trait.OnGatherConditions();
-        }
+
+        foreach (IEntityExtension extension in _extensions)
+            extension.OnGatherConditions();
     }
 
-    public void OnSpawn() 
+    public void OnSpawn()
     {
         foreach (ITrait trait in _traits)
-        {
             trait.OnSpawn();
-        }
+
+        foreach (IEntityExtension extension in _extensions)
+            extension.OnSpawn();
 
         IsSpawned = true;
     }
@@ -172,5 +184,29 @@ public sealed class Entity : IEntity
     {
         _traits.Add(trait);
         trait.Gain(this);
+    }
+
+    public void EnableExtension<T>() where T : IEntityExtension
+    {
+        Type type = typeof(T);
+        if (_extensions.Any(e => e.GetType() == type))
+            return; // Only 1 extension of given type allowed
+
+        IEntityExtension extension = _entityExtensionFactory.CreateExtension<T>();
+        _extensions.Add(extension);
+        extension.Gain(this);
+    }
+
+    public T GetExtension<T>() where T : IEntityExtension
+    {
+        return TryGetExtension(out T? extension) ? extension : throw new Exception("Extension type does not exist on this entity");
+    }
+
+    public bool TryGetExtension<T>([NotNullWhen(true)] out T? extension) where T : IEntityExtension
+    {
+        Type type = typeof(T);
+        extension = (T?)_extensions.FirstOrDefault(e => e.GetType() == type);
+
+        return extension != null;
     }
 }

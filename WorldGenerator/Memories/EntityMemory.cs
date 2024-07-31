@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator.Memories;
 
-public abstract class CreatureMemory
+public abstract class EntityMemory
 {
     public abstract string Message { get; }
 

@@ -26,9 +26,9 @@ public abstract class Scheduler : IScheduler
         return _memory.ContainsKey(memoryName);
     }
 
-    public object? Recall(string memoryName)
+    public T? Recall<T>(string memoryName)
     {
-        return _memory.GetValueOrDefault(memoryName);
+        return (T?)_memory.GetValueOrDefault(memoryName);
     }
 
     public void Remember(string memoryName)

@@ -9,11 +9,14 @@ const int worldY = 30;
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));
 builder.Services.AddScoped<EventBus>();
+builder.Services.AddScoped<ConsoleInterface>();
 
 builder.Services.AddScoped<EntityFactory>();
 builder.Services.AddScoped<TraitFactory>();
 builder.Services.AddScoped<SchedulerFactory>();
 builder.Services.AddScoped<SchedulerTaskFactory>();
+builder.Services.AddScoped<MoodletFactory>();
+builder.Services.AddScoped<EntityExtensionFactory>();
 
 builder.Services.AddScoped<Generator>();
 builder.Services.AddScoped<IRenderer, SfmlRenderer>();

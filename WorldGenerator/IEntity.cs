@@ -8,6 +8,7 @@ public interface IEntity
 {
     ISet<ICondition> Conditions { get; }
     IReadOnlyCollection<IState> States { get; }
+    IReadOnlyCollection<ITrait> Traits { get; }
 
     IScheduler? CurrentScheduler { get; }
 
@@ -15,6 +16,8 @@ public interface IEntity
     public Vector Position { get; }
 
     ITileView CurrentTile { get; }
+
+    bool IsSpawned { get; }
 
     void GatherConditions();
     void Think();

@@ -5,6 +5,10 @@ public interface ITrait
     IEntity? Owner { get; }
 
     void Tick();
-    void OnGain(IEntity owner);
+
+    void OnGatherConditions();
+    void OnSpawn();
+
+    void Gain(IEntity owner);
     void OnLose();
 }

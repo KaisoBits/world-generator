@@ -10,6 +10,7 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
     private readonly Sprite _grass = new(new Texture("grass.png"));
     private readonly Sprite _castle = new(new Texture("village.png"));
     private readonly Sprite _dwarf = new(new Texture("dwarf.png"));
+    private readonly Sprite _mountain = new(new Texture("stone.png"));
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
 
@@ -46,13 +47,18 @@ public class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>
         _renderList.Clear();
     }
 
-    public void VisitBuilding(Building building, RenderStates states)
+    public void VisitBuilding(IEntity building, RenderStates states)
     {
         _target.Draw(_castle, states);
     }
 
-    public void VisitCreature(Creature creature, RenderStates states)
+    public void VisitCreature(IEntity creature, RenderStates states)
     {
         _target.Draw(_dwarf, states);
+    }
+
+    public void VisitMountain(IEntity ground, RenderStates states)
+    {
+        _target.Draw(_mountain, states);
     }
 }

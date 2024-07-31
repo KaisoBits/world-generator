@@ -8,7 +8,7 @@ public class BuildingEstablishedEvent : GameEvent
 
     public override string? Message => "A building '{BUILDING_NAME}' has been established!";
 
-    public BuildingEstablishedEvent(Building building)
+    public BuildingEstablishedEvent(IEntity building)
     {
         SetParameter("BUILDING_NAME", building.GetState<NameState>()?.Name);
     }

@@ -9,7 +9,7 @@ public abstract class Moodlet
 
     public int ExpireOn { get; set; }
 
-    public virtual void OnAquire(Creature creature) { }
-    public virtual void OnExpire(Creature creature) { }
-    public virtual void OnLost(Creature creature) { }
+    public virtual void OnAquire(IEntity creature) { }
+    public virtual void OnExpire(IEntity creature) { }
+    public virtual void OnLost(IEntity creature) { }
 }

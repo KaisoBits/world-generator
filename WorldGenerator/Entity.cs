@@ -1,11 +1,11 @@
-﻿using System.Runtime.InteropServices;
-using WorldGenerator.AI;
+﻿using WorldGenerator.AI;
+using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
-public abstract class Entity : IEntity
+public sealed class Entity : IEntity
 {
     public ISet<ICondition> Conditions => _conditions;
     private readonly HashSet<ICondition> _conditions = [];
@@ -16,6 +16,8 @@ public abstract class Entity : IEntity
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
 
+    public IRenderActor? RenderActor { get; set; }
+
     public IScheduler? CurrentScheduler { get; private set; }
     private (IScheduler Scheduler, AssignSchedulerResult Result)? _pendingScheduler;
 
@@ -23,11 +25,15 @@ public abstract class Entity : IEntity
 
     public ITileView CurrentTile => World.Instance[Position];
 
-    public abstract Layer Layer { get; }
+    public Layer Layer { get; set; }
+    public bool IsSpawned { get; private set; }
 
-    public abstract void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
+    public void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
+    {
+        RenderActor?.AcceptRenderer(this, renderer, state);
+    }
 
-    public virtual void Think()
+    public void Think()
     {
         foreach (ITrait trait in _traits)
         {
@@ -57,12 +63,23 @@ public abstract class Entity : IEntity
         }
     }
 
-    public virtual void GatherConditions()
+    public void GatherConditions()
     {
+        foreach (ITrait trait in _traits)
+        {
+            trait.OnGatherConditions();
+        }
     }
 
-    public virtual void OnSpawn() { }
-    public virtual void OnDespawn() { }
+    public void OnSpawn() 
+    {
+        foreach (ITrait trait in _traits)
+        {
+            trait.OnSpawn();
+        }
+
+        IsSpawned = true;
+    }
 
     public IAssignSchedulerResult AssignScheduler(IScheduler newScheduler)
     {
@@ -148,6 +165,6 @@ public abstract class Entity : IEntity
     public void AddTrait(ITrait trait)
     {
         _traits.Add(trait);
-        trait.OnGain(this);
+        trait.Gain(this);
     }
 }

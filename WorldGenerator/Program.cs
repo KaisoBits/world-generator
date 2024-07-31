@@ -21,7 +21,7 @@ window.MouseButtonPressed += (s, e) =>
 World.CreateWorld(worldX, worldY);
 
 Generator wg = new();
-List<Entity> entities = wg.PopulateWorld(World.Instance, 10, 10);
+List<IEntity> entities = wg.PopulateWorld(World.Instance, 10, 10);
 
 ConsoleInterface ci = new();
 //ci.StartDisplayingEvents();
@@ -46,7 +46,7 @@ while (window.IsOpen)
 
         Console.Clear();
         Console.WriteLine("Running: " + running);
-        ci.DisplayMoodletsAndMemory(entities.OfType<Creature>().First());
+        //ci.DisplayMoodletsAndMemory(entities.OfType<Creature>().First());
     }
 
     renderer.RenderWorld(World.Instance);

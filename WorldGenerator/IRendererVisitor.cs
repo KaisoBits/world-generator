@@ -1,7 +1,9 @@
-﻿namespace WorldGenerator;
+﻿
+namespace WorldGenerator;
 
 public interface IRendererVisitor<T>
 {
-    void VisitBuilding(Building building, T state);
-    void VisitCreature(Creature creature, T state);
+    void VisitBuilding(IEntity building, T state);
+    void VisitCreature(IEntity creature, T state);
+    void VisitMountain(IEntity ground, T state);
 }

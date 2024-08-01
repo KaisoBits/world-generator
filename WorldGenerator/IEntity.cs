@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using WorldGenerator.AI;
 using WorldGenerator.EntityExtensions;
+using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -15,6 +16,9 @@ public interface IEntity
     IScheduler? CurrentScheduler { get; }
 
     Layer Layer { get; }
+
+    IRenderActor? RenderActor { get; }
+
     public Vector Position { get; }
 
     ITileView CurrentTile { get; }

@@ -20,9 +20,12 @@ public class ConsoleInterface
         Console.WriteLine($"Tile {tile.Position}:");
         foreach (IEntity entity in tile.Contents)
         {
+            Console.WriteLine("*******************************************************************************************************************");
+            Console.WriteLine();
             DisplayEntityInfo(entity);
             Console.WriteLine();
         }
+        Console.WriteLine("*******************************************************************************************************************");
     }
 
     public void DisplayEntityInfo(IEntity entity)
@@ -34,6 +37,8 @@ public class ConsoleInterface
         }
 
         Console.WriteLine();
+        Console.WriteLine($"Layer: {entity.Layer}");
+        Console.WriteLine($"Render Actor: {entity.RenderActor?.GetType().Name}");
         Console.WriteLine("---------------------------------------");
 
         if (moodExtension != null)
@@ -91,11 +96,11 @@ public class ConsoleInterface
             Console.WriteLine($"- {item}");
         }
 
-        Console.WriteLine("---------------------------------------");
-
-
         if (entity.TryGetExtension(out MemoryExtension? memoryExtension))
         {
+            Console.WriteLine("---------------------------------------");
+
+
             Console.WriteLine("Memories:");
 
             if (memoryExtension.Memories.Count > 10)
@@ -104,7 +109,6 @@ public class ConsoleInterface
             {
                 Console.WriteLine($"  - {item.Message}");
             }
-            Console.WriteLine("---------------------------------------");
         }
     }
 }

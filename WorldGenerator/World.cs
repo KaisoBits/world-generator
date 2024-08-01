@@ -4,6 +4,8 @@ namespace WorldGenerator;
 
 public class World : IReadOnlyCollection<ITileView>
 {
+    public bool Paused { get; set; }
+
     public int CurrentTick { get; private set; }
 
     public int Width { get; }
@@ -27,6 +29,9 @@ public class World : IReadOnlyCollection<ITileView>
 
     public void Tick()
     {
+        if (Paused)
+            return;
+
         foreach (var tile in _tiles)
             foreach (var contents in tile.Contents)
                 contents.GatherConditions();

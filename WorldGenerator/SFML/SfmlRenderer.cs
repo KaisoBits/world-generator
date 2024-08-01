@@ -18,7 +18,6 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
     private readonly Sprite _smallMountain = new(LoadTexture("Resources/stone.png"));
 
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
-
     {
         FillColor = Color.Transparent,
         OutlineColor = Color.Red,

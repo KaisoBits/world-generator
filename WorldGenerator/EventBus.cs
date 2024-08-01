@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.Events;
+
+namespace WorldGenerator;
 
 public class EventBus
 {
@@ -18,7 +20,7 @@ public class EventBus
 
     public Subscription Subscribe<T>(Action<T> callback) where T : GameEvent
     {
-        Subscription sub = new(_currSubIndex++, typeof(T), (GameEvent ev) => callback((T)ev));
+        Subscription sub = new(this, _currSubIndex++, typeof(T), (GameEvent ev) => callback((T)ev));
 
         _subscribers.Add(sub);
 
@@ -33,27 +35,30 @@ public class EventBus
 
 public readonly struct Subscription : IEquatable<Subscription>
 {
-    public int Identifier { get; }
+    private readonly EventBus _eventBus;
+    private readonly int _identifier;
+
     public Type Type { get; }
     public Action<GameEvent> Callback { get; }
 
-    public Subscription(int identifier, Type type, Action<GameEvent> callback)
+    public Subscription(EventBus eventBus, int identifier, Type type, Action<GameEvent> callback)
     {
-        Identifier = identifier;
+        _eventBus = eventBus;
+        _identifier = identifier;
         Type = type;
         Callback = callback;
     }
 
     public void Unsubscribe()
     {
-        //EventBus.Unsubscribe(this);
+        _eventBus.Unsubscribe(this);
     }
 
     public override bool Equals(object? obj) => obj is Subscription other && Equals(other);
 
-    public bool Equals(Subscription sub) => Identifier == sub.Identifier;
+    public bool Equals(Subscription sub) => _identifier == sub._identifier;
 
-    public override int GetHashCode() => Identifier.GetHashCode();
+    public override int GetHashCode() => _identifier.GetHashCode();
 
     public static bool operator ==(Subscription lhs, Subscription rhs) => lhs.Equals(rhs);
 

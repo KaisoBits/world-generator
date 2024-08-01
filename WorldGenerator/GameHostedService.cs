@@ -9,15 +9,17 @@ public class GameHostedService : BackgroundService
     private readonly Generator _generator;
     private readonly ConsoleInterface _consoleInterface;
     private readonly IRenderer _renderer;
+    private readonly DebugOverlay _debugOverlay;
 
     bool _running = true;
 
-    public GameHostedService(World world, Generator generator, ConsoleInterface consoleInterface, IRenderer renderer)
+    public GameHostedService(World world, Generator generator, ConsoleInterface consoleInterface, IRenderer renderer, Terrain terrain, DebugOverlay debugOverlay)
     {
         _world = world;
         _generator = generator;
         _consoleInterface = consoleInterface;
         _renderer = renderer;
+        _debugOverlay = debugOverlay;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -31,8 +33,6 @@ public class GameHostedService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _renderer.Update();
-
             if (sw.Elapsed >= TimeSpan.FromSeconds(0.3))
             {
                 sw.Restart();
@@ -41,12 +41,6 @@ public class GameHostedService : BackgroundService
                 {
                     _world.Tick();
                 }
-
-                _renderer.Render();
-
-                Console.Clear();
-                Console.WriteLine("Running: " + _running);
-                _consoleInterface.DisplayMoodletsAndMemory(entities.First());
             }
 
             _renderer.Render();

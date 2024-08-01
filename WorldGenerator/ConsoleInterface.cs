@@ -15,9 +15,19 @@ public class ConsoleInterface
         //Subscription sub = EventBus.Subscribe<GameEvent>(Console.WriteLine);
     }
 
-    public void DisplayMoodletsAndMemory(IEntity entity)
+    public void DisplayTileInfo(ITileView tile)
     {
-        Console.Write($"Creature {entity.GetState<NameState>()?.Name}");
+        Console.WriteLine($"Tile {tile.Position}:");
+        foreach (IEntity entity in tile.Contents)
+        {
+            DisplayEntityInfo(entity);
+            Console.WriteLine();
+        }
+    }
+
+    public void DisplayEntityInfo(IEntity entity)
+    {
+        Console.Write($"Entity: {entity.GetState<NameState>()?.Name}");
         if (entity.TryGetExtension(out MoodExtension? moodExtension))
         {
             Console.Write($" ({moodExtension.MoodLevel})");

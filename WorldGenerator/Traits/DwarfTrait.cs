@@ -1,5 +1,4 @@
 ﻿using WorldGenerator.AI;
-using WorldGenerator.EntityExtensions;
 using WorldGenerator.Factories;
 using WorldGenerator.Memories;
 using WorldGenerator.Moodlets;
@@ -7,10 +6,14 @@ using WorldGenerator.States;
 
 namespace WorldGenerator.Traits;
 
-public sealed class DwarfTrait : Trait<DwarfTrait.Data>
+public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
 {
     private readonly World _world;
     private readonly SchedulerFactory _schedulerFactory;
+
+    private MoodTrait _moodTrait = default!;
+    private MemoryTrait _memoryTrait = default!;
+    private AITrait _aiTrait = default!;
 
     public DwarfTrait(World world, SchedulerFactory schedulerFactory)
     {
@@ -20,8 +23,9 @@ public sealed class DwarfTrait : Trait<DwarfTrait.Data>
 
     protected override void OnGain()
     {
-        Owner.EnableExtension<MoodExtension>();
-        Owner.EnableExtension<MemoryExtension>();
+        _moodTrait = RequireTrait<MoodTrait>();
+        _memoryTrait = RequireTrait<MemoryTrait>();
+        _aiTrait = RequireTrait<AITrait>();
     }
 
     public override void OnGatherConditions()
@@ -51,29 +55,32 @@ public sealed class DwarfTrait : Trait<DwarfTrait.Data>
     public override void Tick()
     {
         if (Owner.InCondition<InBuildingCondition>())
-            Owner.GetExtension<MoodExtension>().ApplyMoodlet<InBuildingMoodlet>(_world.CurrentTick + 5);
+            _moodTrait.ApplyMoodlet<InBuildingMoodlet>(_world.CurrentTick + 5);
 
         if (Owner.InCondition<JustEnteredBuildingCondition>())
         {
-            Owner.GetExtension<MemoryExtension>().Remember(
+           _memoryTrait.Remember(
                 new VisitedBuildingMemory(
                     Owner.CurrentTile.Contents
                     .FirstOrDefault(c => c.Layer == Layer.Buildings)
                     ?.GetState<NameState>()?.Name ?? string.Empty));
         }
 
-        if (Owner.CurrentScheduler != null)
+        if (_aiTrait.CurrentScheduler != null)
             return;
 
-        bool shouldTravel = Random.Shared.NextDouble() < 0.1;
+        bool shouldTravel = Random.Shared.NextDouble() < Data.Chance;
         if (!shouldTravel)
             return;
-        
+
         if (Owner.InCondition<InBuildingCondition>())
-            Owner.AssignScheduler(_schedulerFactory.CreateScheduler<GoToRandomBuildingScheduler>());
+            _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToRandomBuildingScheduler>());
         else
-            Owner.AssignScheduler(_schedulerFactory.CreateScheduler<GoToNearestBuildingScheduler>());
+            _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToNearestBuildingScheduler>());
     }
 
-    public record class Data(float Chance);
+    public record class DataType
+    {
+        public float Chance { get; init; } = 0.1f;
+    }
 }

@@ -1,9 +1,9 @@
 ﻿using WorldGenerator.Factories;
 using WorldGenerator.Moodlets;
 
-namespace WorldGenerator.EntityExtensions;
+namespace WorldGenerator.Traits;
 
-public class MoodExtension : EntityExtension
+public class MoodTrait : Trait<NullTraitData>
 {
     public int MoodLevel
     {
@@ -25,7 +25,7 @@ public class MoodExtension : EntityExtension
 
     private bool _moodRecalcRequired = true;
 
-    public MoodExtension(World world, MoodletFactory moodletFactory)
+    public MoodTrait(World world, MoodletFactory moodletFactory)
     {
         _world = world;
         _moodletFactory = moodletFactory;
@@ -103,3 +103,4 @@ public class MoodExtension : EntityExtension
         _moodRecalcRequired = false;
     }
 }
+

@@ -1,8 +1,8 @@
 ﻿using WorldGenerator.Memories;
 
-namespace WorldGenerator.EntityExtensions;
+namespace WorldGenerator.Traits;
 
-public class MemoryExtension : EntityExtension
+public class MemoryTrait : Trait<NullTraitData>
 {
     public IReadOnlyCollection<EntityMemory> Memories => _memories;
     private readonly List<EntityMemory> _memories = [];

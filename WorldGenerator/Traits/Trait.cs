@@ -1,12 +1,19 @@
 ﻿namespace WorldGenerator.Traits;
 
-public abstract class Trait<TData> : ITrait
+public abstract class Trait<TData> : ITrait where TData : new()
 {
     public IEntity Owner { get; private set; } = default!;
 
-    public virtual IEnumerable<Type> RequiredExtensions => [];
+    protected TData Data { get; private set; } = new();
 
-    public void Gain(IEntity owner) 
+    public virtual bool Hidden => false;
+    public virtual bool CanBeRemoved => false;
+
+    public virtual string Name => GetType().Name;
+
+    public virtual string Description => string.Empty;
+
+    public void Gain(IEntity owner)
     {
         Owner = owner;
 
@@ -22,5 +29,18 @@ public abstract class Trait<TData> : ITrait
     public virtual void Tick() { }
 
     public virtual void OnGatherConditions() { }
+
+    public void WithData(TData data) => Data = data;
+
+    protected T RequireTrait<T>() where T : ITrait
+    {
+        if (Owner == null)
+            throw new Exception($"The trait '{GetType().Name}' cannot require trait '{typeof(T).Name}' because '{nameof(Owner)}' is not set");
+
+        if (!Owner.TryGetTrait<T>(out T? result))
+            throw new Exception($"The trait '{GetType().Name}' requires trait '{typeof(T).Name}' to be set first, in order to work correctly");
+
+        return result;
+    }
 }
 public class NullTraitData;

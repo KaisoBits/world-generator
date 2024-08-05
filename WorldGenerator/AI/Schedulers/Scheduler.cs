@@ -12,7 +12,7 @@ public abstract class Scheduler : IScheduler
 
     public virtual SchedulerPriority Priority => SchedulerPriority.Default;
 
-    public int CurrentTaskIndex { get; private set; } = -1;
+    public ISchedulerTask? CurrentTask => State is SchedulerState.Running ? _taskEnumerator.Current : null;
 
     private IEnumerator<ISchedulerTask> _taskEnumerator = default!;
 
@@ -73,7 +73,6 @@ public abstract class Scheduler : IScheduler
                 State = SchedulerState.Completed;
                 return;
             }
-            CurrentTaskIndex++;
         }
 
         SchedulerTaskResult result = _taskEnumerator.Current.Tick();
@@ -82,7 +81,6 @@ public abstract class Scheduler : IScheduler
             if (!_taskEnumerator.MoveNext())
                 State = SchedulerState.Completed;
 
-            CurrentTaskIndex++;
         }
         if (result == SchedulerTaskResult.Failed)
             State = SchedulerState.Failed;

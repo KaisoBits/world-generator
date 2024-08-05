@@ -1,6 +1,6 @@
 ﻿using WorldGenerator.AI;
-using WorldGenerator.EntityExtensions;
 using WorldGenerator.States;
+using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
@@ -31,9 +31,9 @@ public class ConsoleInterface
     public void DisplayEntityInfo(IEntity entity)
     {
         Console.Write($"Entity: {entity.GetState<NameState>()?.Name}");
-        if (entity.TryGetExtension(out MoodExtension? moodExtension))
+        if (entity.TryGetTrait(out MoodTrait? moodTrait))
         {
-            Console.Write($" ({moodExtension.MoodLevel})");
+            Console.Write($" ({moodTrait.MoodLevel})");
         }
 
         Console.WriteLine();
@@ -41,11 +41,11 @@ public class ConsoleInterface
         Console.WriteLine($"Render Actor: {entity.RenderActor?.GetType().Name}");
         Console.WriteLine("---------------------------------------");
 
-        if (moodExtension != null)
+        if (moodTrait != null)
         {
             Console.WriteLine("Moodlets:");
 
-            foreach (var item in moodExtension.Moodlets)
+            foreach (var item in moodTrait.Moodlets)
             {
                 Console.Write("  ");
                 string sign = item.MoodModifier >= 0 ? "+" : "";
@@ -54,39 +54,25 @@ public class ConsoleInterface
             Console.WriteLine("---------------------------------------");
         }
 
-        Console.WriteLine($"Conditions: {string.Join(",", entity.Conditions)}");
+        Console.WriteLine($"Conditions: {string.Join(", ", entity.Conditions)}");
 
         Console.WriteLine("---------------------------------------");
 
-        Console.WriteLine($"Traits: {string.Join(",", entity.Traits.Select(t => t.GetType().Name))}");
+        Console.WriteLine($"Traits: {string.Join(", ", entity.Traits.Select(t => t.GetType().Name))}");
 
         Console.WriteLine("---------------------------------------");
 
-        Console.WriteLine("AI DEBUG:");
-
-        Scheduler? scheduler = entity.CurrentScheduler as Scheduler;
-        Console.WriteLine("  Scheduler:");
-        Console.WriteLine($"    Name: {scheduler?.GetType().Name ?? "None"}");
-        Console.WriteLine($"    State: {scheduler?.State.ToString() ?? "-"}");
-        Console.WriteLine();
-
-        if (scheduler != null)
+        if (entity.TryGetTrait(out AITrait? aiTrait))
         {
-            Console.WriteLine("  Tasks:");
+            Console.WriteLine("AI:");
 
-            int i = 0;
-            foreach (var item in scheduler.GetTasks())
-            {
-                Console.Write("    - " + item.GetType().Name);
-                if (scheduler.CurrentTaskIndex == i)
-                    Console.Write(" <<<");
-                Console.WriteLine();
+            Scheduler? scheduler = aiTrait.CurrentScheduler as Scheduler;
+            Console.WriteLine($"  Scheduler: {scheduler?.GetType().Name ?? "-"}");
+            Console.WriteLine($"  State: {scheduler?.State.ToString() ?? "-"}");
+            Console.WriteLine($"  Current Task: {scheduler?.CurrentTask?.GetType().Name.ToString() ?? "-"}");
 
-                i++;
-            }
+            Console.WriteLine("---------------------------------------");
         }
-
-        Console.WriteLine("---------------------------------------");
 
         Console.WriteLine("States:");
 
@@ -96,16 +82,16 @@ public class ConsoleInterface
             Console.WriteLine($"- {item}");
         }
 
-        if (entity.TryGetExtension(out MemoryExtension? memoryExtension))
+        if (entity.TryGetTrait(out MemoryTrait? memoryTrait))
         {
             Console.WriteLine("---------------------------------------");
 
 
             Console.WriteLine("Memories:");
 
-            if (memoryExtension.Memories.Count > 10)
-                Console.WriteLine($"  ...{memoryExtension.Memories.Count - 10} more memories");
-            foreach (var item in memoryExtension.Memories.TakeLast(10))
+            if (memoryTrait.Memories.Count > 10)
+                Console.WriteLine($"  ...{memoryTrait.Memories.Count - 10} more memories");
+            foreach (var item in memoryTrait.Memories.TakeLast(10))
             {
                 Console.WriteLine($"  - {item.Message}");
             }

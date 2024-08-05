@@ -42,8 +42,8 @@ public class World : IReadOnlyCollection<ITileView>
 
         foreach (var (ent, pos) in _moveSchedule)
             MoveEntity(ent, pos);
-        _moveSchedule.Clear();
 
+        _moveSchedule.Clear();
 
         CurrentTick++;
     }

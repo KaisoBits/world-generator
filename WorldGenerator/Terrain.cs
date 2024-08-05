@@ -25,14 +25,14 @@ public class Terrain
         }
     }
 
-    public SpawnMountainChain(x, y) {
+    //public SpawnMountainChain(x, y) {
 
-        if (int rnd = Random.Shared.Next(0, 1); rnd = 1){ 
+    //    if (int rnd = Random.Shared.Next(0, 1); rnd = 1){ 
         
         
-        }
+    //    }
     
-    }
+    //}
 
 
 }

@@ -24,7 +24,10 @@ public sealed class EntityFactory
         switch (name)
         {
             case "dwarf":
-                result.AddTrait(_traitFactory.CreateTrait<DwarfTrait>());
+                result.AddTrait<MoodTrait>();
+                result.AddTrait<MemoryTrait>();
+                result.AddTrait<AITrait>();
+                result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.15f });
                 result.SetState(new HealthState(100));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
                 result.Layer = Layer.Creatures;

@@ -1,10 +1,10 @@
-﻿using WorldGenerator.EntityExtensions;
+﻿using WorldGenerator.Traits;
 
 namespace WorldGenerator.Moodlets;
 
 public abstract class Moodlet
 {
-    public MoodExtension? Owner { get; private set; }
+    public MoodTrait? Owner { get; private set; }
     public IEntity? OwnerEntity => Owner?.Owner;
 
     public abstract int MoodModifier { get; }
@@ -14,9 +14,9 @@ public abstract class Moodlet
 
     public int ExpireOn { get; set; }
 
-    public virtual void Acquire(MoodExtension mood) 
+    public virtual void Acquire(MoodTrait owner) 
     {
-        Owner = mood;
+        Owner = owner;
         OnAcquire();
     }
 

@@ -1,10 +1,16 @@
-﻿namespace WorldGenerator.AI;
+﻿using System.Diagnostics.Metrics;
+using WorldGenerator.States;
+
+namespace WorldGenerator.AI;
 
 public class ApproachPosition : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
     private readonly World _world;
     private Vector _targetPosition;
+
+    private const int stepTime = 20;
+    private int _counter = stepTime;
 
     public ApproachPosition(IScheduler scheduler, World world)
     {
@@ -23,6 +29,15 @@ public class ApproachPosition : ISchedulerTask
     {
         if (_scheduler.Owner == null)
             return SchedulerTaskResult.Failed;
+
+        int newCounterValue = _counter - (_scheduler.Owner.GetState<SpeedState>()?.Speed ?? 10);
+        if (newCounterValue > 0)
+        {
+            _counter = newCounterValue;
+            return SchedulerTaskResult.Continue;
+        }
+
+        _counter = stepTime;
 
         Vector currentPos = _scheduler.Owner.Position;
         Vector offset = _targetPosition - currentPos;

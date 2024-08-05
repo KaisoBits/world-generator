@@ -81,6 +81,6 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
 
     public record class DataType
     {
-        public float Chance { get; init; } = 0.1f;
+        public float Chance { get; init; } = 0.01f;
     }
 }

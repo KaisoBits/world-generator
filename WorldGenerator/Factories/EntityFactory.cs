@@ -27,8 +27,9 @@ public sealed class EntityFactory
                 result.AddTrait<MoodTrait>();
                 result.AddTrait<MemoryTrait>();
                 result.AddTrait<AITrait>();
-                result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.15f });
+                result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.015f });
                 result.SetState(new HealthState(100));
+                result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
                 result.Layer = Layer.Creatures;
                 result.RenderActor = DwarfRenderActor.Instance;

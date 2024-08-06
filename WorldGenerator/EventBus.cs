@@ -4,11 +4,11 @@ namespace WorldGenerator;
 
 public class EventBus
 {
-    public static IReadOnlyList<GameEvent> EventList => _events;
-    private static readonly List<GameEvent> _events = [];
+    public IReadOnlyList<GameEvent> EventList => _events;
+    private readonly List<GameEvent> _events = [];
 
-    private static int _currSubIndex = 1;
-    private static readonly List<Subscription> _subscribers = [];
+    private int _currSubIndex = 1;
+    private readonly List<Subscription> _subscribers = [];
 
     public void PublishEvent(GameEvent ev)
     {

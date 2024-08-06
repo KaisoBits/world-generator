@@ -31,6 +31,8 @@ public interface IEntity
 
     void SetState<T>(T data) where T : struct, IState;
     T? GetState<T>() where T : struct, IState;
+    void RegisterModifier<T>(Func<T, T> modifier) where T : struct, IState;
+    void DeregisterModifier<T>(Func<T, T> modifier) where T : struct, IState;
 
     T GetOrAddTrait<T>() where T : ITrait;
     T AddTrait<T>() where T : ITrait;

@@ -150,7 +150,7 @@ public sealed class Entity : IEntity
         ((ValueWithModifiers<T>)v).RegisterModifier(modifier);
     }
 
-    public void DergisterModifier<T>(Func<T, T> modifier) where T : struct, IState
+    public void DeregisterModifier<T>(Func<T, T> modifier) where T : struct, IState
     {
         Type type = typeof(T);
 

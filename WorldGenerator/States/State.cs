@@ -1,3 +1,3 @@
 ﻿namespace WorldGenerator.States;
 
-public interface IState { }
+public interface IState;

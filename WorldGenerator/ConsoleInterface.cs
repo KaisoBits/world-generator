@@ -6,9 +6,16 @@ namespace WorldGenerator;
 
 public class ConsoleInterface
 {
+    private readonly EventBus _eventBus;
+
+    public ConsoleInterface(EventBus eventBus)
+    {
+        _eventBus = eventBus;
+    }
+
     public void StartDisplayingEvents()
     {
-        var listBottom = EventBus.EventList.TakeLast(20);
+        var listBottom = _eventBus.EventList.TakeLast(20);
         foreach (var item in listBottom)
             Console.WriteLine(item);
 

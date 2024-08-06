@@ -32,32 +32,29 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
     {
         int health = Owner.GetState<HealthState>()?.Health ?? 0;
         if (health <= 0)
-            Owner.SetCondition<DeadCondition>();
+            Owner.ApplyMoodlet<DeadMoodlet>();
         else
-            Owner.ClearCondition<DeadCondition>();
+            Owner.RemoveMoodlet<DeadMoodlet>();
 
-        Owner.ClearCondition<JustEnteredBuildingCondition>();
+        Owner.RemoveMoodlet<JustEnteredBuildingMoodlet>();
 
         if (Owner.CurrentTile.Contents.Any(e => e.Layer == Layer.Buildings))
         {
-            if (!Owner.InCondition<InBuildingCondition>())
+            if (!Owner.HasMoodlet<InBuildingMoodlet>())
             {
-                Owner.SetCondition<InBuildingCondition>();
-                Owner.SetCondition<JustEnteredBuildingCondition>();
+                Owner.ApplyMoodlet<InBuildingMoodlet>();
+                Owner.ApplyMoodlet<JustEnteredBuildingMoodlet>();
             }
         }
         else
         {
-            Owner.ClearCondition<InBuildingCondition>();
+            Owner.RemoveMoodlet<InBuildingMoodlet>();
         }
     }
 
     public override void Tick()
     {
-        if (Owner.InCondition<InBuildingCondition>())
-            _moodTrait.ApplyMoodlet<InBuildingMoodlet>(_world.CurrentTick + 5);
-
-        if (Owner.InCondition<JustEnteredBuildingCondition>())
+        if (Owner.HasMoodlet<JustEnteredBuildingMoodlet>())
         {
            _memoryTrait.Remember(
                 new VisitedBuildingMemory(
@@ -73,7 +70,7 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
         if (!shouldTravel)
             return;
 
-        if (Owner.InCondition<InBuildingCondition>())
+        if (Owner.HasMoodlet<InBuildingMoodlet>())
             _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToRandomBuildingScheduler>());
         else
             _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToNearestBuildingScheduler>());

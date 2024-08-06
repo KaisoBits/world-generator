@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using WorldGenerator.Moodlets;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -6,13 +7,13 @@ namespace WorldGenerator;
 
 public interface IEntity
 {
-    ISet<ICondition> Conditions { get; }
+    IReadOnlyList<Moodlet> Moodlets { get; }
     IReadOnlyCollection<IState> States { get; }
     IReadOnlyCollection<ITrait> Traits { get; }
 
     Layer Layer { get; }
 
-    public string? RenderType { get; set; }
+    string? RenderType { get; set; }
 
     public Vector Position { get; }
 
@@ -23,9 +24,10 @@ public interface IEntity
     void GatherConditions();
     void Think();
 
-    bool InCondition<T>() where T : ICondition;
-    void SetCondition<T>() where T : ICondition;
-    bool ClearCondition<T>() where T : ICondition;
+    void ApplyMoodlet<T>() where T : Moodlet;
+    void ApplyMoodlet<T>(int expireOn) where T : Moodlet;
+    bool HasMoodlet<T>() where T : Moodlet;
+    bool RemoveMoodlet<T>() where T : Moodlet;
 
     void SetState(IState state);
 

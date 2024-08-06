@@ -1,20 +1,15 @@
-﻿using WorldGenerator.Traits;
-
-namespace WorldGenerator.Moodlets;
+﻿namespace WorldGenerator.Moodlets;
 
 public abstract class Moodlet
 {
-    public MoodTrait? Owner { get; private set; }
-    public IEntity? OwnerEntity => Owner?.Owner;
+    public IEntity? Owner { get; private set; }
 
-    public abstract int MoodModifier { get; }
-
-    public abstract string Name { get; }
-    public abstract string Description { get; }
+    public virtual string Name => GetType().Name;
+    public virtual string Description => string.Empty;
 
     public int ExpireOn { get; set; }
 
-    public virtual void Acquire(MoodTrait owner) 
+    public virtual void Acquire(IEntity owner) 
     {
         Owner = owner;
         OnAcquire();
@@ -23,4 +18,6 @@ public abstract class Moodlet
     protected virtual void OnAcquire() { }
     public virtual void OnExpire() { }
     public virtual void OnLost() { }
+
+    public virtual void Tick() { }
 }

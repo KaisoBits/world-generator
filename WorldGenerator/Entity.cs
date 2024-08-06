@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using WorldGenerator.Factories;
+using WorldGenerator.Moodlets;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -7,8 +8,8 @@ namespace WorldGenerator;
 
 public sealed class Entity : IEntity
 {
-    public ISet<ICondition> Conditions => _conditions;
-    private readonly HashSet<ICondition> _conditions = [];
+    public IReadOnlyList<Moodlet> Moodlets => _moodlets;
+    private readonly List<Moodlet> _moodlets = [];
 
     public IReadOnlyCollection<IState> States => _states.Values;
     private readonly Dictionary<Type, IState> _states = [];
@@ -27,15 +28,22 @@ public sealed class Entity : IEntity
 
     private readonly World _world;
     private readonly TraitFactory _traitFactory;
+    private readonly MoodletFactory _moodletFactory;
 
-    public Entity(World world, TraitFactory traitFactory)
+    public Entity(World world, TraitFactory traitFactory, MoodletFactory moodletFactory)
     {
         _world = world;
         _traitFactory = traitFactory;
+        _moodletFactory = moodletFactory;
     }
 
     public void Think()
     {
+        RemoveExpiredMoodlets();
+
+        foreach (Moodlet moodlet in _moodlets)
+            moodlet.Tick();
+
         foreach (ITrait trait in _traits)
             trait.Tick();
     }
@@ -54,19 +62,60 @@ public sealed class Entity : IEntity
         IsSpawned = true;
     }
 
-    public bool InCondition<T>() where T : ICondition
+    public void ApplyMoodlet<T>() where T : Moodlet
     {
-        return _conditions.Contains(T.Instance);
+        ApplyMoodlet<T>(-1);
     }
 
-    public void SetCondition<T>() where T : ICondition
+    public void ApplyMoodlet<T>(int expireOn) where T : Moodlet
     {
-        _conditions.Add(T.Instance);
+        Type type = typeof(T);
+
+        Moodlet? existingMoodlet = _moodlets.FirstOrDefault(m => m.GetType() == type);
+        if (existingMoodlet == null)
+        {
+            Moodlet m = _moodletFactory.CreateMoodlet<T>(expireOn);
+            _moodlets.Add(m);
+            m.Acquire(this);
+        }
+        else if ((expireOn > existingMoodlet.ExpireOn && existingMoodlet.ExpireOn != -1) || expireOn == -1)
+        {
+            existingMoodlet.ExpireOn = expireOn;
+        }
     }
 
-    public bool ClearCondition<T>() where T : ICondition
+    public bool HasMoodlet<T>() where T : Moodlet
     {
-        return _conditions.Remove(T.Instance);
+        Type type = typeof(T);
+        return _moodlets.Any(m => m.GetType() == type);
+    }
+
+    public bool RemoveMoodlet<T>() where T : Moodlet
+    {
+        Type type = typeof(T);
+        List<Moodlet> toRemove = _moodlets.Where(m => m.GetType() == type).ToList();
+        if (toRemove is [])
+            return false;
+
+        _moodlets.RemoveAll(toRemove.Contains);
+        foreach (Moodlet removedMoodlet in toRemove)
+            removedMoodlet.OnLost();
+
+        return true;
+    }
+
+    private void RemoveExpiredMoodlets()
+    {
+        List<Moodlet> toRemove = _moodlets.Where(m => m.ExpireOn != -1 && m.ExpireOn <= _world.CurrentTick).ToList();
+        if (toRemove is [])
+            return;
+
+        _moodlets.RemoveAll(toRemove.Contains);
+        foreach (Moodlet removedMoodlet in toRemove)
+        {
+            removedMoodlet.OnExpire();
+            removedMoodlet.OnLost();
+        }
     }
 
     public void SetState(IState state)
@@ -106,7 +155,7 @@ public sealed class Entity : IEntity
     public T GetOrAddTrait<T>() where T : ITrait
     {
         T? result = _traits.OfType<T>().FirstOrDefault();
-        
+
         if (result != null)
             return result; // Only 1 extension of given type allowed
 

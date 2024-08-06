@@ -48,22 +48,15 @@ public class ConsoleInterface
         Console.WriteLine($"Render Type: {entity.RenderType ?? "-"}");
         Console.WriteLine("---------------------------------------");
 
-        if (moodTrait != null)
+        Console.WriteLine("Moodlets:");
+
+        foreach (var item in entity.Moodlets)
         {
-            Console.WriteLine("Moodlets:");
-
-            foreach (var item in moodTrait.Moodlets)
-            {
-                Console.Write("  ");
-                string sign = item.MoodModifier >= 0 ? "+" : "";
-                Console.WriteLine($"- {item.Name} ({item.Description}): {sign}{item.MoodModifier}");
-            }
-            Console.WriteLine("---------------------------------------");
+            Console.Write("  ");
+            Console.WriteLine($"- {item.Name} ({item.Description})");
         }
-
-        Console.WriteLine($"Conditions: {string.Join(", ", entity.Conditions)}");
-
         Console.WriteLine("---------------------------------------");
+
 
         Console.WriteLine($"Traits: {string.Join(", ", entity.Traits.Select(t => t.GetType().Name))}");
 

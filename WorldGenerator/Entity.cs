@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using WorldGenerator.AI;
 using WorldGenerator.Factories;
-using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -18,7 +16,7 @@ public sealed class Entity : IEntity
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
 
-    public IRenderActor? RenderActor { get; set; }
+    public string? RenderType { get; set; }
 
     public Vector Position { get; internal set; }
 
@@ -34,11 +32,6 @@ public sealed class Entity : IEntity
     {
         _world = world;
         _traitFactory = traitFactory;
-    }
-
-    public void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state)
-    {
-        RenderActor?.AcceptRenderer(this, renderer, state);
     }
 
     public void Think()

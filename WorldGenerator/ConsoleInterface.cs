@@ -38,7 +38,7 @@ public class ConsoleInterface
 
         Console.WriteLine();
         Console.WriteLine($"Layer: {entity.Layer}");
-        Console.WriteLine($"Render Actor: {entity.RenderActor?.GetType().Name}");
+        Console.WriteLine($"Render Type: {entity.RenderType ?? "-"}");
         Console.WriteLine("---------------------------------------");
 
         if (moodTrait != null)

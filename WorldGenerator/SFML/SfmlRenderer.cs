@@ -6,7 +6,7 @@ using WorldGenerator.States;
 
 namespace WorldGenerator.SFML;
 
-public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, IDisposable
+public sealed class SFMLRenderer : IRenderer, IDisposable
 {
     private readonly RenderWindow _window;
     private readonly View _view;
@@ -24,6 +24,8 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
         OutlineThickness = -3,
     };
 
+    private readonly Dictionary<string, Action<IEntity, RenderStates>> _renders = [];
+
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
     private readonly World _world;
     private readonly DebugOverlay _debug;
@@ -37,7 +39,7 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
     ITileView? _lastSelectedTile;
     int _lastTick = -1;
 
-    public SfmlRenderer(World world, DebugOverlay overlay, IHostApplicationLifetime lifetime, EventBus eventBus, ConsoleInterface consoleInterface)
+    public SFMLRenderer(World world, DebugOverlay overlay, IHostApplicationLifetime lifetime, EventBus eventBus, ConsoleInterface consoleInterface)
     {
         _world = world;
         _debug = overlay;
@@ -113,6 +115,8 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
             if (e.Code == Keyboard.Key.Space)
                 _world.Paused = !world.Paused;
         };
+
+        RegisterDefaultRenders();
     }
 
     public void Dispose()
@@ -159,7 +163,10 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
 
                 foreach (IEntity entity in tile.Contents)
                 {
-                    _renderList.Add((entity, rs));
+                    if (entity.RenderType != null)
+                    {
+                        _renderList.Add((entity, rs));
+                    }
                 }
             }
         }
@@ -170,7 +177,7 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
             .ThenBy(e => e.Ent.Position.Y)
             .ThenBy(e => e.Ent.Position.X))
         {
-            entity.AcceptRenderer(this, rs);
+            _renders[entity.RenderType!](entity, rs);
         }
 
         _debug.Tick();
@@ -259,17 +266,29 @@ public sealed class SfmlRenderer : IRenderer, IRendererVisitor<RenderStates>, ID
         return result;
     }
 
-    public void VisitBuilding(IEntity building, RenderStates states)
+    private void RegisterRender(string entityType, Action<IEntity, RenderStates> callback)
+    {
+        _renders[entityType] = callback;
+    }
+
+    private void RegisterDefaultRenders()
+    {
+        RegisterRender("building", DrawBuilding);
+        RegisterRender("dwarf", DrawDwarf);
+        RegisterRender("mountain", DrawMountain);
+    }
+
+    private void DrawBuilding(IEntity building, RenderStates states)
     {
         _window.Draw(_castle, states);
     }
 
-    public void VisitCreature(IEntity creature, RenderStates states)
+    private void DrawDwarf(IEntity creature, RenderStates states)
     {
         _window.Draw(_dwarf, states);
     }
 
-    public void VisitMountain(IEntity ground, RenderStates states)
+    private void DrawMountain(IEntity ground, RenderStates states)
     {
         SizeState? size = ground.GetState<SizeState>();
         if (size == null)

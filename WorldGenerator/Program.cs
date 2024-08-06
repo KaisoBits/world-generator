@@ -21,7 +21,7 @@ builder.Services.AddScoped<SchedulerTaskFactory>();
 builder.Services.AddScoped<MoodletFactory>();
 
 builder.Services.AddScoped<Generator>();
-builder.Services.AddScoped<IRenderer, SfmlRenderer>();
+builder.Services.AddScoped<IRenderer, SFMLRenderer>();
 builder.Services.AddScoped<DebugOverlay>();
 
 builder.Services.AddHostedService<GameHostedService>();

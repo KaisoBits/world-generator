@@ -1,6 +1,4 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
-using WorldGenerator.RenderActors;
+﻿using Microsoft.Extensions.DependencyInjection;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -32,16 +30,16 @@ public sealed class EntityFactory
                 result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
                 result.Layer = Layer.Creatures;
-                result.RenderActor = DwarfRenderActor.Instance;
+                result.RenderType = "dwarf";
                 break;
             case "fortress":
                 result.SetState(new NameState(NameGenerator.GetFortressName()));
                 result.Layer = Layer.Buildings;
-                result.RenderActor = BuildingRenderActor.Instance;
+                result.RenderType = "building";
                 break;
             case "mountain":
                 result.Layer = Layer.Ground;
-                result.RenderActor = MountainRenderActor.Instance;
+                result.RenderType = "mountain";
                 break;
             default:
                 throw new Exception("Unknown entity type " + name);

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using WorldGenerator.RenderActors;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -13,7 +12,7 @@ public interface IEntity
 
     Layer Layer { get; }
 
-    IRenderActor? RenderActor { get; }
+    public string? RenderType { get; set; }
 
     public Vector Position { get; }
 
@@ -23,8 +22,6 @@ public interface IEntity
 
     void GatherConditions();
     void Think();
-
-    void AcceptRenderer<T>(IRendererVisitor<T> renderer, T state);
 
     bool InCondition<T>() where T : ICondition;
     void SetCondition<T>() where T : ICondition;

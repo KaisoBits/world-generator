@@ -14,6 +14,9 @@ public class World : IReadOnlyCollection<ITileView>
     private readonly Tile[] _tiles;
     public int Count => _tiles.Length;
 
+    public IReadOnlyCollection<IEntity> Entities => _entities;
+    private readonly List<IEntity> _entities = [];
+
     private readonly List<(IEntity Entity, Vector MoveTo)> _moveSchedule = [];
 
     private World(int x, int y)

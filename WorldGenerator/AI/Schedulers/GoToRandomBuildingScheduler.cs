@@ -14,6 +14,6 @@ public class GoToRandomBuildingScheduler : Scheduler
     public override IEnumerable<ISchedulerTask> GetTasks()
     {
         yield return _schedulerTaskFactory.CreateTask<FindRandomEntityPosition>(this).WithData(Layer.Buildings, "targetPosition");
-        yield return _schedulerTaskFactory.CreateTask<ApproachPosition>(this).WithData(Recall<Vector>("targetPosition")!);
+        yield return _schedulerTaskFactory.CreateTask<ApproachPositionTask>(this).WithData(Recall<Vector>("targetPosition")!);
     }
 }

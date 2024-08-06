@@ -1,9 +1,8 @@
-﻿using System.Diagnostics.Metrics;
-using WorldGenerator.States;
+﻿using WorldGenerator.States;
 
 namespace WorldGenerator.AI;
 
-public class ApproachPosition : ISchedulerTask
+public class ApproachPositionTask : ISchedulerTask
 {
     private readonly IScheduler _scheduler;
     private readonly World _world;
@@ -12,13 +11,13 @@ public class ApproachPosition : ISchedulerTask
     private const int stepTime = 20;
     private int _counter = stepTime;
 
-    public ApproachPosition(IScheduler scheduler, World world)
+    public ApproachPositionTask(IScheduler scheduler, World world)
     {
         _scheduler = scheduler;
         _world = world;
     }
 
-    public ApproachPosition WithData(Vector targetPosition)
+    public ApproachPositionTask WithData(Vector targetPosition)
     {
         _targetPosition = targetPosition;
 

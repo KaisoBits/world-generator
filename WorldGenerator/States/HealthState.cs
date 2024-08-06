@@ -1,3 +1,3 @@
 ﻿namespace WorldGenerator.States;
 
-public record class HealthState(int Health) : IState;
+public readonly record struct HealthState(int Health) : IState;

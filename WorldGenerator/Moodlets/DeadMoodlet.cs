@@ -1,5 +1,3 @@
 ﻿namespace WorldGenerator.Moodlets;
 
-public class DeadMoodlet : Moodlet
-{
-}
+public class DeadMoodlet : Moodlet;

@@ -1,3 +1,3 @@
 ﻿namespace WorldGenerator.States;
 
-public record class SizeState(int Size) : IState;
+public readonly record struct SizeState(int Size) : IState;

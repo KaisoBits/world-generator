@@ -1,3 +1,3 @@
 ﻿namespace WorldGenerator.States;
 
-public record class NameState(string Name) : IState;
+public readonly record struct NameState(string Name) : IState;

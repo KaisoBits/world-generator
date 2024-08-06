@@ -1,6 +1,3 @@
 ﻿namespace WorldGenerator.Moodlets;
 
-public class IsEmptyMoodlet : Moodlet
-{
-
-}
+public class IsEmptyMoodlet : Moodlet;

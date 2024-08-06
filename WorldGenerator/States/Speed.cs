@@ -1,3 +1,3 @@
 ﻿namespace WorldGenerator.States;
 
-public record class SpeedState(int Speed) : IState;
+public readonly record struct SpeedState(int Speed) : IState;

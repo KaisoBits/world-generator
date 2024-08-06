@@ -294,11 +294,11 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         if (size == null)
             return;
 
-        if (size.Size <= 8)
+        if (size.Value.Size <= 8)
         {
             _window.Draw(_smallMountain, states);
         }
-        else if (size.Size >= 16)
+        else if (size.Value.Size >= 16)
         {
             _window.Draw(_mountain, states);
         }

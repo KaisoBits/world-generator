@@ -8,7 +8,7 @@ namespace WorldGenerator;
 public interface IEntity
 {
     IReadOnlyList<Moodlet> Moodlets { get; }
-    IReadOnlyCollection<IState> States { get; }
+    IReadOnlyCollection<IValueWithModifiers> States { get; }
     IReadOnlyCollection<ITrait> Traits { get; }
 
     Layer Layer { get; }
@@ -29,9 +29,8 @@ public interface IEntity
     bool HasMoodlet<T>() where T : Moodlet;
     bool RemoveMoodlet<T>() where T : Moodlet;
 
-    void SetState(IState state);
-
-    T? GetState<T>() where T : class, IState;
+    void SetState<T>(T data) where T : struct, IState;
+    T? GetState<T>() where T : struct, IState;
 
     T GetOrAddTrait<T>() where T : ITrait;
     T AddTrait<T>() where T : ITrait;

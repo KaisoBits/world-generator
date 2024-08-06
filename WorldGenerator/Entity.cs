@@ -11,8 +11,8 @@ public sealed class Entity : IEntity
     public IReadOnlyList<Moodlet> Moodlets => _moodlets;
     private readonly List<Moodlet> _moodlets = [];
 
-    public IReadOnlyCollection<IState> States => _states.Values;
-    private readonly Dictionary<Type, IState> _states = [];
+    public IReadOnlyCollection<IValueWithModifiers> States => _states.Values;
+    private readonly Dictionary<Type, IValueWithModifiers> _states = [];
 
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
@@ -106,7 +106,10 @@ public sealed class Entity : IEntity
 
     private void RemoveExpiredMoodlets()
     {
-        List<Moodlet> toRemove = _moodlets.Where(m => m.ExpireOn != -1 && m.ExpireOn <= _world.CurrentTick).ToList();
+        List<Moodlet> toRemove = _moodlets
+            .Where(m => m.ExpireOn != -1 && m.ExpireOn <= _world.CurrentTick)
+            .ToList();
+
         if (toRemove is [])
             return;
 
@@ -118,14 +121,43 @@ public sealed class Entity : IEntity
         }
     }
 
-    public void SetState(IState state)
+    public void SetState<T>(T data) where T : struct, IState
     {
-        _states[state.GetType()] = state;
+        Type type = typeof(T);
+
+        if (_states.TryGetValue(type, out IValueWithModifiers? v))
+        {
+            ((ValueWithModifiers<T>)v).OriginalValue = data;
+            return;
+        }
+
+        ValueWithModifiers<T> val = new(data);
+        _states.Add(type, val);
     }
 
-    public T? GetState<T>() where T : class, IState
+    public T? GetState<T>() where T : struct, IState
     {
-        return _states.GetValueOrDefault(typeof(T)) as T;
+        return (_states.GetValueOrDefault(typeof(T)) as ValueWithModifiers<T>)?.Value;
+    }
+
+    public void RegisterModifier<T>(Func<T, T> modifier) where T : struct, IState
+    {
+        Type type = typeof(T);
+
+        if (!_states.TryGetValue(type, out IValueWithModifiers? v))
+            throw new Exception("Cannot register modifier for not existing state");
+
+        ((ValueWithModifiers<T>)v).RegisterModifier(modifier);
+    }
+
+    public void DergisterModifier<T>(Func<T, T> modifier) where T : struct, IState
+    {
+        Type type = typeof(T);
+
+        if (!_states.TryGetValue(type, out IValueWithModifiers? v))
+            throw new Exception("Cannot deregister modifier for not existing state");
+
+        ((ValueWithModifiers<T>)v).DeregisterModifier(modifier);
     }
 
     public T AddTrait<T>() where T : ITrait

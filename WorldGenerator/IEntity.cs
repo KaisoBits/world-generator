@@ -7,6 +7,8 @@ namespace WorldGenerator;
 
 public interface IEntity
 {
+    int ID { get; }
+
     IReadOnlyList<Moodlet> Moodlets { get; }
     IReadOnlyCollection<IValueWithModifiers> States { get; }
     IReadOnlyCollection<ITrait> Traits { get; }

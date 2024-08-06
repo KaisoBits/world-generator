@@ -37,11 +37,7 @@ public class ConsoleInterface
 
     public void DisplayEntityInfo(IEntity entity)
     {
-        Console.Write($"Entity: {entity.GetState<NameState>()?.Name}");
-        if (entity.TryGetTrait(out MoodTrait? moodTrait))
-        {
-            Console.Write($" ({moodTrait.MoodLevel})");
-        }
+        Console.Write($"Entity: {entity.GetState<NameState>()?.Name} ({entity.ID})");
 
         Console.WriteLine();
         Console.WriteLine($"Layer: {entity.Layer}");

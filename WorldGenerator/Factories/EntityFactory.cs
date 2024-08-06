@@ -9,6 +9,8 @@ public sealed class EntityFactory
     private readonly IServiceProvider _serviceProvider;
     private readonly TraitFactory _traitFactory;
 
+    private int _currentID = 1;
+
     public EntityFactory(IServiceProvider serviceProvider, TraitFactory traitFactory)
     {
         _serviceProvider = serviceProvider;
@@ -46,6 +48,8 @@ public sealed class EntityFactory
             default:
                 throw new Exception("Unknown entity type " + name);
         }
+
+        result.ID = _currentID++;
 
         return result;
     }

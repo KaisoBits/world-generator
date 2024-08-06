@@ -8,6 +8,8 @@ namespace WorldGenerator;
 
 public sealed class Entity : IEntity
 {
+    public int ID { get; internal set; }
+
     public IReadOnlyList<Moodlet> Moodlets => _moodlets;
     private readonly List<Moodlet> _moodlets = [];
 

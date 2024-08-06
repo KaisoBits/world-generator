@@ -22,13 +22,15 @@ public sealed class EntityFactory
         switch (name)
         {
             case "dwarf":
+                result.SetState(new HealthState(100));
+                result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
+                result.SetState(new NameState(NameGenerator.GetDwarfName()));
+
                 result.AddTrait<MoodTrait>();
                 result.AddTrait<MemoryTrait>();
                 result.AddTrait<AITrait>();
                 result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.015f });
-                result.SetState(new HealthState(100));
-                result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
-                result.SetState(new NameState(NameGenerator.GetDwarfName()));
+
                 result.Layer = Layer.Creatures;
                 result.RenderType = "dwarf";
                 break;

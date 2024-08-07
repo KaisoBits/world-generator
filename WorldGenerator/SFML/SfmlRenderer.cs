@@ -16,6 +16,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly Sprite _dwarf = new(LoadTexture("Resources/dwarf.png"));
     private readonly Sprite _mountain = new(LoadTexture("Resources/mountain.png"));
     private readonly Sprite _smallMountain = new(LoadTexture("Resources/stone.png"));
+    private readonly Sprite _field = new(LoadTexture("Resources/field.png"));
 
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
     {

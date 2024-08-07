@@ -45,6 +45,10 @@ public sealed class EntityFactory
                 result.Layer = Layer.Ground;
                 result.RenderType = "mountain";
                 break;
+            case "mountain":
+                result.Layer = Layer.Ground;
+                result.RenderType = "field";
+                break;
             default:
                 throw new Exception("Unknown entity type " + name);
         }

@@ -64,40 +64,40 @@ public class Terrain
         }
 
     }
-
-
-
-    public void VillageAddons(World world, EntityFactory entityFactory, Tile tile) {
-
-        Entity ent = _entityFactory.CreateFromName("field");
-
-        for (int y = 0; y < world.Height; y++)
-        {
-            for (int x = 0; x < world.Width; x++)
-            {
-
-
-                if (tile.Contents.Contains(_fortress))
-                {
-                    for (int addonY = y - 1; addonY <= y + 1; addonY++) {
-                        for (int addonX = x - 1; addonX <= x + 1; addonX++) {
-
-                            if (tile.Contents == (null) && Random.Shared.Next(0, 10) < 6) {
-                                _world.SpawnEntity(ent, new Vector(addonX, addonY));
-                                }
-
-                             }
-
-
-                        }
-
-                     }
-
-                  }
-             }
-        }
-    //tile.Contents.Contains(_fortress)
 }
+
+
+//    public void VillageAddons(World world, EntityFactory entityFactory, Tile tile) {
+
+//        Entity ent = _entityFactory.CreateFromName("field");
+
+//        for (int y = 0; y < world.Height; y++)
+//        {
+//            for (int x = 0; x < world.Width; x++)
+//            {
+
+
+//                if (tile.Contents.Contains(_fortress))
+//                {
+//                    for (int addonY = y - 1; addonY <= y + 1; addonY++) {
+//                        for (int addonX = x - 1; addonX <= x + 1; addonX++) {
+
+//                            if (tile.Contents == (null) && Random.Shared.Next(0, 10) < 6) {
+//                                _world.SpawnEntity(ent, new Vector(addonX, addonY));
+//                                }
+
+//                             }
+
+
+//                        }
+
+//                     }
+
+//                  }
+//             }
+//        }
+//    //tile.Contents.Contains(_fortress)
+//}
     
     
     

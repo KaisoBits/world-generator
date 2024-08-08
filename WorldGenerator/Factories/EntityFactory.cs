@@ -45,8 +45,8 @@ public sealed class EntityFactory
                 result.Layer = Layer.Ground;
                 result.RenderType = "mountain";
                 break;
-            case "mountain":
-                result.Layer = Layer.Ground;
+            case "field":
+                result.Layer = Layer.Buildings;
                 result.RenderType = "field";
                 break;
             default:

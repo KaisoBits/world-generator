@@ -277,7 +277,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         RegisterRender("building", DrawBuilding);
         RegisterRender("dwarf", DrawDwarf);
         RegisterRender("mountain", DrawMountain);
-        RegisterRender("field", DrawMountain);
+        RegisterRender("field", DrawField);
     }
 
     private void DrawBuilding(IEntity building, RenderStates states)
@@ -288,6 +288,11 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private void DrawDwarf(IEntity creature, RenderStates states)
     {
         _window.Draw(_dwarf, states);
+    }
+
+    private void DrawField(IEntity building, RenderStates states)
+    {
+        _window.Draw(_field, states);
     }
 
     private void DrawMountain(IEntity ground, RenderStates states)

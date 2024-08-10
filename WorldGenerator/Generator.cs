@@ -6,16 +6,21 @@ public class Generator
 {
     private readonly World _world;
     private readonly EntityFactory _entityFactory;
+    private readonly Terrain _terrain;
 
-    public Generator(World world, EntityFactory entityFactory)
+    public Generator(World world, EntityFactory entityFactory, Terrain terrain)
     {
         _world = world;
         _entityFactory = entityFactory;
+        _terrain = terrain;
     }
 
     public List<IEntity> PopulateWorld(int buildingCount, int citizenCount)
     {
         _ = GenerateBuildings(buildingCount);
+
+        _terrain.SpawnMountainMother();
+        _terrain.VillageAddons();
 
         return GenerateCitizens(citizenCount);
     }

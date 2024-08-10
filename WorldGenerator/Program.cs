@@ -12,7 +12,7 @@ builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));
 builder.Services.AddScoped<EventBus>();
 builder.Services.AddScoped<ConsoleInterface>();
 builder.Services.AddScoped<Terrain>();
-//builder.Services.AddScoped<Pathfinding>();
+builder.Services.AddScoped<Pathfinding>();
 
 builder.Services.AddScoped<EntityFactory>();
 builder.Services.AddScoped<TraitFactory>();

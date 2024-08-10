@@ -14,21 +14,24 @@ public class Terrain
         _world = world;
         _entityFactory = entityFactory;
         _pathfinding = pathfinding;
+    }
 
-        for (int y = 0; y < world.Height; y++)
+    public void SpawnMountainMother()
+    {
+        for (int y = 0; y < _world.Height; y++)
         {
-            for (int x = 0; x < world.Width; x++)
+            for (int x = 0; x < _world.Width; x++)
             {
                 //ITileView t = World.Instance[0, 0];
                 int TerrainRand = Random.Shared.Next(0, 100);
 
                 if (TerrainRand == 1)
                 {
-                    Entity ent = entityFactory.CreateFromName("mountain");
+                    Entity ent = _entityFactory.CreateFromName("mountain");
                     ent.SetState(new SizeState(16));
-                    world.SpawnEntity(ent, new Vector(x, y));
+                    _world.SpawnEntity(ent, new Vector(x, y));
 
-                    pathfinding.ValueGrid[x, y] = pathfinding.ValueGrid[x, y] + 5;
+                    _pathfinding.ValueGrid[x, y] = _pathfinding.ValueGrid[x, y] + 5;
                     // 5 is the terrain difficulty of main mountain, might be adjusted accordingly in later iterations.
 
                     SpawnMountainChain(x, y);
@@ -64,71 +67,56 @@ public class Terrain
         }
 
     }
+
+    public void VillageAddons()
+    {
+        Entity ent = _entityFactory.CreateFromName("field");
+
+        for (int y = 0; y < _world.Height; y++)
+        {
+            for (int x = 0; x < _world.Width; x++)
+            {
+                ITileView tile = _world[x, y];
+
+                if (tile.Contents.Any(e => e.EntityType == "fortress"))
+                {
+                    for (int addonY = y - 1; y - 1 >= 0 && y + 1 < _world.Height && addonY <= y + 1; addonY++)
+                    {
+                        for (int addonX = x - 1; x - 1 >= 0 && x + 1 < _world.Width && addonX <= x + 1; addonX++)
+                        {
+                            ITileView addonTile = _world[addonX, addonY];
+                            if (Random.Shared.Next(0, 10) < 6 && addonTile.Contents.Count == 0  /*All(e => e.Layer != Layer.Buildings) && tile.Contents.All(e => e.EntityType != "mountain")*/)
+                            {
+                                _world.SpawnEntity(ent, new Vector(addonX, addonY));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
-//    public void VillageAddons(World world, EntityFactory entityFactory, Tile tile) {
+//tile.Contents.Contains(_fortress)
 
-//        Entity ent = _entityFactory.CreateFromName("field");
 
-//        for (int y = 0; y < world.Height; y++)
+//public void SpawnSmallHill(IEntity ground)
+//{
+//    SizeState? size = ground.GetState<SizeState>();
+
+//    for (int y = 0; y < _world.Height; y++)
+//    {
+//        for (int x = 0; x < _world.Width; x++)
 //        {
-//            for (int x = 0; x < world.Width; x++)
+//            if (GetState.size = 8)
 //            {
+//            }
 
 
-//                if (tile.Contents.Contains(_fortress))
-//                {
-//                    for (int addonY = y - 1; addonY <= y + 1; addonY++) {
-//                        for (int addonX = x - 1; addonX <= x + 1; addonX++) {
-
-//                            if (tile.Contents == (null) && Random.Shared.Next(0, 10) < 6) {
-//                                _world.SpawnEntity(ent, new Vector(addonX, addonY));
-//                                }
-
-//                             }
-
-
-//                        }
-
-//                     }
-
-//                  }
-//             }
 //        }
-//    //tile.Contents.Contains(_fortress)
+//    }
 //}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //public void SpawnSmallHill(IEntity ground)
-    //{
-    //    SizeState? size = ground.GetState<SizeState>();
-
-    //    for (int y = 0; y < _world.Height; y++)
-    //    {
-    //        for (int x = 0; x < _world.Width; x++)
-    //        {
-    //            if (GetState.size = 8)
-    //            {
-    //            }
-
-
-    //        }
-    //    }
-    //}
-
-
-
-
 
 
 //        switch (Random.Shared.Next(0, 4))
@@ -155,3 +143,4 @@ public class Terrain
 //        {
 //            for (int x = 0; x<world.Width; x++)
 //            {
+

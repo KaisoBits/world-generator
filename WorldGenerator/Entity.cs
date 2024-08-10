@@ -19,7 +19,7 @@ public sealed class Entity : IEntity
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
 
-    public string EntityType { get; internal set; } = "Unassigned";
+    public string EntityType { get; internal set; } = "unassigned";
 
     public Vector Position { get; internal set; }
 

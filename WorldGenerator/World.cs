@@ -35,13 +35,11 @@ public class World : IReadOnlyCollection<ITileView>
         if (Paused)
             return;
 
-        foreach (var tile in _tiles)
-            foreach (var contents in tile.Contents)
-                contents.GatherConditions();
+        foreach (IEntity entity in _entities)
+            entity.GatherConditions();
 
-        foreach (var tile in _tiles)
-            foreach (var contents in tile.Contents)
-                contents.Think();
+        foreach (IEntity entity in _entities)
+            entity.Think();
 
         foreach (var (ent, pos) in _moveSchedule)
             MoveEntity(ent, pos);
@@ -69,6 +67,8 @@ public class World : IReadOnlyCollection<ITileView>
     public void SpawnEntity(Entity entity, Vector position)
     {
         GetTileAt(position).AddEntity(entity);
+        _entities.Add(entity);
+
         entity.Position = position;
 
         entity.OnSpawn();

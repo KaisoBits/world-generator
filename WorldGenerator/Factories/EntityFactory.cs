@@ -7,14 +7,12 @@ namespace WorldGenerator.Factories;
 public sealed class EntityFactory
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly TraitFactory _traitFactory;
 
     private int _currentID = 1;
 
-    public EntityFactory(IServiceProvider serviceProvider, TraitFactory traitFactory)
+    public EntityFactory(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _traitFactory = traitFactory;
     }
 
     public Entity CreateFromName(string name)

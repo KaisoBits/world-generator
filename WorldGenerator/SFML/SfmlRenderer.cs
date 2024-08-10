@@ -164,7 +164,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
                 foreach (IEntity entity in tile.Contents)
                 {
-                    if (entity.RenderType != null)
+                    if (entity.EntityType != null)
                     {
                         _renderList.Add((entity, rs));
                     }
@@ -178,7 +178,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             .ThenBy(e => e.Ent.Position.Y)
             .ThenBy(e => e.Ent.Position.X))
         {
-            _renders[entity.RenderType!](entity, rs);
+            _renders[entity.EntityType](entity, rs);
         }
 
         _debug.Tick();
@@ -274,7 +274,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private void RegisterDefaultRenders()
     {
-        RegisterRender("building", DrawBuilding);
+        RegisterRender("fortress", DrawBuilding);
         RegisterRender("dwarf", DrawDwarf);
         RegisterRender("mountain", DrawMountain);
         RegisterRender("field", DrawField);

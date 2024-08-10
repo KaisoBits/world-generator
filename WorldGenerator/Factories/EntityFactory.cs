@@ -17,7 +17,6 @@ public sealed class EntityFactory
         _traitFactory = traitFactory;
     }
 
-    // Placeholder
     public Entity CreateFromName(string name)
     {
         Entity result = ActivatorUtilities.CreateInstance<Entity>(_serviceProvider);
@@ -34,20 +33,20 @@ public sealed class EntityFactory
                 result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.015f });
 
                 result.Layer = Layer.Creatures;
-                result.RenderType = "dwarf";
+                result.EntityType = "dwarf";
                 break;
             case "fortress":
                 result.SetState(new NameState(NameGenerator.GetFortressName()));
                 result.Layer = Layer.Buildings;
-                result.RenderType = "building";
+                result.EntityType = "fortress";
                 break;
             case "mountain":
                 result.Layer = Layer.Ground;
-                result.RenderType = "mountain";
+                result.EntityType = "mountain";
                 break;
             case "field":
                 result.Layer = Layer.Buildings;
-                result.RenderType = "field";
+                result.EntityType = "field";
                 break;
             default:
                 throw new Exception("Unknown entity type " + name);

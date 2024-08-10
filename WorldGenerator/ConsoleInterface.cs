@@ -41,7 +41,7 @@ public class ConsoleInterface
 
         Console.WriteLine();
         Console.WriteLine($"Layer: {entity.Layer}");
-        Console.WriteLine($"Render Type: {entity.RenderType ?? "-"}");
+        Console.WriteLine($"Entity Type: {entity.EntityType ?? "-"}");
         Console.WriteLine("---------------------------------------");
 
         Console.WriteLine("Moodlets:");

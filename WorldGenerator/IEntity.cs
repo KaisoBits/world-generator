@@ -15,7 +15,7 @@ public interface IEntity
 
     Layer Layer { get; }
 
-    string? RenderType { get; set; }
+    string EntityType { get; }
 
     public Vector Position { get; }
 

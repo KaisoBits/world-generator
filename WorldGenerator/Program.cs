@@ -23,6 +23,7 @@ builder.Services.AddScoped<MoodletFactory>();
 
 builder.Services.AddScoped<Generator>();
 builder.Services.AddScoped<IRenderer, SFMLRenderer>();
+builder.Services.AddScoped<SelectionService>();
 builder.Services.AddScoped<DebugOverlay>();
 
 builder.Services.AddHostedService<GameHostedService>();

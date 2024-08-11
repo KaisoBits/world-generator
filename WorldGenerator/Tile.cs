@@ -4,6 +4,10 @@ public class Tile : ITileView
 {
     public IReadOnlyList<IEntity> Contents => _contents;
 
+    public bool IsOccupied => HasWall || _contents is not [];
+
+    public bool HasWall { get; set; }
+
     public Vector Position { get; }
 
     private readonly List<IEntity> _contents = [];

@@ -85,7 +85,7 @@ public class Terrain
                         for (int addonX = x - 1; x - 1 >= 0 && x + 1 < _world.Width && addonX <= x + 1; addonX++)
                         {
                             ITileView addonTile = _world[addonX, addonY];
-                            if (Random.Shared.Next(0, 10) < 6 && addonTile.Contents.Count == 0  /*All(e => e.Layer != Layer.Buildings) && tile.Contents.All(e => e.EntityType != "mountain")*/)
+                            if (Random.Shared.Next(0, 10) < 6 && !addonTile.IsOccupied /*All(e => e.Layer != Layer.Buildings) && tile.Contents.All(e => e.EntityType != "mountain")*/)
                             {
                                 _world.SpawnEntity(ent, new Vector(addonX, addonY));
                             }

@@ -66,7 +66,7 @@ public class Generator
     private Vector[] GetEmptyPositions(World world)
     {
         Vector[] positions = world
-            .Where(t => t.Contents is [])
+            .Where(t => !t.IsOccupied)
             .Select(t => t.Position)
             .ToArray();
 

@@ -1,4 +1,6 @@
-﻿using WorldGenerator.AI;
+﻿using System.Threading.Channels;
+using WorldGenerator.AI;
+using WorldGenerator.Events;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -7,23 +9,96 @@ namespace WorldGenerator;
 public class ConsoleInterface
 {
     private readonly EventBus _eventBus;
+    private readonly SelectionService _selectionService;
 
-    public ConsoleInterface(EventBus eventBus)
+    private readonly Dictionary<string, Func<IReadOnlyCollection<string>, string?>> _commands = [];
+
+    private readonly Channel<string> _commandChannel = Channel.CreateUnbounded<string>();
+
+    public ConsoleInterface(EventBus eventBus, SelectionService selectionService)
     {
         _eventBus = eventBus;
+        _selectionService = selectionService;
+
+        RegisterCommand("help", Help);
+        RegisterCommand("clear", Clear);
+        RegisterCommand("events", DisplayEvents);
+        RegisterCommand("tile", DisplayTileInfo);
     }
 
-    public void StartDisplayingEvents()
+    public void StartTakingInput()
     {
-        var listBottom = _eventBus.EventList.TakeLast(20);
+        Task.Factory.StartNew(() =>
+        {
+            while (true)
+            {
+                string input = Console.ReadLine()!;
+                _commandChannel.Writer.TryWrite(input);
+            }
+        }, TaskCreationOptions.LongRunning);
+    }
+
+    public void ProcessCommands()
+    {
+        while (_commandChannel.Reader.TryRead(out string? item))
+        {
+            RunCommand(item);
+        }
+    }
+
+    public void RunCommand(string fullCommand)
+    {
+        string[] parts = fullCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (_commands.TryGetValue(parts[0], out var handler))
+        {
+            string? response = handler(parts);
+            if (response == null)
+                Console.WriteLine("Command executed successfully");
+            else
+                Console.WriteLine("Command failed with message: '{0}'", response);
+        }
+        else
+        {
+            Console.WriteLine("Command '{0}' not found", parts[0]);
+        }
+    }
+
+    public void RegisterCommand(string name, Func<IReadOnlyCollection<string>, string?> handler)
+    {
+        _commands.Add(name, handler);
+    }
+
+    public string? Help(IReadOnlyCollection<string> parameters)
+    {
+        Console.WriteLine("Available commands:");
+        foreach (var command in _commands)
+            Console.WriteLine($"  - {command.Key}");
+
+        return null;
+    }
+
+    public string? Clear(IReadOnlyCollection<string> parameters)
+    {
+        Console.Clear();
+
+        return null;
+    }
+
+    public string? DisplayEvents(IReadOnlyCollection<string> parameters)
+    {
+        IEnumerable<GameEvent> listBottom = _eventBus.EventList.TakeLast(20);
         foreach (var item in listBottom)
             Console.WriteLine(item);
 
-        //Subscription sub = EventBus.Subscribe<GameEvent>(Console.WriteLine);
+        return null;
     }
 
-    public void DisplayTileInfo(ITileView tile)
+    public string? DisplayTileInfo(IReadOnlyCollection<string> parameters)
     {
+        ITileView? tile = _selectionService.SelectedTile;
+        if (tile == null)
+            return "No tile selected";
+
         Console.WriteLine($"Tile {tile.Position}:");
         foreach (IEntity entity in tile.Contents)
         {
@@ -33,6 +108,8 @@ public class ConsoleInterface
             Console.WriteLine();
         }
         Console.WriteLine("*******************************************************************************************************************");
+
+        return null;
     }
 
     public void DisplayEntityInfo(IEntity entity)

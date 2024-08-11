@@ -17,6 +17,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly Sprite _mountain = new(LoadTexture("Resources/mountain.png"));
     private readonly Sprite _smallMountain = new(LoadTexture("Resources/stone.png"));
     private readonly Sprite _field = new(LoadTexture("Resources/field.png"));
+    private readonly Sprite _wall = new(LoadTexture("Resources/wall.png"));
 
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
     {
@@ -25,6 +26,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         OutlineThickness = -3,
     };
 
+
     private readonly Dictionary<string, Action<IEntity, RenderStates>> _renders = [];
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
@@ -32,20 +34,29 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly DebugOverlay _debug;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ConsoleInterface _consoleInterface;
+    private readonly SelectionService _selectionService;
+
     bool _isMovingCam = false;
     Vector2f _lastPos = new();
     float _zoom = 1.0f;
 
-    ITileView? _selectedTile;
-    ITileView? _lastSelectedTile;
     int _lastTick = -1;
 
-    public SFMLRenderer(World world, DebugOverlay overlay, IHostApplicationLifetime lifetime, EventBus eventBus, ConsoleInterface consoleInterface)
+    ITileView? _lastSelectedTile = null;
+
+    public SFMLRenderer(
+        World world,
+        DebugOverlay overlay,
+        IHostApplicationLifetime lifetime,
+        EventBus eventBus,
+        ConsoleInterface consoleInterface,
+        SelectionService selectionService)
     {
         _world = world;
         _debug = overlay;
         _lifetime = lifetime;
         _consoleInterface = consoleInterface;
+        _selectionService = selectionService;
 
         ContextSettings settings = new()
         {
@@ -118,6 +129,8 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         };
 
         RegisterDefaultRenders();
+
+        _consoleInterface.StartTakingInput();
     }
 
     public void Dispose()
@@ -137,6 +150,8 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         _window.Clear(new Color(135, 206, 235));
 
         _window.DispatchEvents();
+
+        _consoleInterface.ProcessCommands();
 
         HighlightSelectedTile();
 
@@ -160,7 +175,10 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
                 t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
                 RenderStates rs = new(t);
 
-                _window.Draw(_grass, rs);
+                if (tile.HasWall)
+                    _window.Draw(_wall, rs);
+                else
+                    _window.Draw(_grass, rs);
 
                 foreach (IEntity entity in tile.Contents)
                 {
@@ -202,7 +220,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     {
         if (position == null)
         {
-            _selectedTile = null;
+            _selectionService.UnselectTile();
             Console.Clear();
             return;
         }
@@ -211,12 +229,12 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
         if (tilePosition.X < 0 || tilePosition.X > _world.Width - 1 || tilePosition.Y < 0 || tilePosition.Y > _world.Height - 1)
         {
-            _selectedTile = null;
+            _selectionService.UnselectTile();
             Console.Clear();
             return;
         }
 
-        _selectedTile = _world[tilePosition];
+        _selectionService.SelectTile(tilePosition);
     }
 
     private (Vector leftUpper, Vector rightBottom) GetBounds()
@@ -232,7 +250,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private void HighlightSelectedTile()
     {
-        if (_selectedTile == null)
+        if (_selectionService.SelectedTile == null)
         {
             if (_lastSelectedTile != null)
             {
@@ -243,15 +261,10 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             return;
         }
 
-        if (_lastTick != _world.CurrentTick || _selectedTile != _lastSelectedTile)
+        if (_lastTick != _world.CurrentTick || _selectionService.SelectedTile != _lastSelectedTile)
         {
             _debug.Clear();
-            _debug.HighlightTileAt(_selectedTile.Position, _world.CurrentTick);
-            Console.Clear();
-            _consoleInterface.DisplayTileInfo(_selectedTile);
-
-            _lastTick = _world.CurrentTick;
-            _lastSelectedTile = _selectedTile;
+            _debug.HighlightTileAt(_selectionService.SelectedTile.Position, _world.CurrentTick);
         }
     }
 

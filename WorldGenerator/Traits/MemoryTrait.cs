@@ -4,10 +4,10 @@ namespace WorldGenerator.Traits;
 
 public class MemoryTrait : Trait<NullTraitData>
 {
-    public IReadOnlyCollection<EntityMemory> Memories => _memories;
-    private readonly List<EntityMemory> _memories = [];
+    public IReadOnlyCollection<IEntityMemory> Memories => _memories;
+    private readonly List<IEntityMemory> _memories = [];
 
-    public void Remember(EntityMemory memory)
+    public void Remember(IEntityMemory memory)
     {
         _memories.Add(memory);
     }

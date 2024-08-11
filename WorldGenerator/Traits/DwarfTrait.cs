@@ -36,14 +36,14 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
         else
             Owner.RemoveMoodlet<DeadMoodlet>();
 
-        Owner.RemoveMoodlet<JustEnteredBuildingMoodlet>();
+        Owner.RemoveMoodlet<JustEnteredFortressMoodlet>();
 
-        if (Owner.CurrentTile.Contents.Any(e => e.Layer == Layer.Buildings))
+        if (Owner.CurrentTile.Contents.Any(e => e.EntityType == "fortress"))
         {
             if (!Owner.HasMoodlet<InBuildingMoodlet>())
             {
                 Owner.ApplyMoodlet<InBuildingMoodlet>();
-                Owner.ApplyMoodlet<JustEnteredBuildingMoodlet>();
+                Owner.ApplyMoodlet<JustEnteredFortressMoodlet>();
             }
         }
         else
@@ -54,12 +54,12 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
 
     public override void Tick()
     {
-        if (Owner.HasMoodlet<JustEnteredBuildingMoodlet>())
+        if (Owner.HasMoodlet<JustEnteredFortressMoodlet>())
         {
            _memoryTrait.Remember(
-                new VisitedBuildingMemory(
+                new VisitedFortressMemory(
                     Owner.CurrentTile.Contents
-                    .FirstOrDefault(c => c.Layer == Layer.Buildings)
+                    .FirstOrDefault(c => c.EntityType == "fortress")
                     ?.GetState<NameState>()?.Name ?? string.Empty));
         }
 

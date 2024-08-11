@@ -10,7 +10,7 @@ public interface IEntity
     int ID { get; }
 
     IReadOnlyList<Moodlet> Moodlets { get; }
-    IReadOnlyCollection<IValueWithModifiers> States { get; }
+    IReadOnlyCollection<IState> States { get; }
     IReadOnlyCollection<ITrait> Traits { get; }
 
     Layer Layer { get; }
@@ -33,8 +33,6 @@ public interface IEntity
 
     void SetState<T>(T data) where T : struct, IState;
     T? GetState<T>() where T : struct, IState;
-    void RegisterModifier<T>(Func<T, T> modifier) where T : struct, IState;
-    void DeregisterModifier<T>(Func<T, T> modifier) where T : struct, IState;
 
     T GetOrAddTrait<T>() where T : ITrait;
     T AddTrait<T>() where T : ITrait;
@@ -42,4 +40,8 @@ public interface IEntity
     bool HasTrait<T>() where T : ITrait;
     T GetTrait<T>() where T : ITrait;
     bool TryGetTrait<T>([NotNullWhen(true)] out T? trait) where T : ITrait;
+
+    void AddModifier<T>(Func<T, T> modifier);
+    void RemoveModifier<T>(Func<T, T> modifier);
+    T GetValueAfterModifiers<T>(T value);
 }

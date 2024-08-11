@@ -29,6 +29,7 @@ public sealed class EntityFactory
                 result.AddTrait<MemoryTrait>();
                 result.AddTrait<AITrait>();
                 result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.015f });
+                result.AddTrait<SpeedyTrait>();
 
                 result.Layer = Layer.Creatures;
                 result.EntityType = "dwarf";

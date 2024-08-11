@@ -13,11 +13,13 @@ public sealed class Entity : IEntity
     public IReadOnlyList<Moodlet> Moodlets => _moodlets;
     private readonly List<Moodlet> _moodlets = [];
 
-    public IReadOnlyCollection<IValueWithModifiers> States => _states.Values;
-    private readonly Dictionary<Type, IValueWithModifiers> _states = [];
+    public IReadOnlyCollection<IState> States => _states.Values;
+    private readonly Dictionary<Type, IState> _states = [];
 
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
+
+    private readonly Dictionary<Type, List<object>> _modifiers = [];
 
     public string EntityType { get; internal set; } = "unassigned";
 
@@ -126,40 +128,18 @@ public sealed class Entity : IEntity
     public void SetState<T>(T data) where T : struct, IState
     {
         Type type = typeof(T);
-
-        if (_states.TryGetValue(type, out IValueWithModifiers? v))
-        {
-            ((ValueWithModifiers<T>)v).OriginalValue = data;
-            return;
-        }
-
-        ValueWithModifiers<T> val = new(data);
-        _states.Add(type, val);
+        _states[type] = data;
     }
 
     public T? GetState<T>() where T : struct, IState
     {
-        return (_states.GetValueOrDefault(typeof(T)) as ValueWithModifiers<T>)?.Value;
-    }
-
-    public void RegisterModifier<T>(Func<T, T> modifier) where T : struct, IState
-    {
         Type type = typeof(T);
 
-        if (!_states.TryGetValue(type, out IValueWithModifiers? v))
-            throw new Exception("Cannot register modifier for not existing state");
+        T? result = (T?)_states.GetValueOrDefault(type);
+        if (result == null)
+            return null;
 
-        ((ValueWithModifiers<T>)v).RegisterModifier(modifier);
-    }
-
-    public void DeregisterModifier<T>(Func<T, T> modifier) where T : struct, IState
-    {
-        Type type = typeof(T);
-
-        if (!_states.TryGetValue(type, out IValueWithModifiers? v))
-            throw new Exception("Cannot deregister modifier for not existing state");
-
-        ((ValueWithModifiers<T>)v).DeregisterModifier(modifier);
+        return GetValueAfterModifiers(result.Value);
     }
 
     public T AddTrait<T>() where T : ITrait
@@ -215,5 +195,32 @@ public sealed class Entity : IEntity
         trait = (T?)_traits.FirstOrDefault(e => e is T);
 
         return trait != null;
+    }
+
+    public void AddModifier<T>(Func<T, T> modifier)
+    {
+        Type t = typeof(T);
+        _modifiers.TryAdd(t, []);
+        _modifiers[t].Add(modifier);
+    }
+
+    public void RemoveModifier<T>(Func<T, T> modifier)
+    {
+        Type t = typeof(T);
+        _modifiers[t].Remove(modifier);
+    }
+
+    public T GetValueAfterModifiers<T>(T value)
+    {
+        Type t = typeof(T);
+
+        List<object>? modifiers = _modifiers.GetValueOrDefault(t);
+        if (modifiers is null or { Count: 0 })
+            return value;
+
+        foreach (Func<T, T> modifier in modifiers)
+            value = modifier(value);
+
+        return value;
     }
 }

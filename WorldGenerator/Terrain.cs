@@ -78,7 +78,7 @@ public class Terrain
             {
                 ITileView tile = _world[x, y];
 
-                if (tile.Contents.Any(e => e.EntityType == "fortress"))
+                if (tile.Contents.Any(e => e.EntityType.Matches("stock.building.fortress")))
                 {
                     for (int addonY = y - 1; y - 1 >= 0 && y + 1 < _world.Height && addonY <= y + 1; addonY++)
                     {

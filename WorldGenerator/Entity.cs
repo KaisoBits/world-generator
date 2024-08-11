@@ -21,7 +21,7 @@ public sealed class Entity : IEntity
 
     private readonly Dictionary<Type, List<object>> _modifiers = [];
 
-    public string EntityType { get; internal set; } = "unassigned";
+    public EntityType EntityType { get; internal set; } = EntityType.Parse("unassigned.unassigned.unassigned");
 
     public Vector Position { get; internal set; }
 

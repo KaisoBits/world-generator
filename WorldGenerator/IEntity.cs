@@ -15,7 +15,7 @@ public interface IEntity
 
     Layer Layer { get; }
 
-    string EntityType { get; }
+    EntityType EntityType { get; }
 
     public Vector Position { get; }
 

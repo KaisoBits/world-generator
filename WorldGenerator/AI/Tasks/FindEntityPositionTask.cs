@@ -4,7 +4,7 @@ public class FindEntityPositionTask : ISchedulerTask
 {
     private readonly World _world;
     private readonly IScheduler _scheduler;
-    private string _entityType = default!;
+    private EntityType _entityType;
     private string _positionMemory = default!;
 
     public FindEntityPositionTask(World world, IScheduler parent)
@@ -13,7 +13,7 @@ public class FindEntityPositionTask : ISchedulerTask
         _scheduler = parent;
     }
 
-    public FindEntityPositionTask WithData(string entityType, string positionMemory)
+    public FindEntityPositionTask WithData(EntityType entityType, string positionMemory)
     {
         _entityType = entityType;
         _positionMemory = positionMemory;
@@ -29,7 +29,7 @@ public class FindEntityPositionTask : ISchedulerTask
         Vector pos = _scheduler.Owner.Position;
 
         IEnumerable<ITileView> tiles = _world
-            .Where(t => t.Contents.Any(e => e.EntityType == _entityType));
+            .Where(t => t.Contents.Any(e => e.EntityType.Matches(_entityType)));
         ITileView? closestTile = tiles.MinBy(t => Math.Abs(t.Position.X - pos.X) + Math.Abs(t.Position.Y - pos.Y));
 
         if (closestTile == null)

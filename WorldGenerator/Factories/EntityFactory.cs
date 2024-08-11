@@ -32,20 +32,20 @@ public sealed class EntityFactory
                 result.AddTrait<SpeedyTrait>();
 
                 result.Layer = Layer.Creatures;
-                result.EntityType = "dwarf";
+                result.EntityType = EntityType.Parse("stock.creature.dwarf");
                 break;
             case "fortress":
                 result.SetState(new NameState(NameGenerator.GetFortressName()));
                 result.Layer = Layer.Buildings;
-                result.EntityType = "fortress";
+                result.EntityType = EntityType.Parse("stock.building.fortress");
                 break;
             case "mountain":
                 result.Layer = Layer.Ground;
-                result.EntityType = "mountain";
+                result.EntityType = EntityType.Parse("stock.terrain.mountain");
                 break;
             case "field":
                 result.Layer = Layer.Buildings;
-                result.EntityType = "field";
+                result.EntityType = EntityType.Parse("stock.terrain.field");
                 break;
             default:
                 throw new Exception("Unknown entity type " + name);

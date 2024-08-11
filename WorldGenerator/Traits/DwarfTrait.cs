@@ -38,7 +38,7 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
 
         Owner.RemoveMoodlet<JustEnteredFortressMoodlet>();
 
-        if (Owner.CurrentTile.Contents.Any(e => e.EntityType == "fortress"))
+        if (Owner.CurrentTile.Contents.Any(e => e.EntityType.Matches("*.building.*")))
         {
             if (!Owner.HasMoodlet<InBuildingMoodlet>())
             {
@@ -59,7 +59,7 @@ public sealed class DwarfTrait : Trait<DwarfTrait.DataType>
            _memoryTrait.Remember(
                 new VisitedFortressMemory(
                     Owner.CurrentTile.Contents
-                    .FirstOrDefault(c => c.EntityType == "fortress")
+                    .FirstOrDefault(c => c.EntityType.Matches("*.building.*"))
                     ?.GetState<NameState>()?.Name ?? string.Empty));
         }
 

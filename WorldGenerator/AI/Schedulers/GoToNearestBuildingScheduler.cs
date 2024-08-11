@@ -13,7 +13,7 @@ public class GoToNearestBuildingScheduler : Scheduler
 
     public override IEnumerable<ISchedulerTask> GetTasks()
     {
-        yield return _schedulerTaskFactory.CreateTask<FindEntityPositionTask>(this).WithData("fortress", "targetPosition");
+        yield return _schedulerTaskFactory.CreateTask<FindEntityPositionTask>(this).WithData(EntityType.Parse("*.building.*"), "targetPosition");
         yield return _schedulerTaskFactory.CreateTask<ApproachPositionTask>(this).WithData(Recall<Vector>("targetPosition")!);
     }
 }

@@ -9,15 +9,15 @@ public abstract class Moodlet
 
     public int ExpireOn { get; set; }
 
-    public virtual void Acquire(IEntity owner) 
+    public virtual void Gain(IEntity owner) 
     {
         Owner = owner;
-        OnAcquire();
+        OnGain();
     }
 
-    protected virtual void OnAcquire() { }
+    protected virtual void OnGain() { }
     public virtual void OnExpire() { }
-    public virtual void OnLost() { }
+    public virtual void OnLose() { }
 
     public virtual void Tick() { }
 }

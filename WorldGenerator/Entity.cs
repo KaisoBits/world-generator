@@ -80,7 +80,7 @@ public sealed class Entity : IEntity
         {
             Moodlet m = _moodletFactory.CreateMoodlet<T>(expireOn);
             _moodlets.Add(m);
-            m.Acquire(this);
+            m.Gain(this);
         }
         else if ((expireOn > existingMoodlet.ExpireOn && existingMoodlet.ExpireOn != -1) || expireOn == -1)
         {
@@ -103,7 +103,7 @@ public sealed class Entity : IEntity
 
         _moodlets.RemoveAll(toRemove.Contains);
         foreach (Moodlet removedMoodlet in toRemove)
-            removedMoodlet.OnLost();
+            removedMoodlet.OnLose();
 
         return true;
     }
@@ -121,7 +121,7 @@ public sealed class Entity : IEntity
         foreach (Moodlet removedMoodlet in toRemove)
         {
             removedMoodlet.OnExpire();
-            removedMoodlet.OnLost();
+            removedMoodlet.OnLose();
         }
     }
 

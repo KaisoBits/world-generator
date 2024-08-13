@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator.Traits;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace WorldGenerator.Traits;
 
 public abstract class Trait<TData> : ITrait where TData : new()
 {
@@ -41,6 +43,19 @@ public abstract class Trait<TData> : ITrait where TData : new()
             throw new Exception($"The trait '{GetType().Name}' requires trait '{typeof(T).Name}' to be set first, in order to work correctly");
 
         return result;
+    }
+
+    protected bool TryGetTrait<T>([NotNullWhen(true)] out T? trait) where T : ITrait
+    {
+        if (Owner == null || !Owner.TryGetTrait<T>(out T? result))
+        {
+            trait = default;
+            return false;
+        }
+
+        trait = result;
+
+        return true;
     }
 }
 public class NullTraitData;

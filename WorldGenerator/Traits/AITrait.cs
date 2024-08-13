@@ -98,13 +98,14 @@ public interface IIntentResolverContext
 
 public class IntentResolverContext : IIntentResolverContext
 {
-    public List<GoalProposal> PossibleGoals { get; } = [];
+    public IReadOnlyCollection<GoalProposal> PossibleGoals => _possibleGoals;
+    private readonly List<GoalProposal> _possibleGoals = [];
 
     public required Intent Intent { get; init; }
 
     public void AddGoalProposal(GoalProposal proposal)
     {
-        PossibleGoals.Add(proposal);
+        _possibleGoals.Add(proposal);
     }
 }
 

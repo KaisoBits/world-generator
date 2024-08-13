@@ -1,6 +1,4 @@
-﻿using WorldGenerator.AI.Intentions;
-
-namespace WorldGenerator.AI;
+﻿namespace WorldGenerator.AI;
 
 public class MineBlockGoal : Goal
 {

@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.AI.Goals;
+﻿namespace WorldGenerator.AI;
 
 public class TeleportToPositionGoal : Goal
 {

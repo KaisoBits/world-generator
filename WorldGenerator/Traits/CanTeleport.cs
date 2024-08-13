@@ -1,5 +1,4 @@
-﻿using WorldGenerator.AI.Intentions;
-using WorldGenerator.AI.Goals;
+﻿using WorldGenerator.AI;
 
 namespace WorldGenerator.Traits;
 

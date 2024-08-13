@@ -1,4 +1,4 @@
-﻿namespace WorldGenerator.AI.Intentions;
+﻿namespace WorldGenerator.AI;
 
 public class GoToPositionIntent : Intent
 {

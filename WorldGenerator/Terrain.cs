@@ -27,7 +27,7 @@ public class Terrain
 
                 if (TerrainRand == 1)
                 {
-                    Entity ent = _entityFactory.CreateFromName("mountain");
+                    Entity ent = _entityFactory.CreateFromName("stock.terrain.mountain");
                     ent.SetState(new SizeState(16));
                     _world.SpawnEntity(ent, new Vector(x, y));
 
@@ -42,7 +42,7 @@ public class Terrain
 
     public void SpawnMountainChain(int x, int y)
     {
-        Entity ent = _entityFactory.CreateFromName("mountain");
+        Entity ent = _entityFactory.CreateFromName("stock.terrain.mountain");
         ent.SetState(new SizeState(8));
         //% of hill spawning to tweak in later iterations
         if (Random.Shared.Next(0, 10) < 8 && x != 0)
@@ -70,7 +70,7 @@ public class Terrain
 
     public void VillageAddons()
     {
-        Entity ent = _entityFactory.CreateFromName("field");
+        Entity ent = _entityFactory.CreateFromName("stock.terrain.field");
 
         for (int y = 0; y < _world.Height; y++)
         {

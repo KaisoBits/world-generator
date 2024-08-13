@@ -18,9 +18,11 @@ public sealed class EntityFactory
     public Entity CreateFromName(string name)
     {
         Entity result = ActivatorUtilities.CreateInstance<Entity>(_serviceProvider);
+        result.EntityType = EntityType.Parse(name);
+
         switch (name)
         {
-            case "dwarf":
+            case "stock.creature.dwarf":
                 result.SetState(new HealthState(100));
                 result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
@@ -31,24 +33,20 @@ public sealed class EntityFactory
                 result.AddTrait<WorkerTrait>();
                 result.AddTrait<MinerTrait>();
                 result.AddTrait<CanWalkTrait>();
-                result.AddTrait<CanTeleport>();
+                //result.AddTrait<CanTeleport>();
                 result.AddTrait<AgileTrait>();
 
                 result.Layer = Layer.Creatures;
-                result.EntityType = EntityType.Parse("stock.creature.dwarf");
                 break;
-            case "fortress":
+            case "stock.building.fortress":
                 result.SetState(new NameState(NameGenerator.GetFortressName()));
                 result.Layer = Layer.Buildings;
-                result.EntityType = EntityType.Parse("stock.building.fortress");
                 break;
-            case "mountain":
+            case "stock.terrain.mountain":
                 result.Layer = Layer.Ground;
-                result.EntityType = EntityType.Parse("stock.terrain.mountain");
                 break;
-            case "field":
+            case "stock.terrain.field":
                 result.Layer = Layer.Ground;
-                result.EntityType = EntityType.Parse("stock.terrain.field");
                 break;
             default:
                 throw new Exception("Unknown entity type " + name);

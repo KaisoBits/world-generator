@@ -36,7 +36,7 @@ public class Generator
 
         foreach (Vector pos in buildingPositions)
         {
-            Entity building = _entityFactory.CreateFromName("fortress");
+            Entity building = _entityFactory.CreateFromName("stock.building.fortress");
             _world.SpawnEntity(building, pos);
             result.Add(building);
         }
@@ -55,7 +55,7 @@ public class Generator
 
         foreach (Vector pos in buildingPositions)
         {
-            Entity ent = _entityFactory.CreateFromName("dwarf");
+            Entity ent = _entityFactory.CreateFromName("stock.creature.dwarf");
             _world.SpawnEntity(ent, pos);
             result.Add(ent);
         }

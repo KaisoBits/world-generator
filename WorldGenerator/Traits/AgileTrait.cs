@@ -2,7 +2,7 @@
 
 namespace WorldGenerator.Traits;
 
-public class SpeedyTrait : Trait<NullTraitData>
+public class AgileTrait : Trait<NullTraitData>
 {
     protected override void OnGain()
     {

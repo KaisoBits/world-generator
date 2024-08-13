@@ -26,7 +26,6 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         OutlineThickness = -3,
     };
 
-
     private readonly Dictionary<string, Action<IEntity, RenderStates>> _renders = [];
 
     private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
@@ -83,10 +82,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             {
                 Vector2f worldPos = _window.MapPixelToCoords(new Vector2i(e.X, e.Y));
                 SelectTileAt(worldPos);
-            }
-            else if (e.Button == Mouse.Button.Right)
-            {
-                SelectTileAt(null);
+                _consoleInterface.RunCommand("mine");
             }
 
         };

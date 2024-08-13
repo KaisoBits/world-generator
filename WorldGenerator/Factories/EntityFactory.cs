@@ -28,8 +28,11 @@ public sealed class EntityFactory
                 result.AddTrait<MoodTrait>();
                 result.AddTrait<MemoryTrait>();
                 result.AddTrait<AITrait>();
-                result.AddTrait<DwarfTrait>().WithData(new() { Chance = 0.015f });
-                result.AddTrait<SpeedyTrait>();
+                result.AddTrait<WorkerTrait>();
+                result.AddTrait<MinerTrait>();
+                result.AddTrait<CanWalkTrait>();
+                //result.AddTrait<CanTeleport>();
+                result.AddTrait<AgileTrait>();
 
                 result.Layer = Layer.Creatures;
                 result.EntityType = EntityType.Parse("stock.creature.dwarf");

@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator.AI;
 
-public enum SchedulerPriority
+public enum GoalPriority
 {
     Low,
     Default,

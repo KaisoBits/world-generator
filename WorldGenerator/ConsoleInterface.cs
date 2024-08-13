@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Text;
+using System.Threading.Channels;
 using WorldGenerator.AI;
 using WorldGenerator.Events;
 using WorldGenerator.States;
@@ -10,20 +11,23 @@ public class ConsoleInterface
 {
     private readonly EventBus _eventBus;
     private readonly SelectionService _selectionService;
+    private readonly WorkOrderManager _workOrderManager;
 
     private readonly Dictionary<string, Func<IReadOnlyCollection<string>, string?>> _commands = [];
 
     private readonly Channel<string> _commandChannel = Channel.CreateUnbounded<string>();
 
-    public ConsoleInterface(EventBus eventBus, SelectionService selectionService)
+    public ConsoleInterface(EventBus eventBus, SelectionService selectionService, WorkOrderManager workOrderManager)
     {
         _eventBus = eventBus;
         _selectionService = selectionService;
+        _workOrderManager = workOrderManager;
 
         RegisterCommand("help", Help);
         RegisterCommand("clear", Clear);
         RegisterCommand("events", DisplayEvents);
         RegisterCommand("tile", DisplayTileInfo);
+        RegisterCommand("mine", Mine);
     }
 
     public void StartTakingInput()
@@ -49,6 +53,9 @@ public class ConsoleInterface
     public void RunCommand(string fullCommand)
     {
         string[] parts = fullCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+            return;
+
         if (_commands.TryGetValue(parts[0], out var handler))
         {
             string? response = handler(parts);
@@ -89,6 +96,17 @@ public class ConsoleInterface
         IEnumerable<GameEvent> listBottom = _eventBus.EventList.TakeLast(20);
         foreach (var item in listBottom)
             Console.WriteLine(item);
+
+        return null;
+    }
+
+    public string? Mine(IReadOnlyCollection<string> parameters)
+    {
+        ITileView? tile = _selectionService.SelectedTile;
+        if (tile == null)
+            return "No tile selected";
+
+        _workOrderManager.AddMineOrder(tile);
 
         return null;
     }
@@ -139,11 +157,26 @@ public class ConsoleInterface
         {
             Console.WriteLine("AI:");
 
-            Scheduler? scheduler = aiTrait.CurrentScheduler as Scheduler;
-            Console.WriteLine($"  Scheduler: {scheduler?.GetType().Name ?? "-"}");
-            Console.WriteLine($"  State: {scheduler?.State.ToString() ?? "-"}");
-            Console.WriteLine($"  Current Task: {scheduler?.CurrentTask?.GetType().Name.ToString() ?? "-"}");
+            if (aiTrait.CurrentGoal != null)
+            {
+                var (goal, priority) = aiTrait.CurrentGoal.Value;
+                StringBuilder sb = new();
+                IGoal? currGoal = goal;
 
+                sb.Append(currGoal.GetType().Name);
+                currGoal = currGoal.InterruptedWith;
+                while (currGoal != null)
+                {
+                    sb.Append(" -> ");
+                    sb.Append(currGoal.GetType().Name);
+                    currGoal = currGoal.InterruptedWith;
+                }
+
+                Console.WriteLine($"  Goal: {sb.ToString() ?? "-"}");
+                Console.WriteLine($"  State: {goal?.State.ToString() ?? "-"}");
+                Console.WriteLine($"  Priority: {priority}({(int)priority})");
+
+            }
             Console.WriteLine("---------------------------------------");
         }
 

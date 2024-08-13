@@ -14,11 +14,11 @@ builder.Services.AddScoped<EventBus>();
 builder.Services.AddScoped<ConsoleInterface>();
 builder.Services.AddScoped<Terrain>();
 builder.Services.AddScoped<Pathfinding>();
+builder.Services.AddScoped<WorkOrderManager>();
 
 builder.Services.AddScoped<EntityFactory>();
 builder.Services.AddScoped<TraitFactory>();
-builder.Services.AddScoped<SchedulerFactory>();
-builder.Services.AddScoped<SchedulerTaskFactory>();
+builder.Services.AddScoped<GoalFactory>();
 builder.Services.AddScoped<MoodletFactory>();
 
 builder.Services.AddScoped<Generator>();

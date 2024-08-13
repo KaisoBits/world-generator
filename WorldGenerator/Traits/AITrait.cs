@@ -1,92 +1,111 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Factories;
 
 namespace WorldGenerator.Traits;
 
 public class AITrait : Trait<NullTraitData>
 {
-    public IScheduler? CurrentScheduler { get; private set; }
-    private (IScheduler Scheduler, AssignSchedulerResult Result)? _pendingScheduler;
+    public (IGoal Goal, GoalPriority Priority)? CurrentGoal => _currentGoal;
+    private (IGoal Goal, GoalPriority Priority)? _currentGoal;
+
+    private readonly List<Action<IntentResolverContext>> _intentResolvers = [];
+
+    private readonly GoalFactory _goalFactory;
+
+
+    public AITrait(GoalFactory goalFactory)
+    {
+        _goalFactory = goalFactory;
+    }
 
     public override void Tick()
     {
-        if (CurrentScheduler == null)
+        if (_currentGoal == null)
             return;
 
-        if (CurrentScheduler.State is SchedulerState.New)
+        var (goal, _) = _currentGoal.Value;
+
+        if (goal.State is GoalState.New)
         {
-            CurrentScheduler.Start();
+            goal.Start();
         }
 
-        CurrentScheduler.Tick();
+        goal.Tick();
 
-        if (CurrentScheduler.State is SchedulerState.Completed or SchedulerState.Failed or SchedulerState.Cancelled)
+        if (goal.State is GoalState.Completed or GoalState.Failed or GoalState.Cancelled)
         {
-            CurrentScheduler = _pendingScheduler?.Scheduler;
-            if (_pendingScheduler != null)
-            {
-                // Inform any interested parties that assigning this scheduler succeeded
-                // after it spent some time in the pending state
-                _pendingScheduler.Value.Result.SignalSuccess();
-                _pendingScheduler = null;
-            }
+            _currentGoal = null;
         }
-
     }
 
-    public IAssignSchedulerResult AssignScheduler(IScheduler newScheduler)
+    public void RegisterIntentResolver(Action<IIntentResolverContext> resolver)
     {
-        // There is no current scheduler - just assign the one we got asked for
-        if (CurrentScheduler == null)
+        _intentResolvers.Add(resolver);
+    }
+
+    public void DeregisterIntentResolver(Action<IIntentResolverContext> resolver)
+    {
+        _intentResolvers.Remove(resolver);
+    }
+
+    public IGoal? ResolveIntent(Intent intent)
+    {
+        var ctx = new IntentResolverContext { Intent = intent };
+
+        foreach (Action<IntentResolverContext> resolver in _intentResolvers)
+            resolver(ctx);
+
+        GoalProposal? cheapestProposal = ctx.PossibleGoals.MinBy(pg => pg.Cost);
+
+        if (cheapestProposal == null)
+            return null;
+
+        return cheapestProposal.GoalFactory(_goalFactory);
+    }
+
+    public IGoal? AssignWork(IGoalOrIntent? goalOrIntent)
+    {
+        return AssignWork(GoalPriority.Default, goalOrIntent);
+    }
+
+    public IGoal? AssignWork(GoalPriority priority, IGoalOrIntent? goalOrIntent)
+    {
+        IGoal? goal = null;
+        if (goalOrIntent is Intent intent)
+            goal = ResolveIntent(intent);
+        else if (goalOrIntent is IGoal g)
+            goal = g;
+
+        if (goal == null)
+            return null;
+
+        if (_currentGoal == null || (int)_currentGoal.Value.Priority < (int)priority)
         {
-            CurrentScheduler = newScheduler;
-            CurrentScheduler.Owner = Owner;
-            return AssignSchedulerResult.Success();
+            goal.Owner = Owner;
+            _currentGoal = (goal, priority);
+            return goal;
         }
 
-        // There is a current scheduler and its priority is higher than the new one - don't assign it
-        if (CurrentScheduler.Priority >= newScheduler.Priority)
-        {
-            return AssignSchedulerResult.Fail();
-        }
-
-        // The current scheduler's priority is lower than the new one but we've already got a
-        // pending scheduler which has higher priority than the new scheduler
-        if (_pendingScheduler != null && _pendingScheduler.Value.Scheduler.Priority >= newScheduler.Priority)
-        {
-            return AssignSchedulerResult.Fail();
-        }
-
-        // If we reached this far, we have higher priority than both the current and pending schedulers.
-        // If a pending scheduler exists, we can just override it
-        if (_pendingScheduler != null)
-        {
-            // Inform any interested parties that assigning this scheduler failed
-            // after it spent some time in the pending state and scheduler with
-            // more priority came along
-            _pendingScheduler.Value.Result.SignalFailed();
-
-            AssignSchedulerResult newResult = AssignSchedulerResult.Pending();
-            _pendingScheduler = (newScheduler, newResult);
-            newScheduler.Owner = Owner;
-            return newResult;
-        }
-
-        // There wasn't a pending scheduler before, so we cancel the current scheduler to "let it know" there's
-        // something pending that has more priority than it does and it's time to die
-        CurrentScheduler.Cancel();
-        if (CurrentScheduler.State is SchedulerState.Cancelled)
-        {
-            CurrentScheduler = newScheduler;
-            CurrentScheduler.Owner = Owner;
-            return AssignSchedulerResult.Success();
-        }
-
-        // It didn't cancel immediately - means it must do some cleanup action
-        // Let's schedule our future scheduler to be set once the old one is done cancelling
-        AssignSchedulerResult result = AssignSchedulerResult.Pending();
-        _pendingScheduler = (newScheduler, result);
-        newScheduler.Owner = Owner;
-        return result;
+        return null;
     }
 }
 
+public interface IIntentResolverContext
+{
+    Intent Intent { get; }
+    void AddGoalProposal(GoalProposal proposal);
+}
+
+public class IntentResolverContext : IIntentResolverContext
+{
+    public List<GoalProposal> PossibleGoals { get; } = [];
+
+    public required Intent Intent { get; init; }
+
+    public void AddGoalProposal(GoalProposal proposal)
+    {
+        PossibleGoals.Add(proposal);
+    }
+}
+
+public record class GoalProposal(float Cost, Func<GoalFactory, IGoal> GoalFactory);

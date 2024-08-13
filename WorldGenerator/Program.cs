@@ -9,7 +9,7 @@ const int worldY = 30;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));
-builder.Services.AddScoped<WorldUtilities>();
+builder.Services.AddScoped<WorldFacade>();
 builder.Services.AddScoped<EventBus>();
 builder.Services.AddScoped<ConsoleInterface>();
 builder.Services.AddScoped<Terrain>();

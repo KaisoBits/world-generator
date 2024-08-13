@@ -1,10 +1,12 @@
-﻿namespace WorldGenerator;
+﻿using WorldGenerator.Traits;
 
-public class WorldUtilities
+namespace WorldGenerator;
+
+public class WorldFacade
 {
     private readonly World _world;
 
-    public WorldUtilities(World world)
+    public WorldFacade(World world)
     {
         _world = world;
     }
@@ -33,5 +35,21 @@ public class WorldUtilities
         return _world.Entities
             .OrderBy(e => (e.Position - startPos).SimpleLen())
             .FirstOrDefault(e => predicate(e));
+    }
+
+    public T? FindByTrait<T>() where T : ITrait
+    {
+        return _world.Entities
+            .SelectMany(e => e.Traits)
+            .OfType<T>()
+            .FirstOrDefault();
+    }
+
+    public T? FindByTraitSystem<T>() where T : ITrait
+    {
+        return _world.SystemEntities
+            .SelectMany(e => e.Traits)
+            .OfType<T>()
+            .FirstOrDefault();
     }
 }

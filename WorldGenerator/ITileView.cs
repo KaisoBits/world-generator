@@ -3,7 +3,7 @@
 public interface ITileView
 {
     bool IsOccupied { get; }
-    bool HasWall { get; set; }
+    bool HasWall { get; }
     Vector Position { get; }
     IReadOnlyList<IEntity> Contents { get; }
 }

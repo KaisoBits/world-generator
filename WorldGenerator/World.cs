@@ -94,6 +94,12 @@ public class World : IReadOnlyCollection<ITileView>
         _moveSchedule.Add((entity, targetPosition));
     }
 
+    public void RemoveWallAt(Vector position) => RemoveWallAt(position.X, position.Y);
+    public void RemoveWallAt(int x, int y)
+    {
+        GetTileAt(x, y).HasWall = false;
+    }
+
     private void MoveEntity(IEntity entity, Vector targetPosition)
     {
         if (entity.Position == targetPosition)
@@ -124,4 +130,6 @@ public class World : IReadOnlyCollection<ITileView>
     {
         return _tiles[y * Width + x];
     }
+
+
 }

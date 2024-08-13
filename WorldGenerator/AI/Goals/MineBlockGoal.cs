@@ -4,7 +4,14 @@ namespace WorldGenerator.AI;
 
 public class MineBlockGoal : Goal
 {
+    private readonly World _world;
+
     public ITileView TargetTile { get; set; } = default!;
+
+    public MineBlockGoal(World world)
+    {
+        _world = world;
+    }
 
     public MineBlockGoal WithData(ITileView targetTile)
     {
@@ -33,6 +40,6 @@ public class MineBlockGoal : Goal
             yield return null;
         }
 
-        TargetTile.HasWall = false;
+        _world.RemoveWallAt(TargetTile.Position);
     }
 }

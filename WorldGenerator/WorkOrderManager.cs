@@ -1,5 +1,4 @@
 ﻿using WorldGenerator.AI;
-using WorldGenerator.Factories;
 using WorldGenerator.Traits;
 
 namespace WorldGenerator;

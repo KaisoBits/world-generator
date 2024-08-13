@@ -10,21 +10,11 @@ public class CanWalkTrait : Trait<NullTraitData>
     {
         _aiTrait = RequireTrait<AITrait>();
 
-        _aiTrait.RegisterIntentResolver(ctx =>
-        {
-            if (ctx.Intent is GoToPositionIntent goToPosition)
-            {
-                float cost = (Owner.Position - goToPosition.TargetPosition).SimpleLen();
-                ctx.AddGoalProposal(new GoalProposal(cost, (factory) =>
-                {
-                    return factory.CreateGoal<WalkToPositionGoal>().WithData(goToPosition.TargetPosition);
-                }));
-            }
-        });
+        _aiTrait.RegisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-
+        _aiTrait.DeregisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
     }
 }

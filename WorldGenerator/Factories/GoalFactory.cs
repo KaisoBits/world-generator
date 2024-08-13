@@ -14,7 +14,7 @@ public class GoalFactory
 
     public T CreateGoal<T>() where T : IGoal
     {
-        T goal = ActivatorUtilities.CreateInstance<T>(_serviceProvider);
-        return goal;
+        T newGoal = ActivatorUtilities.CreateInstance<T>(_serviceProvider);
+        return newGoal;
     }
 }

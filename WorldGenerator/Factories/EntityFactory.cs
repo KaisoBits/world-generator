@@ -31,7 +31,7 @@ public sealed class EntityFactory
                 result.AddTrait<WorkerTrait>();
                 result.AddTrait<MinerTrait>();
                 result.AddTrait<CanWalkTrait>();
-                //result.AddTrait<CanTeleport>();
+                result.AddTrait<CanTeleport>();
                 result.AddTrait<AgileTrait>();
 
                 result.Layer = Layer.Creatures;
@@ -47,7 +47,7 @@ public sealed class EntityFactory
                 result.EntityType = EntityType.Parse("stock.terrain.mountain");
                 break;
             case "field":
-                result.Layer = Layer.Buildings;
+                result.Layer = Layer.Ground;
                 result.EntityType = EntityType.Parse("stock.terrain.field");
                 break;
             default:

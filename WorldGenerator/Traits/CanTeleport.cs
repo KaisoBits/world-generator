@@ -10,20 +10,11 @@ public class CanTeleport : Trait<NullTraitData>
     {
         _aiTrait = RequireTrait<AITrait>();
 
-        _aiTrait.RegisterIntentResolver(ctx =>
-        {
-            if (ctx.Intent is GoToPositionIntent goToPosition)
-            {
-                ctx.AddGoalProposal(new GoalProposal(5, (factory) =>
-                {
-                    return factory.CreateGoal<TeleportToPositionGoal>().WithData(goToPosition.TargetPosition);
-                }));
-            }
-        });
+        _aiTrait.RegisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-
+        _aiTrait.DeregisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
     }
 }

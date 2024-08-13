@@ -20,6 +20,7 @@ builder.Services.AddScoped<EntityFactory>();
 builder.Services.AddScoped<TraitFactory>();
 builder.Services.AddScoped<GoalFactory>();
 builder.Services.AddScoped<MoodletFactory>();
+builder.Services.AddScoped<IntentResolverFactory>();
 
 builder.Services.AddScoped<Generator>();
 builder.Services.AddScoped<IRenderer, SFMLRenderer>();

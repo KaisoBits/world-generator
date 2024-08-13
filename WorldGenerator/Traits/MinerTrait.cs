@@ -10,20 +10,11 @@ public class MinerTrait : Trait<NullTraitData>
     {
         _aiTrait = RequireTrait<AITrait>();
 
-        _aiTrait.RegisterIntentResolver(ctx =>
-        {
-            if (ctx.Intent is MineBlockIntent mineBlockIntent)
-            {
-                ctx.AddGoalProposal(new GoalProposal(10, (factory) =>
-                {
-                    return factory.CreateGoal<MineBlockGoal>().WithData(mineBlockIntent.TargetTile);
-                }));
-            }
-        });
+        _aiTrait.RegisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-
+        _aiTrait.DeregisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
     }
 }

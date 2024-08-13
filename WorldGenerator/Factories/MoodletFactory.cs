@@ -14,8 +14,8 @@ public class MoodletFactory
 
     public T CreateMoodlet<T>(int expireOn) where T : Moodlet
     {
-        T newTrait = ActivatorUtilities.CreateInstance<T>(_serviceProvider);
-        newTrait.ExpireOn = expireOn;
-        return newTrait;
+        T newMoodlet = ActivatorUtilities.CreateInstance<T>(_serviceProvider);
+        newMoodlet.ExpireOn = expireOn;
+        return newMoodlet;
     }
 }

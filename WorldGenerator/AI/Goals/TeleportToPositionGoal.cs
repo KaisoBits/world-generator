@@ -33,7 +33,7 @@ public class TeleportToPositionGoal : Goal
             yield return null;
         }
 
-        _world.ScheduleMoveEntity(Owner, TargetPosition);
+        _world.MoveEntity(Owner, TargetPosition);
 
     }
 }

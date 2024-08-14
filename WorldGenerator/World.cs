@@ -56,9 +56,6 @@ public class World : IReadOnlyCollection<ITileView>
         foreach (IEntity entity in _systemEntities)
             entity.Think();
 
-        foreach (var (ent, pos) in _moveSchedule)
-            MoveEntity(ent, pos);
-
         _moveSchedule.Clear();
 
         CurrentTick++;
@@ -89,18 +86,13 @@ public class World : IReadOnlyCollection<ITileView>
         entity.OnSpawn();
     }
 
-    public void ScheduleMoveEntity(IEntity entity, Vector targetPosition)
-    {
-        _moveSchedule.Add((entity, targetPosition));
-    }
-
     public void RemoveWallAt(Vector position) => RemoveWallAt(position.X, position.Y);
     public void RemoveWallAt(int x, int y)
     {
         GetTileAt(x, y).HasWall = false;
     }
 
-    private void MoveEntity(IEntity entity, Vector targetPosition)
+    public void MoveEntity(IEntity entity, Vector targetPosition)
     {
         if (entity.Position == targetPosition)
             return;

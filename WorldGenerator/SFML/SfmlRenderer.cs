@@ -233,7 +233,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)
     {
-        if (iteration > 9)
+        if (iteration > 6)
             return;
 
         if (tileView.HasWall)

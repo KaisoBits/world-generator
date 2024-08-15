@@ -21,12 +21,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private readonly RectangleShape _fog = new(new Vector2f(32, 32))
     {
-        FillColor = new Color(135, 206, 235, 40),
-    };
-
-    private readonly RectangleShape _thinkFog = new(new Vector2f(32, 32))
-    {
-        FillColor = new Color(135, 206, 235, 100),
+        FillColor = new Color(135, 206, 235, 90),
     };
 
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
@@ -218,7 +213,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
         _debug.Tick();
 
-        foreach (Highlight highlights in _debug.TileHighlights)
+        foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == currentZ))
         {
             Transform t = Transform.Identity;
             t.Translate(new Vector2f(highlights.Position.X * 32, highlights.Position.Y * 32));
@@ -238,7 +233,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)
     {
-        if (iteration > 10)
+        if (iteration > 9)
             return;
 
         if (tileView.HasWall)
@@ -253,10 +248,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
         {
             DrawTile(_world[tileView.Position - new Vector(0, 0, 1)], renderStates, iteration + 1);
-            if (iteration == 0)
-                _window.Draw(_thinkFog, renderStates);
-            else
-                _window.Draw(_fog, renderStates);
+            _window.Draw(_fog, renderStates);
         }
 
         foreach (IEntity entity in tileView.Contents)

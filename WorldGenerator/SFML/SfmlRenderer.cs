@@ -24,6 +24,11 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         FillColor = new Color(135, 206, 235, 40),
     };
 
+    private readonly RectangleShape _thinkFog = new(new Vector2f(32, 32))
+    {
+        FillColor = new Color(135, 206, 235, 100),
+    };
+
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
     {
         FillColor = Color.Transparent,
@@ -231,8 +236,10 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32), currentZ);
     }
 
-    private void DrawTile(ITileView tileView, RenderStates renderStates)
+    private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)
     {
+        if (iteration > 10)
+            return;
 
         if (tileView.HasWall)
         {
@@ -243,15 +250,18 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             _window.Draw(_grass, renderStates);
         }
 
+        if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
+        {
+            DrawTile(_world[tileView.Position - new Vector(0, 0, 1)], renderStates, iteration + 1);
+            if (iteration == 0)
+                _window.Draw(_thinkFog, renderStates);
+            else
+                _window.Draw(_fog, renderStates);
+        }
+
         foreach (IEntity entity in tileView.Contents)
         {
             _renders[entity.EntityType.FullIdentifier](entity, renderStates);
-        }
-
-        if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
-        {
-            DrawTile(_world[tileView.Position - new Vector(0, 0, 1)], renderStates);
-            _window.Draw(_fog, renderStates);
         }
     }
 

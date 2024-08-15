@@ -31,7 +31,11 @@ public class World
         _tiles = Enumerable.Range(0, z)
             .Select(zIndex =>
                 Enumerable.Range(0, len)
-                .Select(i => new Tile(i % Width, i / Width, zIndex) { HasFloor = (zIndex == 0) })
+                .Select(i => new Tile(i % Width, i / Width, zIndex) 
+                    { 
+                        HasFloor = zIndex == 0,
+                        HasWall = (zIndex == 0 ? false : Random.Shared.Next(0, 100) < 50) 
+                    })
                 .ToArray())
             .ToArray();
 

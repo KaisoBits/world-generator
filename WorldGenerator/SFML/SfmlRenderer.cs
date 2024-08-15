@@ -237,13 +237,9 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             return;
 
         if (tileView.HasWall)
-        {
             _window.Draw(_wall, renderStates);
-        }
         else if (tileView.HasFloor)
-        {
             _window.Draw(_grass, renderStates);
-        }
 
         if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
         {
@@ -252,9 +248,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         }
 
         foreach (IEntity entity in tileView.Contents)
-        {
             _renders[entity.EntityType.FullIdentifier](entity, renderStates);
-        }
     }
 
     private void SelectTileAt(Vector2f? position)

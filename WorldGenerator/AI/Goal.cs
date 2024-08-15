@@ -70,10 +70,8 @@ public abstract class Goal : IGoal
             return;
         }
 
-        object? cur = _taskEnumerator.Current;
-        if (cur is null)
-            return;
-        else if (cur is Goal goal)
+        IGoalOrIntent? cur = _taskEnumerator.Current;
+        if (cur is Goal goal)
         {
             InterruptedWith = goal;
             goal.Owner = Owner;

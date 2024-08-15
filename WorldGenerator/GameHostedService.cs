@@ -20,7 +20,7 @@ public class GameHostedService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        List<IEntity> entities = _generator.PopulateWorld(10, 10);
+        _generator.PopulateWorld(10, 10);
 
         //ci.StartDisplayingEvents();
 

@@ -4,8 +4,8 @@ using WorldGenerator;
 using WorldGenerator.Factories;
 using WorldGenerator.SFML;
 
-const int worldX = 40;
-const int worldY = 30;
+const int worldX = 256;
+const int worldY = 256;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));

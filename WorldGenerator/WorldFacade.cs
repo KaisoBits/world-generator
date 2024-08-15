@@ -44,12 +44,4 @@ public class WorldFacade
             .OfType<T>()
             .FirstOrDefault();
     }
-
-    public T? FindByTraitSystem<T>() where T : ITrait
-    {
-        return _world.SystemEntities
-            .SelectMany(e => e.Traits)
-            .OfType<T>()
-            .FirstOrDefault();
-    }
 }

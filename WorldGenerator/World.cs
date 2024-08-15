@@ -17,9 +17,6 @@ public class World : IReadOnlyCollection<ITileView>
     public IReadOnlyCollection<IEntity> Entities => _entities;
     private readonly List<IEntity> _entities = [];
 
-    public IReadOnlyCollection<IEntity> SystemEntities => _systemEntities;
-    private readonly List<IEntity> _systemEntities = [];
-
     private readonly List<(IEntity Entity, Vector MoveTo)> _moveSchedule = [];
 
     private World(int x, int y)
@@ -33,7 +30,7 @@ public class World : IReadOnlyCollection<ITileView>
             .Select(i => new Tile(i % Width, i / Width))
             .ToArray();
 
-        foreach (var tile in _tiles.Take(40))
+        foreach (var tile in _tiles.Take(256 * 2))
         {
             tile.HasWall = true;
         }
@@ -47,13 +44,7 @@ public class World : IReadOnlyCollection<ITileView>
         foreach (IEntity entity in _entities)
             entity.GatherConditions();
 
-        foreach (IEntity entity in _systemEntities)
-            entity.GatherConditions();
-
         foreach (IEntity entity in _entities)
-            entity.Think();
-
-        foreach (IEntity entity in _systemEntities)
             entity.Think();
 
         _moveSchedule.Clear();

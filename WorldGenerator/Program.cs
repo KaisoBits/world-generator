@@ -6,9 +6,10 @@ using WorldGenerator.SFML;
 
 const int worldX = 128;
 const int worldY = 128;
+const int worldZ = 10;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
-builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY));
+builder.Services.AddScoped(sp => World.CreateWorld(worldX, worldY, worldZ));
 builder.Services.AddScoped<WorldFacade>();
 builder.Services.AddScoped<EventBus>();
 builder.Services.AddScoped<ConsoleInterface>();

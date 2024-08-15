@@ -23,13 +23,13 @@ public class Terrain
             for (int x = 0; x < _world.Width; x++)
             {
                 //ITileView t = World.Instance[0, 0];
-                int TerrainRand = Random.Shared.Next(0, 100);
+                int terrainRand = Random.Shared.Next(0, 100);
 
-                if (TerrainRand == 1)
+                if (terrainRand == 1)
                 {
                     Entity ent = _entityFactory.CreateFromName("stock.terrain.mountain");
                     ent.SetState(new SizeState(16));
-                    _world.SpawnEntity(ent, new Vector(x, y));
+                    _world.SpawnEntity(ent, new Vector(x, y, 0));
 
                     _pathfinding.ValueGrid[x, y] = _pathfinding.ValueGrid[x, y] + 5;
                     // 5 is the terrain difficulty of main mountain, might be adjusted accordingly in later iterations.
@@ -47,22 +47,22 @@ public class Terrain
         //% of hill spawning to tweak in later iterations
         if (Random.Shared.Next(0, 10) < 8 && x != 0)
         {
-            _world.SpawnEntity(ent, new Vector(x - 1, y));
+            _world.SpawnEntity(ent, new Vector(x - 1, y, 0));
             _pathfinding.ValueGrid[x - 1, y] = _pathfinding.ValueGrid[x - 1, y] + 3;
         }
         if (Random.Shared.Next(0, 10) < 8 && x != _world.Width - 1)
         {
-            _world.SpawnEntity(ent, new Vector(x + 1, y));
+            _world.SpawnEntity(ent, new Vector(x + 1, y, 0));
             _pathfinding.ValueGrid[x + 1, y] = _pathfinding.ValueGrid[x + 1, y] + 3;
         }
         if (Random.Shared.Next(0, 10) < 8 && y != 0)
         {
-            _world.SpawnEntity(ent, new Vector(x, y - 1));
+            _world.SpawnEntity(ent, new Vector(x, y - 1, 0));
             _pathfinding.ValueGrid[x, y - 1] = _pathfinding.ValueGrid[x, y - 1] + 3;
         }
         if (Random.Shared.Next(0, 10) < 8 && y != _world.Height - 1)
         {
-            _world.SpawnEntity(ent, new Vector(x, y + 1));
+            _world.SpawnEntity(ent, new Vector(x, y + 1, 0));
             _pathfinding.ValueGrid[x, y + 1] = _pathfinding.ValueGrid[x, y + 1] + 3;
         }
 
@@ -76,7 +76,7 @@ public class Terrain
         {
             for (int x = 0; x < _world.Width; x++)
             {
-                ITileView tile = _world[x, y];
+                ITileView tile = _world[x, y, 0];
 
                 if (tile.Contents.Any(e => e.EntityType.Matches("stock.building.fortress")))
                 {
@@ -84,10 +84,10 @@ public class Terrain
                     {
                         for (int addonX = x - 1; x - 1 >= 0 && x + 1 < _world.Width && addonX <= x + 1; addonX++)
                         {
-                            ITileView addonTile = _world[addonX, addonY];
+                            ITileView addonTile = _world[addonX, addonY, 0];
                             if (Random.Shared.Next(0, 10) < 6 && !addonTile.IsOccupied /*All(e => e.Layer != Layer.Buildings) && tile.Contents.All(e => e.EntityType != "mountain")*/)
                             {
-                                _world.SpawnEntity(ent, new Vector(addonX, addonY));
+                                _world.SpawnEntity(ent, new Vector(addonX, addonY, tile.Position.Z));
                             }
                         }
                     }

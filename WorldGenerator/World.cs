@@ -1,8 +1,6 @@
-﻿using System.Collections;
+﻿namespace WorldGenerator;
 
-namespace WorldGenerator;
-
-public class World : IReadOnlyCollection<ITileView>
+public class World
 {
     public bool Paused { get; set; }
 
@@ -10,8 +8,11 @@ public class World : IReadOnlyCollection<ITileView>
 
     public int Width { get; }
     public int Height { get; }
+    public int Depth { get; }
 
-    private readonly Tile[] _tiles;
+    public Vector Size => new(Width, Height, Depth);
+
+    private readonly Tile[][] _tiles;
     public int Count => _tiles.Length;
 
     public IReadOnlyCollection<IEntity> Entities => _entities;
@@ -19,18 +20,22 @@ public class World : IReadOnlyCollection<ITileView>
 
     private readonly List<(IEntity Entity, Vector MoveTo)> _moveSchedule = [];
 
-    private World(int x, int y)
+    private World(int x, int y, int z)
     {
         Width = x;
         Height = y;
+        Depth = z;
 
         int len = x * y;
 
-        _tiles = Enumerable.Range(0, len)
-            .Select(i => new Tile(i % Width, i / Width))
+        _tiles = Enumerable.Range(0, z)
+            .Select(zIndex =>
+                Enumerable.Range(0, len)
+                .Select(i => new Tile(i % Width, i / Width, zIndex) { HasFloor = (zIndex == 0) })
+                .ToArray())
             .ToArray();
 
-        foreach (var tile in _tiles.Take(256 * 2))
+        foreach (var tile in _tiles[0].Take(256 * 2))
         {
             tile.HasWall = true;
         }
@@ -49,13 +54,13 @@ public class World : IReadOnlyCollection<ITileView>
         CurrentTick++;
     }
 
-    public ITileView this[int x, int y] => GetTileAt(x, y);
+    public ITileView this[int x, int y, int z] => GetTileAt(x, y, z);
 
     public ITileView this[Vector position] => GetTileAt(position);
 
-    public static World CreateWorld(int width, int height)
+    public static World CreateWorld(int width, int height, int depth)
     {
-        return new(width, height);
+        return new(width, height, depth);
     }
 
     public void SpawnEntity(Entity entity, Vector position)
@@ -68,10 +73,10 @@ public class World : IReadOnlyCollection<ITileView>
         entity.OnSpawn();
     }
 
-    public void RemoveWallAt(Vector position) => RemoveWallAt(position.X, position.Y);
-    public void RemoveWallAt(int x, int y)
+    public void RemoveWallAt(Vector position) => RemoveWallAt(position.X, position.Y, position.Z);
+    public void RemoveWallAt(int x, int y, int z)
     {
-        GetTileAt(x, y).HasWall = false;
+        GetTileAt(x, y, z).HasWall = false;
     }
 
     public void MoveEntity(IEntity entity, Vector targetPosition)
@@ -85,25 +90,18 @@ public class World : IReadOnlyCollection<ITileView>
         ((Entity)entity).Position = targetPosition;
     }
 
-    public IEnumerator<ITileView> GetEnumerator()
+    public IEnumerable<ITileView> GetTilesAtLevel(int zLevel)
     {
-        return _tiles.AsEnumerable().GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
+        return _tiles[zLevel];
     }
 
     private Tile GetTileAt(Vector position)
     {
-        return GetTileAt(position.X, position.Y);
+        return GetTileAt(position.X, position.Y, position.Z);
     }
 
-    private Tile GetTileAt(int x, int y)
+    private Tile GetTileAt(int x, int y, int z)
     {
-        return _tiles[y * Width + x];
+        return _tiles[z][y * Width + x];
     }
-
-
 }

@@ -66,7 +66,7 @@ public class Generator
 
     private Vector[] GetEmptyPositions(World world)
     {
-        Vector[] positions = world
+        Vector[] positions = world.GetTilesAtLevel(0)
             .Where(t => !t.IsOccupied)
             .Select(t => t.Position)
             .ToArray();

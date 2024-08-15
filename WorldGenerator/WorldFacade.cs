@@ -19,11 +19,14 @@ public class WorldFacade
     public List<IEntity> GetEntitiesInRange(Vector position, Vector rectangle)
     {
         List<IEntity> entities = [];
-        for (int y = position.Y - rectangle.Y; y < position.Y + rectangle.Y; y++)
+        for (int z = position.Z - rectangle.Z; z < position.Z + rectangle.Z; z++)
         {
-            for (int x = position.X - rectangle.X; x < position.X + rectangle.X; x++)
+            for (int y = position.Y - rectangle.Y; y < position.Y + rectangle.Y; y++)
             {
-                entities.AddRange(_world[x, y].Contents);
+                for (int x = position.X - rectangle.X; x < position.X + rectangle.X; x++)
+                {
+                    entities.AddRange(_world[x, y, z].Contents);
+                }
             }
         }
 

@@ -19,6 +19,11 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly Sprite _field = new(LoadTexture("Resources/field.png"));
     private readonly Sprite _wall = new(LoadTexture("Resources/wall.png"));
 
+    private readonly RectangleShape _fog = new(new Vector2f(32, 32))
+    {
+        FillColor = new Color(135, 206, 235, 40),
+    };
+
     private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
     {
         FillColor = Color.Transparent,
@@ -40,6 +45,10 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     float _zoom = 1.0f;
 
     int _lastTick = -1;
+
+    int currentZ = 0;
+
+    bool _ctrlPressed = false;
 
     ITileView? _lastSelectedTile = null;
 
@@ -69,6 +78,13 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         _window.Resized += (s, e) => _view.Size = new Vector2f(e.Width, e.Height) * _zoom;
         _window.MouseWheelScrolled += (s, e) =>
         {
+            if (_ctrlPressed)
+            {
+                currentZ = Math.Clamp(currentZ + (int)e.Delta, 0, _world.Depth - 1);
+                Console.WriteLine("Z-Level is: {0}", currentZ);
+                return;
+            }
+
             float multiplier = Math.Abs(e.Delta);
             float ratio = (e.Delta < 0 ? 1.25f * multiplier : 0.8f / multiplier);
             _zoom = Math.Clamp(_zoom * ratio, 0.1f, 3.0f);
@@ -122,6 +138,17 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         {
             if (e.Code == Keyboard.Key.Space)
                 _world.Paused = !world.Paused;
+
+            if (e.Code == Keyboard.Key.LControl)
+                _ctrlPressed = true;
+
+        };
+
+        _window.KeyReleased += (s, e) =>
+        {
+            if (e.Code == Keyboard.Key.LControl)
+                _ctrlPressed = false;
+
         };
 
         RegisterDefaultRenders();
@@ -165,21 +192,13 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
                 if (x < 0 || x > _world.Width - 1)
                     continue;
 
-                ITileView tile = _world[x, y];
+                ITileView tile = _world[x, y, currentZ];
 
                 Transform t = Transform.Identity;
                 t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
                 RenderStates rs = new(t);
 
-                if (tile.HasWall)
-                    _window.Draw(_wall, rs);
-                else
-                    _window.Draw(_grass, rs);
-
-                foreach (IEntity entity in tile.Contents)
-                {
-                    _renderList.Add((entity, rs));
-                }
+                DrawTile(tile, rs);
             }
         }
 
@@ -209,7 +228,31 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private Vector GetTileAt(Vector2f position)
     {
-        return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32));
+        return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32), currentZ);
+    }
+
+    private void DrawTile(ITileView tileView, RenderStates renderStates)
+    {
+
+        if (tileView.HasWall)
+        {
+            _window.Draw(_wall, renderStates);
+        }
+        else if (tileView.HasFloor)
+        {
+            _window.Draw(_grass, renderStates);
+        }
+
+        foreach (IEntity entity in tileView.Contents)
+        {
+            _renders[entity.EntityType.FullIdentifier](entity, renderStates);
+        }
+
+        if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
+        {
+            DrawTile(_world[tileView.Position - new Vector(0, 0, 1)], renderStates);
+            _window.Draw(_fog, renderStates);
+        }
     }
 
     private void SelectTileAt(Vector2f? position)

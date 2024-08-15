@@ -6,13 +6,15 @@ public enum GoalState { New, Running, Completed, Failed, Cancelled }
 
 public abstract class Goal : IGoal
 {
+    public bool Done => State is GoalState.Completed or GoalState.Cancelled;
+
     public IEntity? Owner { get; set; }
 
     public GoalState State { get; private set; }
 
     public IGoal? InterruptedWith { get; private set; }
 
-    private IEnumerator<IGoalOrIntent?> _taskEnumerator = default!;
+    private IEnumerator<IWork?> _taskEnumerator = default!;
 
     public void Start()
     {
@@ -26,7 +28,7 @@ public abstract class Goal : IGoal
 
     public void Cancel()
     {
-        if (State is GoalState.Cancelled)
+        if (State is not GoalState.Running)
             return;
 
         OnCancel();
@@ -70,7 +72,7 @@ public abstract class Goal : IGoal
             return;
         }
 
-        IGoalOrIntent? cur = _taskEnumerator.Current;
+        IWork? cur = _taskEnumerator.Current;
         if (cur is Goal goal)
         {
             InterruptedWith = goal;
@@ -79,7 +81,7 @@ public abstract class Goal : IGoal
         }
         else if (cur is Intent intent)
         {
-            IGoal? resolvedGoal = Owner.GetTrait<AITrait>().ResolveIntent(intent);
+            IGoal? resolvedGoal = Owner.GetTrait<GoalTrait>().ResolveIntent(intent);
             if (resolvedGoal == null)
             {
                 FailGoal();
@@ -96,5 +98,5 @@ public abstract class Goal : IGoal
         State = GoalState.Failed;
     }
 
-    public abstract IEnumerable<IGoalOrIntent?> Execute();
+    public abstract IEnumerable<IWork?> Execute();
 }

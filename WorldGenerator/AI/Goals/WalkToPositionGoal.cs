@@ -19,7 +19,7 @@ public class WalkToPositionGoal : Goal
         return this;
     }
 
-    public override IEnumerable<IGoalOrIntent?> Execute()
+    public override IEnumerable<IWork?> Execute()
     {
         if (Owner == null)
         {

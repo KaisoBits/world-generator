@@ -42,9 +42,6 @@ public class World : IReadOnlyCollection<ITileView>
             return;
 
         foreach (IEntity entity in _entities)
-            entity.GatherConditions();
-
-        foreach (IEntity entity in _entities)
             entity.Think();
 
         _moveSchedule.Clear();
@@ -52,15 +49,9 @@ public class World : IReadOnlyCollection<ITileView>
         CurrentTick++;
     }
 
-    public ITileView this[int x, int y]
-    {
-        get => GetTileAt(x, y);
-    }
+    public ITileView this[int x, int y] => GetTileAt(x, y);
 
-    public ITileView this[Vector position]
-    {
-        get => GetTileAt(position);
-    }
+    public ITileView this[Vector position] => GetTileAt(position);
 
     public static World CreateWorld(int width, int height)
     {

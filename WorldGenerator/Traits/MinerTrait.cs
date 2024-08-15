@@ -4,17 +4,17 @@ namespace WorldGenerator.Traits;
 
 public class MinerTrait : Trait<NullTraitData>
 {
-    private AITrait _aiTrait = default!;
+    private GoalTrait _goalTrait = default!;
 
     protected override void OnGain()
     {
-        _aiTrait = RequireTrait<AITrait>();
+        _goalTrait = RequireTrait<GoalTrait>();
 
-        _aiTrait.RegisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
+        _goalTrait.RegisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-        _aiTrait.DeregisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
+        _goalTrait.DeregisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
     }
 }

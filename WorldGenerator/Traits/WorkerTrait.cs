@@ -6,11 +6,11 @@ public class WorkerTrait : Trait<NullTraitData>
 {
     private AITrait _aiTrait = default!;
 
-    private readonly WorkOrderManager _workOrderManager;
+    private readonly JobOrderManager _workOrderManager;
 
-    private IGoal? _workGoal;
+    public IWork? AssignedWork { get; private set; }
 
-    public WorkerTrait(WorkOrderManager workOrderManager)
+    public WorkerTrait(JobOrderManager workOrderManager)
     {
         _workOrderManager = workOrderManager;
     }
@@ -18,33 +18,57 @@ public class WorkerTrait : Trait<NullTraitData>
     protected override void OnGain()
     {
         _aiTrait = RequireTrait<AITrait>();
+        _aiTrait.RegisterDecision<DoAssignedJobDecision>().WithData(this);
 
         _workOrderManager.ReportForDuty(this);
     }
 
     public override void OnLose()
     {
+        _aiTrait.DeregisterDecision<DoAssignedJobDecision>();
+
         _workOrderManager.RevertReportForDuty(this);
     }
 
-    public bool AssignWorkOrder(IGoalOrIntent goal)
+    public bool AssignWorkOrder(IWork work)
     {
-        IGoal? result = _aiTrait.AssignWork(goal);
-
-        if (result == null)
-            return false;
-
-        _workGoal = result;
+        AssignedWork = work;
 
         return true;
     }
+}
 
-    public override void Tick()
+public class DoAssignedJobDecision : IDecision
+{
+    private readonly JobOrderManager _workOrderManager;
+
+    private WorkerTrait _parent = default!;
+
+    public DoAssignedJobDecision(JobOrderManager workOrderManager)
     {
-        if (_workGoal?.State is GoalState.Failed or GoalState.Completed)
-        {
-            _workGoal = null;
-            _workOrderManager.ReportForDuty(this);
-        }
+        _workOrderManager = workOrderManager;
+    }
+
+    public DoAssignedJobDecision WithData(WorkerTrait parent)
+    {
+        _parent = parent;
+        return this;
+    }
+
+    public bool CanExecute() => _parent.AssignedWork != null;
+
+    public DecisionPriority GetPriority() => DecisionPriority.Default;
+
+    public IWork GetWork() => _parent.AssignedWork ??
+        throw new Exception($"Attempted to create work when ${nameof(CanExecute)} should've returned false");
+
+    public void OnChosen()
+    {
+        _workOrderManager.RevertReportForDuty(_parent);
+    }
+
+    public void OnEnd()
+    {
+        _workOrderManager.ReportForDuty(_parent);
     }
 }

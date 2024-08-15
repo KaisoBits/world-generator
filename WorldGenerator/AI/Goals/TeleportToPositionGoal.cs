@@ -17,7 +17,7 @@ public class TeleportToPositionGoal : Goal
         return this;
     }
 
-    public override IEnumerable<IGoalOrIntent?> Execute()
+    public override IEnumerable<IWork?> Execute()
     {
         if (Owner == null)
         {

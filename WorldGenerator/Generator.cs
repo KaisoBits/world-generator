@@ -15,14 +15,15 @@ public class Generator
         _terrain = terrain;
     }
 
-    public List<IEntity> PopulateWorld(int buildingCount, int citizenCount)
+    public void PopulateWorld(int buildingCount, int citizenCount)
     {
-        _ = GenerateBuildings(buildingCount);
+        GenerateCitizens(citizenCount);
+        return;
 
+        GenerateBuildings(buildingCount);
         _terrain.SpawnMountainMother();
         _terrain.VillageAddons();
-
-        return GenerateCitizens(citizenCount);
+        GenerateCitizens(citizenCount);
     }
 
     private List<IEntity> GenerateBuildings(int count)

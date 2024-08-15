@@ -52,12 +52,6 @@ public sealed class Entity : IEntity
             trait.Tick();
     }
 
-    public void GatherConditions()
-    {
-        foreach (ITrait trait in _traits)
-            trait.OnGatherConditions();
-    }
-
     public void OnSpawn()
     {
         foreach (ITrait trait in _traits)

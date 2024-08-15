@@ -4,17 +4,17 @@ namespace WorldGenerator.Traits;
 
 public class CanTeleport : Trait<NullTraitData>
 {
-    private AITrait _aiTrait = default!;
+    private GoalTrait _goalTrait = default!;
 
     protected override void OnGain()
     {
-        _aiTrait = RequireTrait<AITrait>();
+        _goalTrait = RequireTrait<GoalTrait>();
 
-        _aiTrait.RegisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
+        _goalTrait.RegisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-        _aiTrait.DeregisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
+        _goalTrait.DeregisterIntentResolver<GoToPositionIntent_TeleportToPositionGoal_Resolver>();
     }
 }

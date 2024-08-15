@@ -3,13 +3,13 @@ using WorldGenerator.Traits;
 
 namespace WorldGenerator;
 
-public class WorkOrderManager
+public class JobOrderManager
 {
     private readonly Queue<Intent> _orders = [];
 
     private readonly HashSet<WorkerTrait> _freeWorkers = [];
 
-    public void AddMineOrder(ITileView tile)
+    public void ScheduleMineJob(ITileView tile)
     {
         if (!tile.HasWall)
             return;

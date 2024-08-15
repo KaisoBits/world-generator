@@ -13,7 +13,7 @@
 
 //    private MoodTrait _moodTrait = default!;
 //    private MemoryTrait _memoryTrait = default!;
-//    private AITrait _aiTrait = default!;
+//    private AITrait _goalTrait = default!;
 
 //    public DwarfTrait(World world, GoalFactory goalFactory)
 //    {
@@ -25,7 +25,7 @@
 //    {
 //        _moodTrait = RequireTrait<MoodTrait>();
 //        _memoryTrait = RequireTrait<MemoryTrait>();
-//        _aiTrait = RequireTrait<AITrait>();
+//        _goalTrait = RequireTrait<AITrait>();
 //    }
 
 //    public override void OnGatherConditions()
@@ -63,7 +63,7 @@
 //                    ?.GetState<NameState>()?.Name ?? string.Empty));
 //        }
 
-//        //if (_aiTrait.CurrentGoal != null)
+//        //if (_goalTrait.CurrentGoal != null)
 //        //    return;
 
 //        bool shouldTravel = Random.Shared.NextDouble() < Data.Chance;
@@ -71,9 +71,9 @@
 //            return;
 
 //        //if (Owner.HasMoodlet<InBuildingMoodlet>())
-//        //    _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToRandomBuildingGoal>());
+//        //    _goalTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToRandomBuildingGoal>());
 //        //else
-//        //    _aiTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToNearestBuildingGoal>());
+//        //    _goalTrait.AssignScheduler(_schedulerFactory.CreateScheduler<GoToNearestBuildingGoal>());
 //    }
 
 //    public record class DataType

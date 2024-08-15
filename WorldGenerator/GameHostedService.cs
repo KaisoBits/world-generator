@@ -6,11 +6,11 @@ namespace WorldGenerator;
 public class GameHostedService : BackgroundService
 {
     private readonly World _world;
-    private readonly WorkOrderManager _workOrderManager;
+    private readonly JobOrderManager _workOrderManager;
     private readonly Generator _generator;
     private readonly IRenderer _renderer;
 
-    public GameHostedService(World world, WorkOrderManager workOrderManager, Generator generator, IRenderer renderer)
+    public GameHostedService(World world, JobOrderManager workOrderManager, Generator generator, IRenderer renderer)
     {
         _world = world;
         _workOrderManager = workOrderManager;
@@ -20,7 +20,7 @@ public class GameHostedService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _generator.PopulateWorld(10, 10);
+        _generator.PopulateWorld(10, 200);
 
         //ci.StartDisplayingEvents();
 

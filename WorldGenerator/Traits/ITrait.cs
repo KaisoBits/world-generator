@@ -12,7 +12,6 @@ public interface ITrait
 
     void Tick();
 
-    void OnGatherConditions();
     void OnSpawn();
 
     void Gain(IEntity owner);

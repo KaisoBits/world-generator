@@ -27,8 +27,8 @@ public sealed class EntityFactory
                 result.SetState(new SpeedState(Random.Shared.Next(1, 21)));
                 result.SetState(new NameState(NameGenerator.GetDwarfName()));
 
-                result.AddTrait<MoodTrait>();
                 result.AddTrait<MemoryTrait>();
+                result.AddTrait<GoalTrait>();
                 result.AddTrait<AITrait>();
                 result.AddTrait<WorkerTrait>();
                 result.AddTrait<MinerTrait>();

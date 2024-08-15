@@ -23,7 +23,6 @@ public interface IEntity
 
     bool IsSpawned { get; }
 
-    void GatherConditions();
     void Think();
 
     void ApplyMoodlet<T>() where T : Moodlet;

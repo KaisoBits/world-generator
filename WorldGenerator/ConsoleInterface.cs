@@ -11,13 +11,13 @@ public class ConsoleInterface
 {
     private readonly EventBus _eventBus;
     private readonly SelectionService _selectionService;
-    private readonly WorkOrderManager _workOrderManager;
+    private readonly JobOrderManager _workOrderManager;
 
     private readonly Dictionary<string, Func<IReadOnlyCollection<string>, string?>> _commands = [];
 
     private readonly Channel<string> _commandChannel = Channel.CreateUnbounded<string>();
 
-    public ConsoleInterface(EventBus eventBus, SelectionService selectionService, WorkOrderManager workOrderManager)
+    public ConsoleInterface(EventBus eventBus, SelectionService selectionService, JobOrderManager workOrderManager)
     {
         _eventBus = eventBus;
         _selectionService = selectionService;
@@ -106,7 +106,7 @@ public class ConsoleInterface
         if (tile == null)
             return "No tile selected";
 
-        _workOrderManager.AddMineOrder(tile);
+        _workOrderManager.ScheduleMineJob(tile);
 
         return null;
     }
@@ -153,15 +153,14 @@ public class ConsoleInterface
 
         Console.WriteLine("---------------------------------------");
 
-        if (entity.TryGetTrait(out AITrait? aiTrait))
+        if (entity.TryGetTrait(out GoalTrait? goalTrait))
         {
-            Console.WriteLine("AI:");
+            Console.WriteLine("Goal:");
 
-            if (aiTrait.CurrentGoal != null)
+            if (goalTrait.CurrentGoal != null)
             {
-                var (goal, priority) = aiTrait.CurrentGoal.Value;
                 StringBuilder sb = new();
-                IGoal? currGoal = goal;
+                IGoal? currGoal = goalTrait.CurrentGoal;
 
                 sb.Append(currGoal.GetType().Name);
                 currGoal = currGoal.InterruptedWith;
@@ -173,8 +172,7 @@ public class ConsoleInterface
                 }
 
                 Console.WriteLine($"  Goal: {sb.ToString() ?? "-"}");
-                Console.WriteLine($"  State: {goal?.State.ToString() ?? "-"}");
-                Console.WriteLine($"  Priority: {priority}({(int)priority})");
+                Console.WriteLine($"  State: {currGoal?.State.ToString() ?? "-"}");
 
             }
             Console.WriteLine("---------------------------------------");

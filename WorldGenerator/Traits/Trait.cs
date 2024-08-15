@@ -30,8 +30,6 @@ public abstract class Trait<TData> : ITrait where TData : new()
 
     public virtual void Tick() { }
 
-    public virtual void OnGatherConditions() { }
-
     public void WithData(TData data) => Data = data;
 
     protected T RequireTrait<T>() where T : ITrait

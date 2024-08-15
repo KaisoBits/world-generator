@@ -4,17 +4,17 @@ namespace WorldGenerator.Traits;
 
 public class CanWalkTrait : Trait<NullTraitData>
 {
-    private AITrait _aiTrait = default!;
+    private GoalTrait _goalTrait = default!;
 
     protected override void OnGain()
     {
-        _aiTrait = RequireTrait<AITrait>();
+        _goalTrait = RequireTrait<GoalTrait>();
 
-        _aiTrait.RegisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
+        _goalTrait.RegisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
     }
 
     public override void OnLose()
     {
-        _aiTrait.DeregisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
+        _goalTrait.DeregisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
     }
 }

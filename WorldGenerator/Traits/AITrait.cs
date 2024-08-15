@@ -5,128 +5,75 @@ namespace WorldGenerator.Traits;
 
 public class AITrait : Trait<NullTraitData>
 {
-    public (IGoal Goal, GoalPriority Priority)? CurrentGoal => _currentGoal;
-    private (IGoal Goal, GoalPriority Priority)? _currentGoal;
+    private GoalTrait _goalTrait = default!;
 
-    private readonly List<(IIntentResolver Resolver, int Count)> _intentResolvers = [];
+    private readonly List<IDecision> _decisions = [];
+    private IDecision? _currentDecision = null;
 
-    private readonly GoalFactory _goalFactory;
-    private readonly IntentResolverFactory _intentResolverFactory;
+    private readonly DecisionFactory _decisionFactory;
 
-    public AITrait(GoalFactory goalFactory, IntentResolverFactory intentResolverFactory)
+    public AITrait(DecisionFactory decisionFactory)
     {
-        _goalFactory = goalFactory;
-        _intentResolverFactory = intentResolverFactory;
+        _decisionFactory = decisionFactory;
+    }
+
+    protected override void OnGain()
+    {
+        _goalTrait = RequireTrait<GoalTrait>();
     }
 
     public override void Tick()
     {
-        if (_currentGoal == null)
-            return;
-
-        var (goal, _) = _currentGoal.Value;
-
-        if (goal.State is GoalState.New)
+        IDecision? bestDecision = MakeDecision();
+        if (bestDecision != _currentDecision)
         {
-            goal.Start();
+            _currentDecision?.OnChosen();
+            _goalTrait.AssignWork(bestDecision?.GetWork());
+            _currentDecision = bestDecision;
         }
 
-        goal.Tick();
-
-        if (goal.State is GoalState.Completed or GoalState.Failed or GoalState.Cancelled)
+        if (!_goalTrait.IsBusy)
         {
-            _currentGoal = null;
+            _currentDecision?.OnEnd();
+            _currentDecision = null;
         }
     }
 
-    public void RegisterIntentResolver<T>() where T : IIntentResolver
+    private IDecision? MakeDecision()
     {
-        int index = _intentResolvers.FindIndex(r => r.Resolver is T);
-        if (index == -1)
-        {
-            _intentResolvers.Add((_intentResolverFactory.CreateResolver<T>(), 1));
-        }
-        else
-        {
-            var (resolver, count) = _intentResolvers[index];
-            _intentResolvers[index] = (resolver, count + 1);
-        }
+        IDecision? bestDecision = _decisions
+            .Where(d => d.CanExecute())
+            .MaxBy(d => d.GetPriority());
+
+        return bestDecision;
     }
 
-    public void DeregisterIntentResolver<T>() where T : IIntentResolver
+    public T RegisterDecision<T>() where T : IDecision
     {
-        int index = _intentResolvers.FindIndex(r => r.Resolver is T);
-        if (index == -1)
-            throw new Exception($"Attempted to deregister resolver of type {typeof(T).Name} that wasn't registered");
-
-        var (resolver, count) = _intentResolvers[index];
-        if (count <= 1)
-            _intentResolvers.RemoveAt(index);
-        else
-            _intentResolvers[index] = (resolver, count - 1);
+        T decision = _decisionFactory.CreateDecision<T>();
+        _decisions.Add(decision);
+        return decision;
     }
 
-    public IGoal? ResolveIntent(Intent intent)
+    public void DeregisterDecision<T>() where T : IDecision
     {
-        var ctx = new IntentResolverContext { Intent = intent, AITrait = this };
-
-        foreach (IIntentResolver resolver in _intentResolvers.Select(r => r.Resolver))
-            resolver.Resolve(ctx);
-
-        GoalProposal? cheapestProposal = ctx.PossibleGoals.MinBy(pg => pg.Cost);
-
-        if (cheapestProposal == null)
-            return null;
-
-        return cheapestProposal.GoalFactory(_goalFactory);
-    }
-
-    public IGoal? AssignWork(IGoalOrIntent? goalOrIntent)
-    {
-        return AssignWork(GoalPriority.Default, goalOrIntent);
-    }
-
-    public IGoal? AssignWork(GoalPriority priority, IGoalOrIntent? goalOrIntent)
-    {
-        IGoal? goal = null;
-        if (goalOrIntent is Intent intent)
-            goal = ResolveIntent(intent);
-        else if (goalOrIntent is IGoal g)
-            goal = g;
-
-        if (goal == null)
-            return null;
-
-        if (_currentGoal == null || (int)_currentGoal.Value.Priority < (int)priority)
-        {
-            goal.Owner = Owner;
-            _currentGoal = (goal, priority);
-            return goal;
-        }
-
-        return null;
+        _decisions.RemoveAll(d => d is T);
     }
 }
 
-public interface IIntentResolverContext
+public enum DecisionPriority
 {
-    AITrait AITrait { get; }
-    Intent Intent { get; }
-    void AddGoalProposal(GoalProposal proposal);
+    Low,
+    Default,
+    Emergency,
+    Panic,
 }
 
-public class IntentResolverContext : IIntentResolverContext
+public interface IDecision
 {
-    public IReadOnlyCollection<GoalProposal> PossibleGoals => _possibleGoals;
-    private readonly List<GoalProposal> _possibleGoals = [];
-
-    public required AITrait AITrait { get; init; }
-    public required Intent Intent { get; init; }
-
-    public void AddGoalProposal(GoalProposal proposal)
-    {
-        _possibleGoals.Add(proposal);
-    }
+    void OnChosen();
+    void OnEnd();
+    bool CanExecute();
+    DecisionPriority GetPriority();
+    IWork GetWork();
 }
-
-public record class GoalProposal(float Cost, Func<GoalFactory, IGoal> GoalFactory);

@@ -44,7 +44,12 @@ public class WalkToPositionGoal : Goal
                 break;
 
             Vector newPos;
-            if (Math.Abs(offset.X) > Math.Abs(offset.Y))
+            if (offset.Z != 0)
+            {
+                newPos = currentPos + new Vector(0, 0, offset.Z / Math.Abs(offset.Z));
+                _world.MoveEntity(Owner, newPos);
+            }
+            else if (Math.Abs(offset.X) > Math.Abs(offset.Y))
             {
                 newPos = currentPos + new Vector(offset.X / Math.Abs(offset.X), 0, 0);
                 _world.MoveEntity(Owner, newPos);

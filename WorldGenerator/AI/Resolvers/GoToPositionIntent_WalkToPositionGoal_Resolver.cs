@@ -10,9 +10,7 @@ public class GoToPositionIntent_WalkToPositionGoal_Resolver : IIntentResolver
         {
             float cost = (ctx.AITrait.Owner.Position - goToPosition.TargetPosition).SimpleLen();
             ctx.AddGoalProposal(new GoalProposal(cost, (factory) =>
-            {
-                return factory.CreateGoal<WalkToPositionGoal>().WithData(goToPosition.TargetPosition);
-            }));
+                factory.CreateGoal<WalkToPositionGoal>().WithData(goToPosition.TargetPosition)));
         }
     }
 }

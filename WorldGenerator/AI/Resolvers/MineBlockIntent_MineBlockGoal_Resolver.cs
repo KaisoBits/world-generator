@@ -9,9 +9,7 @@ public class MineBlockIntent_MineBlockGoal_Resolver : IIntentResolver
         if (ctx.Intent is MineBlockIntent mineBlockIntent)
         {
             ctx.AddGoalProposal(new GoalProposal(10, (factory) =>
-            {
-                return factory.CreateGoal<MineBlockGoal>().WithData(mineBlockIntent.TargetTile);
-            }));
+                factory.CreateGoal<MineBlockGoal>().WithData(mineBlockIntent.TargetTile)));
         }
     }
 }

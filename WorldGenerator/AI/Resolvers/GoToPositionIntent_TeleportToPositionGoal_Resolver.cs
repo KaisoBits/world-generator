@@ -9,9 +9,7 @@ public class GoToPositionIntent_TeleportToPositionGoal_Resolver : IIntentResolve
         if (ctx.Intent is GoToPositionIntent goToPosition)
         {
             ctx.AddGoalProposal(new GoalProposal(5, (factory) =>
-            {
-                return factory.CreateGoal<TeleportToPositionGoal>().WithData(goToPosition.TargetPosition);
-            }));
+                factory.CreateGoal<TeleportToPositionGoal>().WithData(goToPosition.TargetPosition)));
         }
     }
 }

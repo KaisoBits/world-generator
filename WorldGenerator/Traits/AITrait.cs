@@ -25,10 +25,11 @@ public class AITrait : Trait<NullTraitData>
     public override void Tick()
     {
         IDecision? bestDecision = MakeDecision();
-        if (bestDecision != _currentDecision)
+        if (bestDecision != _currentDecision && bestDecision?.GetPriority() > _currentDecision?.GetPriority())
         {
-            _currentDecision?.OnChosen();
+            _currentDecision?.OnEnd();
             _goalTrait.AssignWork(bestDecision?.GetWork());
+            bestDecision?.OnChosen();
             _currentDecision = bestDecision;
         }
 
@@ -63,6 +64,7 @@ public class AITrait : Trait<NullTraitData>
 
 public enum DecisionPriority
 {
+    Idle,
     Low,
     Default,
     Emergency,

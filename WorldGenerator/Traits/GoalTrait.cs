@@ -102,6 +102,7 @@ public class GoalTrait : Trait<NullTraitData>
 
 public interface IIntentResolverContext
 {
+    IEntity Owner { get; }
     GoalTrait AITrait { get; }
     Intent Intent { get; }
     void AddGoalProposal(GoalProposal proposal);
@@ -112,6 +113,7 @@ public class IntentResolverContext : IIntentResolverContext
     public IReadOnlyCollection<GoalProposal> PossibleGoals => _possibleGoals;
     private readonly List<GoalProposal> _possibleGoals = [];
 
+    public IEntity Owner => AITrait.Owner;
     public required GoalTrait AITrait { get; init; }
     public required Intent Intent { get; init; }
 

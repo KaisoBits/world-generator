@@ -33,6 +33,10 @@ public interface IEntity
     void SetState<T>(T data) where T : struct, IState;
     T? GetState<T>() where T : struct, IState;
 
+    void AddToList<T>(T item) where T : notnull;
+    IEnumerable<T> GetList<T>() where T : notnull;
+    void RemoveFromList<T>(T item) where T : notnull;
+
     T GetOrAddTrait<T>() where T : ITrait;
     T AddTrait<T>() where T : ITrait;
     bool TryAddTrait<T>() where T : ITrait;

@@ -1,20 +1,28 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Factories;
 
 namespace WorldGenerator.Traits;
 
 public class CanWalkTrait : Trait<NullTraitData>
 {
-    private GoalTrait _goalTrait = default!;
+    private readonly IntentResolverFactory _intentResolverFactory;
+
+    private GoToPositionIntent_WalkToPositionGoal_Resolver? _resolver;
+
+    public CanWalkTrait(IntentResolverFactory intentResolverFactory)
+    {
+        _intentResolverFactory = intentResolverFactory;
+    }
 
     protected override void OnGain()
     {
-        _goalTrait = RequireTrait<GoalTrait>();
-
-        _goalTrait.RegisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
+        _resolver = _intentResolverFactory.CreateResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
+        Owner.AddToList<IIntentResolver>(_resolver);
     }
 
     public override void OnLose()
     {
-        _goalTrait.DeregisterIntentResolver<GoToPositionIntent_WalkToPositionGoal_Resolver>();
+        if (_resolver != null)
+            Owner.RemoveFromList<IIntentResolver>(_resolver);
     }
 }

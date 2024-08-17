@@ -8,15 +8,11 @@ public class GoalTrait : Trait<NullTraitData>
     public bool IsBusy => CurrentGoal != null;
     public IGoal? CurrentGoal { get; private set; }
 
-    private readonly List<(IIntentResolver Resolver, int Count)> _intentResolvers = [];
-
     private readonly GoalFactory _goalFactory;
-    private readonly IntentResolverFactory _intentResolverFactory;
 
-    public GoalTrait(GoalFactory goalFactory, IntentResolverFactory intentResolverFactory)
+    public GoalTrait(GoalFactory goalFactory)
     {
         _goalFactory = goalFactory;
-        _intentResolverFactory = intentResolverFactory;
     }
 
     public override void Tick()
@@ -39,38 +35,12 @@ public class GoalTrait : Trait<NullTraitData>
         }
     }
 
-    public void RegisterIntentResolver<T>() where T : IIntentResolver
-    {
-        int index = _intentResolvers.FindIndex(r => r.Resolver is T);
-        if (index == -1)
-        {
-            _intentResolvers.Add((_intentResolverFactory.CreateResolver<T>(), 1));
-        }
-        else
-        {
-            var (resolver, count) = _intentResolvers[index];
-            _intentResolvers[index] = (resolver, count + 1);
-        }
-    }
-
-    public void DeregisterIntentResolver<T>() where T : IIntentResolver
-    {
-        int index = _intentResolvers.FindIndex(r => r.Resolver is T);
-        if (index == -1)
-            throw new Exception($"Attempted to deregister resolver of type {typeof(T).Name} that wasn't registered");
-
-        var (resolver, count) = _intentResolvers[index];
-        if (count <= 1)
-            _intentResolvers.RemoveAt(index);
-        else
-            _intentResolvers[index] = (resolver, count - 1);
-    }
-
     public IGoal? ResolveIntent(Intent intent)
     {
         var ctx = new IntentResolverContext { Intent = intent, AITrait = this };
 
-        foreach (IIntentResolver resolver in _intentResolvers.Select(r => r.Resolver))
+        IEnumerable<IIntentResolver> intentResolvers = Owner.GetList<IIntentResolver>();
+        foreach (IIntentResolver resolver in intentResolvers)
             resolver.Resolve(ctx);
 
         GoalProposal? cheapestProposal = ctx.PossibleGoals.MinBy(pg => pg.Cost);

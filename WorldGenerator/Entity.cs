@@ -16,6 +16,9 @@ public sealed class Entity : IEntity
     public IReadOnlyCollection<IState> States => _states.Values;
     private readonly Dictionary<Type, IState> _states = [];
 
+    public IReadOnlyCollection<List<object>> ListStates => _listStates.Values;
+    private readonly Dictionary<Type, List<object>> _listStates = [];
+
     public IReadOnlyCollection<ITrait> Traits => _traits;
     private readonly List<ITrait> _traits = [];
 
@@ -134,6 +137,36 @@ public sealed class Entity : IEntity
             return null;
 
         return GetValueAfterModifiers(result.Value);
+    }
+
+    public void AddToList<T>(T item) where T : notnull
+    {
+        Type type = typeof(T);
+        if (!_listStates.TryGetValue(type, out List<object>? list))
+        {
+            list = [];
+            _listStates.Add(type, list);
+        }
+
+        list.Add(item);
+    }
+
+    public IEnumerable<T> GetList<T>() where T : notnull
+    {
+        if (!_listStates.TryGetValue(typeof(T), out List<object>? list))
+        {
+            return [];
+        }
+
+        return list.OfType<T>();
+    }
+
+    public void RemoveFromList<T>(T item) where T : notnull
+    {
+        if (_listStates.TryGetValue(typeof(T), out List<object>? list))
+        {
+            list.Remove(item);
+        }
     }
 
     public T AddTrait<T>() where T : ITrait

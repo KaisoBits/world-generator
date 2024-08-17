@@ -1,36 +1,40 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Factories;
 
 namespace WorldGenerator.Traits;
 
 public class WorkerTrait : Trait<NullTraitData>
 {
-    private AITrait _aiTrait = default!;
-
     private readonly JobOrderManager _workOrderManager;
+    private readonly DecisionFactory _decisionFactory;
+
+    private DoAssignedJobDecision? _decision;
 
     public IWork? AssignedWork { get; private set; }
 
-    public WorkerTrait(JobOrderManager workOrderManager)
+    public WorkerTrait(JobOrderManager workOrderManager, DecisionFactory decisionFactory)
     {
         _workOrderManager = workOrderManager;
+        _decisionFactory = decisionFactory;
     }
 
     protected override void OnGain()
     {
-        _aiTrait = RequireTrait<AITrait>();
-        _aiTrait.RegisterDecision<DoAssignedJobDecision>().WithData(this);
+        _decision = _decisionFactory.CreateDecision<DoAssignedJobDecision>().WithData(this);
+        Owner.AddToList<IDecision>(_decision);
 
         _workOrderManager.ReportForDuty(this);
     }
 
     public override void OnLose()
     {
-        _aiTrait.DeregisterDecision<DoAssignedJobDecision>();
+        if (_decision != null)
+            Owner.AddToList<IDecision>(_decision);
 
         _workOrderManager.RevertReportForDuty(this);
     }
 
-    public bool AssignWorkOrder(IWork work)
+    public bool AssignWorkOrder(IWork? work)
     {
         AssignedWork = work;
 
@@ -70,5 +74,6 @@ public class DoAssignedJobDecision : IDecision
     public void OnEnd()
     {
         _workOrderManager.ReportForDuty(_parent);
+        _parent.AssignWorkOrder(null);
     }
 }

@@ -7,15 +7,7 @@ public class AITrait : Trait<NullTraitData>
 {
     private GoalTrait _goalTrait = default!;
 
-    private readonly List<IDecision> _decisions = [];
     private IDecision? _currentDecision = null;
-
-    private readonly DecisionFactory _decisionFactory;
-
-    public AITrait(DecisionFactory decisionFactory)
-    {
-        _decisionFactory = decisionFactory;
-    }
 
     protected override void OnGain()
     {
@@ -25,7 +17,7 @@ public class AITrait : Trait<NullTraitData>
     public override void Tick()
     {
         IDecision? bestDecision = MakeDecision();
-        if (bestDecision != _currentDecision && bestDecision?.GetPriority() > _currentDecision?.GetPriority())
+        if (bestDecision != _currentDecision && (_currentDecision == null || bestDecision == null || bestDecision.GetPriority() > _currentDecision.GetPriority()))
         {
             _currentDecision?.OnEnd();
             _goalTrait.AssignWork(bestDecision?.GetWork());
@@ -33,7 +25,7 @@ public class AITrait : Trait<NullTraitData>
             _currentDecision = bestDecision;
         }
 
-        if (!_goalTrait.IsBusy)
+        if (_currentDecision != null && !_goalTrait.IsBusy)
         {
             _currentDecision?.OnEnd();
             _currentDecision = null;
@@ -42,23 +34,13 @@ public class AITrait : Trait<NullTraitData>
 
     private IDecision? MakeDecision()
     {
-        IDecision? bestDecision = _decisions
+        IEnumerable<IDecision> decisions = Owner.GetList<IDecision>();
+
+        IDecision? bestDecision = decisions
             .Where(d => d.CanExecute())
             .MaxBy(d => d.GetPriority());
 
         return bestDecision;
-    }
-
-    public T RegisterDecision<T>() where T : IDecision
-    {
-        T decision = _decisionFactory.CreateDecision<T>();
-        _decisions.Add(decision);
-        return decision;
-    }
-
-    public void DeregisterDecision<T>() where T : IDecision
-    {
-        _decisions.RemoveAll(d => d is T);
     }
 }
 

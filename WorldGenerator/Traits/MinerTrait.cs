@@ -1,20 +1,28 @@
 ﻿using WorldGenerator.AI;
+using WorldGenerator.Factories;
 
 namespace WorldGenerator.Traits;
 
 public class MinerTrait : Trait<NullTraitData>
 {
-    private GoalTrait _goalTrait = default!;
+    private readonly IntentResolverFactory _intentResolverFactory;
+
+    private MineBlockIntent_MineBlockGoal_Resolver? _resolver;
+
+    public MinerTrait(IntentResolverFactory intentResolverFactory)
+    {
+        _intentResolverFactory = intentResolverFactory;
+    }
 
     protected override void OnGain()
     {
-        _goalTrait = RequireTrait<GoalTrait>();
-
-        _goalTrait.RegisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
+        _resolver = _intentResolverFactory.CreateResolver<MineBlockIntent_MineBlockGoal_Resolver>();
+        Owner.AddToList<IIntentResolver>(_resolver);
     }
 
     public override void OnLose()
     {
-        _goalTrait.DeregisterIntentResolver<MineBlockIntent_MineBlockGoal_Resolver>();
+        if (_resolver != null)
+            Owner.RemoveFromList<IIntentResolver>(_resolver);
     }
 }

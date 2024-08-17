@@ -78,8 +78,12 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         {
             if (_ctrlPressed)
             {
-                _currentZ = Math.Clamp(_currentZ + (int)e.Delta, 0, _world.Depth - 1);
-                Console.WriteLine("Z-Level is: {0}", _currentZ);
+                int newZ = Math.Clamp(_currentZ + (int)e.Delta, 0, _world.Depth - 1);
+                if (_currentZ != newZ)
+                {
+                    _currentZ = newZ;
+                    Console.WriteLine("Z-Level is: {0}", _currentZ);
+                }
                 return;
             }
 

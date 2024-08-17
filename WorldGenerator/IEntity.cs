@@ -37,9 +37,10 @@ public interface IEntity
     IEnumerable<T> GetList<T>() where T : notnull;
     void RemoveFromList<T>(T item) where T : notnull;
 
-    T GetOrAddTrait<T>() where T : ITrait;
-    T AddTrait<T>() where T : ITrait;
+    void AddTrait<T>() where T : ITrait;
     bool TryAddTrait<T>() where T : ITrait;
+    void RemoveTrait<T>() where T : ITrait;
+    bool TryRemoveTrait<T>() where T : ITrait;
     bool HasTrait<T>() where T : ITrait;
     T GetTrait<T>() where T : ITrait;
     bool TryGetTrait<T>([NotNullWhen(true)] out T? trait) where T : ITrait;

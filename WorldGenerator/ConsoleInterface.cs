@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using System.Threading.Channels;
 using WorldGenerator.AI;
 using WorldGenerator.Events;
+using WorldGenerator.Factories;
 using WorldGenerator.States;
 using WorldGenerator.Traits;
 
@@ -9,16 +11,24 @@ namespace WorldGenerator;
 
 public class ConsoleInterface
 {
+    private readonly World _world;
+    private readonly EntityFactory _entityFactory;
     private readonly EventBus _eventBus;
     private readonly SelectionService _selectionService;
     private readonly JobOrderManager _workOrderManager;
 
-    private readonly Dictionary<string, Func<IReadOnlyCollection<string>, string?>> _commands = [];
+    private readonly IEnumerable<Type> _traitTypes =
+        Assembly.GetExecutingAssembly().GetExportedTypes()
+        .Where(t => t.IsAssignableTo(typeof(ITrait)));
+
+    private readonly Dictionary<string, Func<IReadOnlyList<string>, string?>> _commands = [];
 
     private readonly Channel<string> _commandChannel = Channel.CreateUnbounded<string>();
 
-    public ConsoleInterface(EventBus eventBus, SelectionService selectionService, JobOrderManager workOrderManager)
+    public ConsoleInterface(World world, EntityFactory entityFactory, EventBus eventBus, SelectionService selectionService, JobOrderManager workOrderManager)
     {
+        _world = world;
+        _entityFactory = entityFactory;
         _eventBus = eventBus;
         _selectionService = selectionService;
         _workOrderManager = workOrderManager;
@@ -28,6 +38,9 @@ public class ConsoleInterface
         RegisterCommand("events", DisplayEvents);
         RegisterCommand("tile", DisplayTileInfo);
         RegisterCommand("mine", Mine);
+        RegisterCommand("spawn", Spawn);
+        RegisterCommand("addtrait", AddTrait);
+        RegisterCommand("remtrait", RemoveTrait);
     }
 
     public void StartTakingInput()
@@ -46,7 +59,14 @@ public class ConsoleInterface
     {
         while (_commandChannel.Reader.TryRead(out string? item))
         {
-            RunCommand(item);
+            try
+            {
+                RunCommand(item);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Critical fail: " + ex.Message);
+            }
         }
     }
 
@@ -70,12 +90,12 @@ public class ConsoleInterface
         }
     }
 
-    public void RegisterCommand(string name, Func<IReadOnlyCollection<string>, string?> handler)
+    public void RegisterCommand(string name, Func<IReadOnlyList<string>, string?> handler)
     {
         _commands.Add(name, handler);
     }
 
-    public string? Help(IReadOnlyCollection<string> parameters)
+    public string? Help(IReadOnlyList<string> parameters)
     {
         Console.WriteLine("Available commands:");
         foreach (var command in _commands)
@@ -84,14 +104,14 @@ public class ConsoleInterface
         return null;
     }
 
-    public string? Clear(IReadOnlyCollection<string> parameters)
+    public string? Clear(IReadOnlyList<string> parameters)
     {
         Console.Clear();
 
         return null;
     }
 
-    public string? DisplayEvents(IReadOnlyCollection<string> parameters)
+    public string? DisplayEvents(IReadOnlyList<string> parameters)
     {
         IEnumerable<GameEvent> listBottom = _eventBus.EventList.TakeLast(20);
         foreach (var item in listBottom)
@@ -100,7 +120,7 @@ public class ConsoleInterface
         return null;
     }
 
-    public string? Mine(IReadOnlyCollection<string> parameters)
+    public string? Mine(IReadOnlyList<string> parameters)
     {
         ITileView? tile = _selectionService.SelectedTile;
         if (tile == null)
@@ -111,7 +131,7 @@ public class ConsoleInterface
         return null;
     }
 
-    public string? DisplayTileInfo(IReadOnlyCollection<string> parameters)
+    public string? DisplayTileInfo(IReadOnlyList<string> parameters)
     {
         ITileView? tile = _selectionService.SelectedTile;
         if (tile == null)
@@ -200,5 +220,77 @@ public class ConsoleInterface
                 Console.WriteLine($"  - {item.Message}");
             }
         }
+    }
+
+    public string? Spawn(IReadOnlyList<string> parameters)
+    {
+        if (parameters.Count != 2)
+            return "Pass the name of the entity to add";
+
+        ITileView? tile = _selectionService.SelectedTile;
+        if (tile == null)
+            return "No tile selected";
+
+        Entity entity = _entityFactory.CreateFromName(parameters[1]);
+
+        _world.SpawnEntity(entity, tile.Position);
+
+        return null;
+    }
+
+    public string? AddTrait(IReadOnlyList<string> parameters)
+    {
+        if (parameters.Count != 2)
+            return "Pass the name of the trait to add";
+
+        ITileView? tile = _selectionService.SelectedTile;
+        if (tile == null)
+            return "No tile selected";
+
+        IEntity? ent = tile.Contents.LastOrDefault();
+        if (ent == null)
+            return "No entity on selected tile";
+
+        Type? traitType = _traitTypes.FirstOrDefault(t => t.Name.Equals(parameters[1], StringComparison.OrdinalIgnoreCase));
+
+        if (traitType == null)
+            return "Trait does not exist";
+
+        MethodInfo? methodInfo = typeof(IEntity).GetMethod(nameof(IEntity.AddTrait), BindingFlags.Public | BindingFlags.Instance);
+        if (methodInfo != null)
+        {
+            MethodInfo genericMethod = methodInfo.MakeGenericMethod(traitType);
+            genericMethod.Invoke(ent, null);
+        }
+
+        return null;
+    }
+
+    public string? RemoveTrait(IReadOnlyList<string> parameters)
+    {
+        if (parameters.Count != 2)
+            return "Pass the name of the trait to remove";
+
+        ITileView? tile = _selectionService.SelectedTile;
+        if (tile == null)
+            return "No tile selected";
+
+        IEntity? ent = tile.Contents.LastOrDefault();
+        if (ent == null)
+            return "No entity on selected tile";
+
+        Type? traitType = _traitTypes.FirstOrDefault(t => t.Name.Equals(parameters[1], StringComparison.OrdinalIgnoreCase));
+
+        if (traitType == null)
+            return "Trait does not exist";
+
+        MethodInfo? methodInfo = typeof(IEntity).GetMethod(nameof(IEntity.RemoveTrait), BindingFlags.Public | BindingFlags.Instance);
+        if (methodInfo != null)
+        {
+            MethodInfo genericMethod = methodInfo.MakeGenericMethod(traitType);
+            genericMethod.Invoke(ent, null);
+        }
+
+        return null;
     }
 }

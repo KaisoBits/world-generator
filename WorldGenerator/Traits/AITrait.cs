@@ -1,5 +1,4 @@
 ﻿using WorldGenerator.AI;
-using WorldGenerator.Factories;
 
 namespace WorldGenerator.Traits;
 
@@ -17,7 +16,7 @@ public class AITrait : Trait<NullTraitData>
     public override void Tick()
     {
         IDecision? bestDecision = MakeDecision();
-        if (bestDecision != _currentDecision && (_currentDecision == null || bestDecision == null || bestDecision.GetPriority() > _currentDecision.GetPriority()))
+        if (bestDecision != _currentDecision && (_currentDecision == null || bestDecision?.GetPriority() > _currentDecision.GetPriority()))
         {
             _currentDecision?.OnEnd();
             _goalTrait.AssignWork(bestDecision?.GetWork());
@@ -27,7 +26,7 @@ public class AITrait : Trait<NullTraitData>
 
         if (_currentDecision != null && !_goalTrait.IsBusy)
         {
-            _currentDecision?.OnEnd();
+            _currentDecision.OnEnd();
             _currentDecision = null;
         }
     }

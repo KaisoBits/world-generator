@@ -169,16 +169,10 @@ public sealed class Entity : IEntity
         }
     }
 
-    public T AddTrait<T>() where T : ITrait
+    public void AddTrait<T>() where T : ITrait
     {
-        if (_traits.OfType<T>().Any())
+        if (!TryAddTrait<T>())
             throw new Exception($"The entity has trait '{typeof(T).Name}' already");
-
-        T result = _traitFactory.CreateTrait<T>();
-        _traits.Add(result);
-        result.Gain(this);
-
-        return result;
     }
 
     public bool TryAddTrait<T>() where T : ITrait
@@ -193,18 +187,21 @@ public sealed class Entity : IEntity
         return true;
     }
 
-    public T GetOrAddTrait<T>() where T : ITrait
+    public void RemoveTrait<T>() where T : ITrait
     {
-        T? result = _traits.OfType<T>().FirstOrDefault();
+        if (!TryRemoveTrait<T>())
+            throw new Exception($"The entity does not have the '{typeof(T).Name}' trait");
+    }
 
-        if (result != null)
-            return result; // Only 1 extension of given type allowed
+    public bool TryRemoveTrait<T>() where T : ITrait
+    {
+        ITrait? trait = _traits.OfType<T>().FirstOrDefault();
+        if (trait == null)
+            return false;
 
-        result = _traitFactory.CreateTrait<T>();
-        _traits.Add(result);
-        result.Gain(this);
+        trait.OnLose();
 
-        return result;
+        return _traits.Remove(trait);
     }
 
     public bool HasTrait<T>() where T : ITrait

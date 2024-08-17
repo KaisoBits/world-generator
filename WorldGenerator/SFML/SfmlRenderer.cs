@@ -44,8 +44,6 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private Vector2f _lastPos = new();
     private float _zoom = 1.0f;
 
-    private int _lastTick = -1;
-
     private int _currentZ = 0;
 
     private bool _ctrlPressed = false;
@@ -296,7 +294,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             return;
         }
 
-        if (_lastTick != _world.CurrentTick || _selectionService.SelectedTile != _lastSelectedTile)
+        if (_selectionService.SelectedTile != _lastSelectedTile)
         {
             _debug.Clear();
             _debug.HighlightTileAt(_selectionService.SelectedTile.Position, _world.CurrentTick);

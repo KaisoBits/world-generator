@@ -200,10 +200,18 @@ public class ConsoleInterface
 
         Console.WriteLine("States:");
 
-        foreach (var item in entity.States)
+        foreach (IState item in entity.States)
         {
             Console.Write("  ");
-            Console.WriteLine($"- {item}");
+            Console.Write($"- {item}");
+
+            MethodInfo? methodInfo = typeof(IEntity).GetMethod(nameof(IEntity.GetState), BindingFlags.Public | BindingFlags.Instance);
+            if (methodInfo != null)
+            {
+                MethodInfo genericMethod = methodInfo.MakeGenericMethod(item.GetType());
+                IState? afterModifiers = (IState?)genericMethod.Invoke(entity, null);
+                Console.WriteLine($" ({afterModifiers})");
+            }
         }
 
         if (entity.TryGetTrait(out MemoryTrait? memoryTrait))

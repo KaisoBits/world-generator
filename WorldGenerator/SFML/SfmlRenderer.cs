@@ -40,17 +40,17 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly ConsoleInterface _consoleInterface;
     private readonly SelectionService _selectionService;
 
-    bool _isMovingCam = false;
-    Vector2f _lastPos = new();
-    float _zoom = 1.0f;
+    private bool _isMovingCam = false;
+    private Vector2f _lastPos = new();
+    private float _zoom = 1.0f;
 
-    int _lastTick = -1;
+    private int _lastTick = -1;
 
-    int _currentZ = 0;
+    private int _currentZ = 0;
 
-    bool _ctrlPressed = false;
+    private bool _ctrlPressed = false;
 
-    ITileView? _lastSelectedTile = null;
+    private ITileView? _lastSelectedTile = null;
 
     public SFMLRenderer(
         World world,

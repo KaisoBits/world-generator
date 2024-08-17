@@ -46,7 +46,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     int _lastTick = -1;
 
-    int currentZ = 0;
+    int _currentZ = 0;
 
     bool _ctrlPressed = false;
 
@@ -80,8 +80,8 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         {
             if (_ctrlPressed)
             {
-                currentZ = Math.Clamp(currentZ + (int)e.Delta, 0, _world.Depth - 1);
-                Console.WriteLine("Z-Level is: {0}", currentZ);
+                _currentZ = Math.Clamp(_currentZ + (int)e.Delta, 0, _world.Depth - 1);
+                Console.WriteLine("Z-Level is: {0}", _currentZ);
                 return;
             }
 
@@ -192,7 +192,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
                 if (x < 0 || x > _world.Width - 1)
                     continue;
 
-                ITileView tile = _world[x, y, currentZ];
+                ITileView tile = _world[x, y, _currentZ];
 
                 Transform t = Transform.Identity;
                 t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
@@ -213,7 +213,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
         _debug.Tick();
 
-        foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == currentZ))
+        foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == _currentZ))
         {
             Transform t = Transform.Identity;
             t.Translate(new Vector2f(highlights.Position.X * 32, highlights.Position.Y * 32));
@@ -228,7 +228,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private Vector GetTileAt(Vector2f position)
     {
-        return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32), currentZ);
+        return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32), _currentZ);
     }
 
     private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)

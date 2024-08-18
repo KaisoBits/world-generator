@@ -11,20 +11,20 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly RenderWindow _window;
     private readonly View _view;
 
-    private readonly Sprite _grass = new(LoadTexture("Resources/grass.png"));
+    private readonly Sprite _grass = new(LoadTexture("Resources/grass2.png"));
     private readonly Sprite _castle = new(LoadTexture("Resources/village.png"));
-    private readonly Sprite _dwarf = new(LoadTexture("Resources/dwarf.png"));
+    private readonly Sprite _dwarf = new(LoadTexture("Resources/dwarf.png")) { Scale = new Vector2f(2, 2) };
     private readonly Sprite _mountain = new(LoadTexture("Resources/mountain.png"));
     private readonly Sprite _smallMountain = new(LoadTexture("Resources/stone.png"));
     private readonly Sprite _field = new(LoadTexture("Resources/field.png"));
-    private readonly Sprite _wall = new(LoadTexture("Resources/wall.png"));
+    private readonly Sprite _wall = new(LoadTexture("Resources/wall.png")) { Scale = new Vector2f(2, 2) };
 
-    private readonly RectangleShape _fog = new(new Vector2f(32, 32))
+    private readonly RectangleShape _fog = new(new Vector2f(64, 64))
     {
         FillColor = new Color(135, 206, 235, 90),
     };
 
-    private readonly Shape _highlight = new RectangleShape(new Vector2f(32, 32))
+    private readonly Shape _highlight = new RectangleShape(new Vector2f(64, 64))
     {
         FillColor = Color.Transparent,
         OutlineColor = Color.Red,
@@ -68,7 +68,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         {
             AntialiasingLevel = 4
         };
-        _window = new(new VideoMode(Math.Min((uint)world.Width * 32, 1280), Math.Min((uint)world.Height * 32, 720)), "World generator", Styles.Default, settings);
+        _window = new(new VideoMode(Math.Min((uint)world.Width * 64, 1280), Math.Min((uint)world.Height * 64, 720)), "World generator", Styles.Default, settings);
         _view = new View(new Vector2f(_window.Size.X / 2, _window.Size.Y / 2), new Vector2f(_window.Size.X, _window.Size.Y));
         _window.SetView(_view);
 
@@ -197,7 +197,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
                 ITileView tile = _world[x, y, _currentZ];
 
                 Transform t = Transform.Identity;
-                t.Translate(new Vector2f(tile.Position.X * 32, tile.Position.Y * 32));
+                t.Translate(new Vector2f(tile.Position.X * 64, tile.Position.Y * 64));
                 RenderStates rs = new(t);
 
                 DrawTile(tile, rs);
@@ -218,7 +218,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == _currentZ))
         {
             Transform t = Transform.Identity;
-            t.Translate(new Vector2f(highlights.Position.X * 32, highlights.Position.Y * 32));
+            t.Translate(new Vector2f(highlights.Position.X * 64, highlights.Position.Y * 64));
             RenderStates rs = new(t);
 
             _window.Draw(_highlight, rs);
@@ -230,7 +230,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private Vector GetTileAt(Vector2f position)
     {
-        return new Vector((int)Math.Floor(position.X / 32), (int)Math.Floor(position.Y / 32), _currentZ);
+        return new Vector((int)Math.Floor(position.X / 64), (int)Math.Floor(position.Y / 64), _currentZ);
     }
 
     private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)

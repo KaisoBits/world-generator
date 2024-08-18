@@ -47,4 +47,37 @@ public class WorldFacade
             .OfType<T>()
             .FirstOrDefault();
     }
+
+    public bool IsWithinBounds(Vector position)
+    {
+        return position.X >= 0 && position.Y >= 0 && position.Z >= 0 && 
+            position.X < _world.Width && position.Y < _world.Height && position.Z < _world.Depth;
+    }
+
+    public bool HasWall(Vector position)
+    {
+        return !IsWithinBounds(position) || _world[position].HasWall;
+    }
+
+    public int NeighborWallsCount(Vector position)
+    {
+        int c = 0;
+        Vector p1 = position + Vector.Up;
+        if (HasWall(p1))
+            c++;
+
+        Vector p2 = position + Vector.Down;
+        if (HasWall(p2))
+            c++;
+
+        Vector p3 = position + Vector.Left;
+        if (HasWall(p3))
+            c++;
+
+        Vector p4 = position + Vector.Right;
+        if (HasWall(p4))
+            c++;
+
+        return c;
+    }
 }

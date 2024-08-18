@@ -3,8 +3,8 @@
 public readonly struct Vector : IEquatable<Vector>
 {
     public static Vector Zero { get; } = new Vector();
-    public static Vector Up { get; } = new Vector(-1, 0, 0);
-    public static Vector Down { get; } = new Vector(1, 0, 0);
+    public static Vector Up { get; } = new Vector(0, -1, 0);
+    public static Vector Down { get; } = new Vector(0, 1, 0);
     public static Vector Left { get; } = new Vector(-1, 0, 0);
     public static Vector Right { get; } = new Vector(1, 0, 0);
 

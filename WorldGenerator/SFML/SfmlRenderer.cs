@@ -33,7 +33,6 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     private readonly Dictionary<string, Action<IEntity, RenderStates>> _renders = [];
 
-    private readonly List<(IEntity Ent, RenderStates Rs)> _renderList = [];
     private readonly World _world;
     private readonly DebugOverlay _debug;
     private readonly IHostApplicationLifetime _lifetime;
@@ -204,15 +203,6 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             }
         }
 
-        // TODO: Inplace sorting
-        foreach (var (entity, rs) in _renderList
-            .OrderBy(e => e.Ent.Layer)
-            .ThenBy(e => e.Ent.Position.Y)
-            .ThenBy(e => e.Ent.Position.X))
-        {
-            _renders[entity.EntityType.FullIdentifier](entity, rs);
-        }
-
         _debug.Tick();
 
         foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == _currentZ))
@@ -225,7 +215,6 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         }
 
         _window.Display();
-        _renderList.Clear();
     }
 
     private Vector GetTileAt(Vector2f position)

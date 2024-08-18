@@ -11,17 +11,23 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly RenderWindow _window;
     private readonly View _view;
 
-    private readonly Sprite _grass = new(LoadTexture("Resources/grass2.png"));
-    private readonly Sprite _castle = new(LoadTexture("Resources/village.png"));
-    private readonly Sprite _dwarf = new(LoadTexture("Resources/dwarf.png")) { Scale = new Vector2f(2, 2) };
-    private readonly Sprite _mountain = new(LoadTexture("Resources/mountain.png"));
-    private readonly Sprite _smallMountain = new(LoadTexture("Resources/stone.png"));
-    private readonly Sprite _field = new(LoadTexture("Resources/field.png"));
-    private readonly Sprite _wall = new(LoadTexture("Resources/wall.png")) { Scale = new Vector2f(2, 2) };
+    private readonly Sprite _grass = LoadSprite("Resources/grass2.png");
+    private readonly Sprite _castle = LoadSprite("Resources/village.png");
+    private readonly Sprite _dwarf = LoadSprite("Resources/dwarf.png");
+    private readonly Sprite _mountain = LoadSprite("Resources/mountain.png");
+    private readonly Sprite _smallMountain = LoadSprite("Resources/stone.png");
+    private readonly Sprite _field = LoadSprite("Resources/field.png");
+    private readonly Sprite _wall0 = LoadSprite("Resources/wall-0.png");
+    private readonly Sprite _wall1 = LoadSprite("Resources/wall-1.png");
+    private readonly Sprite _wall21 = LoadSprite("Resources/wall-2-1.png");
+    private readonly Sprite _wall22 = LoadSprite("Resources/wall-2-2.png");
+    private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png");
+    private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png");
 
     private readonly RectangleShape _fog = new(new Vector2f(64, 64))
     {
         FillColor = new Color(135, 206, 235, 90),
+        Origin = new Vector2f(32, 32)
     };
 
     private readonly Shape _highlight = new RectangleShape(new Vector2f(64, 64))
@@ -34,6 +40,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
     private readonly Dictionary<string, Action<IEntity, RenderStates>> _renders = [];
 
     private readonly World _world;
+    private readonly WorldFacade _worldFacade;
     private readonly DebugOverlay _debug;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ConsoleInterface _consoleInterface;
@@ -51,6 +58,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
 
     public SFMLRenderer(
         World world,
+        WorldFacade worldFacade,
         DebugOverlay overlay,
         IHostApplicationLifetime lifetime,
         EventBus eventBus,
@@ -58,6 +66,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         SelectionService selectionService)
     {
         _world = world;
+        _worldFacade = worldFacade;
         _debug = overlay;
         _lifetime = lifetime;
         _consoleInterface = consoleInterface;
@@ -87,8 +96,8 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             }
 
             float multiplier = Math.Abs(e.Delta);
-            float ratio = (e.Delta < 0 ? 1.25f * multiplier : 0.8f / multiplier);
-            _zoom = Math.Clamp(_zoom * ratio, 0.1f, 3.0f);
+            float ratio = e.Delta < 0 ? 1.25f * multiplier : 0.8f / multiplier;
+            _zoom = Math.Clamp(_zoom * ratio, 0.2f, 3.0f);
 
             _view.Size = (Vector2f)_window.Size * _zoom;
         };
@@ -196,7 +205,7 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
                 ITileView tile = _world[x, y, _currentZ];
 
                 Transform t = Transform.Identity;
-                t.Translate(new Vector2f(tile.Position.X * 64, tile.Position.Y * 64));
+                t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
                 RenderStates rs = new(t);
 
                 DrawTile(tile, rs);
@@ -222,23 +231,23 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         return new Vector((int)Math.Floor(position.X / 64), (int)Math.Floor(position.Y / 64), _currentZ);
     }
 
-    private void DrawTile(ITileView tileView, RenderStates renderStates, int iteration = 0)
+    private void DrawTile(ITileView tile, RenderStates renderStates, int iteration = 0)
     {
         if (iteration > 6)
             return;
 
-        if (tileView.HasWall)
-            _window.Draw(_wall, renderStates);
-        else if (tileView.HasFloor)
+        if (tile.HasWall)
+            DrawWall(tile, renderStates);
+        else if (tile.HasFloor)
             _window.Draw(_grass, renderStates);
 
-        if (!tileView.HasFloor && !tileView.HasWall && tileView.Position.Z > 0)
+        if (!tile.HasFloor && !tile.HasWall && tile.Position.Z > 0)
         {
-            DrawTile(_world[tileView.Position - new Vector(0, 0, 1)], renderStates, iteration + 1);
+            DrawTile(_world[tile.Position - new Vector(0, 0, 1)], renderStates, iteration + 1);
             _window.Draw(_fog, renderStates);
         }
 
-        foreach (IEntity entity in tileView.Contents)
+        foreach (IEntity entity in tile.Contents)
             _renders[entity.EntityType.FullIdentifier](entity, renderStates);
     }
 
@@ -274,6 +283,70 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
         return (t1, t2);
     }
 
+    private void DrawWall(ITileView tile, RenderStates rs)
+    {
+        int neighborCount = _worldFacade.NeighborWallsCount(tile.Position);
+
+        switch (neighborCount)
+        {
+            case 0:
+                _window.Draw(_wall4, rs);
+                break;
+            case 1:
+                if (_worldFacade.HasWall(tile.Position + Vector.Up))
+                    rs.Transform.Rotate(-90);
+                else if (_worldFacade.HasWall(tile.Position + Vector.Down))
+                    rs.Transform.Rotate(90);
+                else if (_worldFacade.HasWall(tile.Position + Vector.Left))
+                    rs.Transform.Rotate(180);
+
+                _window.Draw(_wall3, rs);
+                break;
+
+            case 2:
+                if (_worldFacade.HasWall(tile.Position + Vector.Left) && _worldFacade.HasWall(tile.Position + Vector.Right))
+                {
+                    _window.Draw(_wall21, rs);
+                }
+                else if (_worldFacade.HasWall(tile.Position + Vector.Up) && _worldFacade.HasWall(tile.Position + Vector.Down))
+                {
+                    rs.Transform.Rotate(90);
+                    _window.Draw(_wall21, rs);
+                }
+                else if (_worldFacade.HasWall(tile.Position + Vector.Up))
+                {
+                    if (_worldFacade.HasWall(tile.Position + Vector.Left))
+                        rs.Transform.Rotate(-90);
+
+                    _window.Draw(_wall22, rs);
+                }
+                else if (_worldFacade.HasWall(tile.Position + Vector.Down))
+                {
+                    rs.Transform.Rotate(180);
+                    if (_worldFacade.HasWall(tile.Position + Vector.Right))
+                        rs.Transform.Scale(-1, 1);
+
+                    _window.Draw(_wall22, rs);
+                }
+                break;
+            case 3:
+                if (!_worldFacade.HasWall(tile.Position + Vector.Up))
+                    rs.Transform.Rotate(180);
+                else if (!_worldFacade.HasWall(tile.Position + Vector.Right))
+                    rs.Transform.Rotate(-90);
+                else if (!_worldFacade.HasWall(tile.Position + Vector.Left))
+                    rs.Transform.Rotate(90);
+
+                _window.Draw(_wall1, rs);
+                break;
+            case 4:
+                _window.Draw(_wall0, rs);
+                break;
+            default:
+                break;
+        }
+    }
+
     private void HighlightSelectedTile()
     {
         if (_selectionService.SelectedTile == null)
@@ -292,6 +365,16 @@ public sealed class SFMLRenderer : IRenderer, IDisposable
             _debug.Clear();
             _debug.HighlightTileAt(_selectionService.SelectedTile.Position, _world.CurrentTick);
         }
+    }
+
+    private static Sprite LoadSprite(string path)
+    {
+        Texture tex = LoadTexture(path);
+
+        Sprite result = new(tex);
+        result.Origin = (Vector2f)tex.Size / 2;
+
+        return result;
     }
 
     private static Texture LoadTexture(string path)

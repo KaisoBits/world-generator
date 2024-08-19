@@ -73,7 +73,7 @@ public abstract class Goal : IGoal
         }
 
         IWork? cur = _taskEnumerator.Current;
-        if (cur is Goal goal)
+        if (cur is IGoal goal)
         {
             InterruptedWith = goal;
             goal.Owner = Owner;

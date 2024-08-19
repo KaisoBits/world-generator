@@ -79,7 +79,7 @@ public abstract class Goal : IGoal
             goal.Owner = Owner;
             goal.Start();
         }
-        else if (cur is Intent intent)
+        else if (cur is IIntent intent)
         {
             IGoal? resolvedGoal = Owner.GetTrait<GoalTrait>().ResolveIntent(intent);
             if (resolvedGoal == null)

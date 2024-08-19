@@ -1,5 +1,5 @@
 ﻿namespace WorldGenerator.AI;
 
-public class Intent : IWork
+public interface IIntent : IWork
 {
 }

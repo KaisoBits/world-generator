@@ -5,7 +5,7 @@ namespace WorldGenerator;
 
 public class JobOrderManager
 {
-    private readonly Queue<Intent> _orders = [];
+    private readonly Queue<IIntent> _orders = [];
 
     private readonly HashSet<WorkerTrait> _freeWorkers = [];
 
@@ -14,14 +14,14 @@ public class JobOrderManager
         if (!tile.HasWall)
             return;
 
-        Intent mineIntent = new MineBlockIntent(tile);
+        IIntent mineIntent = new MineBlockIntent(tile);
 
         _orders.Enqueue(mineIntent);
     }
 
     public void Tick()
     {
-        while (_orders.TryDequeue(out Intent? intent))
+        while (_orders.TryDequeue(out IIntent? intent))
         {
             if (intent is MineBlockIntent mineBlock)
             {

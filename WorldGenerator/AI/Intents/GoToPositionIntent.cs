@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator.AI;
 
-public class GoToPositionIntent : Intent
+public class GoToPositionIntent : IIntent
 {
     public Vector TargetPosition { get; }
 

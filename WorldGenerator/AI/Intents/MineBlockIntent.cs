@@ -1,6 +1,6 @@
 ﻿namespace WorldGenerator.AI;
 
-public class MineBlockIntent : Intent
+public class MineBlockIntent : IIntent
 {
     public ITileView TargetTile { get; }
 

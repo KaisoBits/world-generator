@@ -35,7 +35,7 @@ public class GoalTrait : Trait<NullTraitData>
         }
     }
 
-    public IGoal? ResolveIntent(Intent intent)
+    public IGoal? ResolveIntent(IIntent intent)
     {
         var ctx = new IntentResolverContext { Intent = intent, AITrait = this };
 
@@ -54,7 +54,7 @@ public class GoalTrait : Trait<NullTraitData>
     public IGoal? AssignWork(IWork? goalOrIntent)
     {
         IGoal? goal = null;
-        if (goalOrIntent is Intent intent)
+        if (goalOrIntent is IIntent intent)
             goal = ResolveIntent(intent);
         else if (goalOrIntent is IGoal g)
             goal = g;
@@ -74,7 +74,7 @@ public interface IIntentResolverContext
 {
     IEntity Owner { get; }
     GoalTrait AITrait { get; }
-    Intent Intent { get; }
+    IIntent Intent { get; }
     void AddGoalProposal(GoalProposal proposal);
 }
 
@@ -85,7 +85,7 @@ public class IntentResolverContext : IIntentResolverContext
 
     public IEntity Owner => AITrait.Owner;
     public required GoalTrait AITrait { get; init; }
-    public required Intent Intent { get; init; }
+    public required IIntent Intent { get; init; }
 
     public void AddGoalProposal(GoalProposal proposal)
     {

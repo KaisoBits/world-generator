@@ -25,7 +25,7 @@ builder.Services.AddScoped<IntentResolverFactory>();
 builder.Services.AddScoped<DecisionFactory>();
 
 builder.Services.AddScoped<Generator>();
-builder.Services.AddScoped<IRenderer, SFMLRenderer>();
+builder.Services.AddScoped<IRenderer, IsometricRenderer>();
 builder.Services.AddScoped<SelectionService>();
 builder.Services.AddScoped<DebugOverlay>();
 

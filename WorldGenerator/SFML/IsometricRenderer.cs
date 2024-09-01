@@ -27,7 +27,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private readonly RectangleShape _fog = new(new Vector2f(64, 64))
     {
-        FillColor = new Color(135, 206, 235, 90),
+        FillColor = new Color(135, 206, 235, 150),
         Origin = new Vector2f(32, 32)
     };
 
@@ -199,24 +199,40 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
         int size = Math.Max(_world.Size.X * 2, _world.Size.Y * 2);
 
-        for (int i = 0; i < size; i++)
+        const int offset = 3;
+        int renderedZLevel = Math.Max(_currentZ - offset, 0);
+
+        while (renderedZLevel <= _currentZ)
         {
-            for (int drawingIndex = 0; drawingIndex <= i; drawingIndex++)
+            for (int i = 0; i < size; i++)
             {
-                Vector currentPos = new(drawingIndex, i - drawingIndex, _currentZ);
-                if (!_worldFacade.IsWithinBounds(currentPos))
-                    continue;
+                for (int drawingIndex = 0; drawingIndex <= i; drawingIndex++)
+                {
+                    Vector currentPos = new(drawingIndex, i - drawingIndex, renderedZLevel);
+                    if (!_worldFacade.IsWithinBounds(currentPos))
+                        continue;
 
-                ITileView tile = _world[currentPos];
+                    ITileView tile = _world[currentPos];
 
-                Transform t = Transform.Identity;
-                t.Scale(new Vector2f(1, 0.5f));
-                t.Rotate(45);
-                t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
-                RenderStates rs = new(t);
+                    Transform t = Transform.Identity;
+                    t.Scale(new Vector2f(1, 0.5f));
+                    t.Rotate(45);
+                    t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
+                    RenderStates rs = new(t);
 
-                DrawTile(tile, rs);
+                    DrawTile(tile, rs);
+                }
             }
+
+            if (renderedZLevel != _currentZ)
+            {
+                Transform fogT = Transform.Identity;
+                fogT.Translate(_view.Center);
+                fogT.Scale(_view.Size / 2);
+                _window.Draw(_fog, new RenderStates(fogT));
+            }
+
+            renderedZLevel++;
         }
 
         _debug.Tick();
@@ -250,21 +266,12 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         return new Vector((int)Math.Floor(position.X / 64), (int)Math.Floor(position.Y / 64), _currentZ);
     }
 
-    private void DrawTile(ITileView tile, RenderStates renderStates, int iteration = 0)
+    private void DrawTile(ITileView tile, RenderStates renderStates)
     {
-        if (iteration > 6)
-            return;
-
         if (tile.HasWall)
             DrawWall(tile, renderStates);
         else if (tile.HasFloor)
             DrawFloor(tile, renderStates);
-
-        if (!tile.HasFloor && !tile.HasWall && tile.Position.Z > 0)
-        {
-            DrawTile(_world[tile.Position - new Vector(0, 0, 1)], renderStates, iteration + 1);
-            _window.Draw(_fog, renderStates);
-        }
 
         Transform t = Transform.Identity;
         t.Scale(new Vector2f(1, 0.5f));
@@ -272,9 +279,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         t.Translate(new Vector2f(tile.Position.X * 64, tile.Position.Y * 64));
         t.Rotate(-45);
         t.Scale(1, 2.0f);
-        //t.Rotate(45);
-        RenderStates newRS = new(t);
 
+        RenderStates newRS = new(t);
 
         foreach (IEntity entity in tile.Contents)
             _renders[entity.EntityType.FullIdentifier](entity, newRS);
@@ -324,7 +330,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        int height = -_world.CurrentTick % 450;
+        int height = -Math.Max((_world.CurrentTick % 450), 0);
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));

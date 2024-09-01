@@ -4,8 +4,8 @@ using WorldGenerator;
 using WorldGenerator.Factories;
 using WorldGenerator.SFML;
 
-const int worldX = 128;
-const int worldY = 128;
+const int worldX = 64;
+const int worldY = 64;
 const int worldZ = 10;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();

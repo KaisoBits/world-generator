@@ -38,7 +38,7 @@ public class World
                     bool hasWall = (zIndex == 0 ? false : Random.Shared.Next(0, 100) < 50);
                     return new Tile(i % Width, i / Width, zIndex)
                     {
-                        HasFloor = zIndex == 0 || !hasWall,
+                        HasFloor = true,
                         HasWall = hasWall
                     };
                 })

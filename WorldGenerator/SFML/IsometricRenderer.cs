@@ -23,6 +23,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly Sprite _wall22 = LoadSprite("Resources/wall-2-2.png");
     private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png");
     private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png");
+    private readonly Texture _wallTex = LoadTexture("Resources/stone_wall.png", true);
 
     private readonly RectangleShape _fog = new(new Vector2f(64, 64))
     {
@@ -319,14 +320,22 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         _window.Draw(_grass, rs);
     }
 
+
+    private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        Transform t = Transform.Identity;
+        int height = -_world.CurrentTick % 450;
+
+        var t = Transform.Identity;
+        t.Translate(new Vector2f(0, height));
         t.Scale(new Vector2f(1, 0.5f));
-        t.Translate(new Vector2f(0, -_world.CurrentTick * 2 % 30));
         t.Rotate(45);
         t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
         rs = new(t);
+
+        Vector2f middlePoint = t.TransformPoint(new Vector2f(32, 32));
+        Vector2f leftPoint = t.TransformPoint(new Vector2f(-32, 32));
+        Vector2f rightPoint = t.TransformPoint(new Vector2f(32, -32));
 
         int neighborCount = _worldFacade.NeighborWallsCount(tile.Position);
 
@@ -388,6 +397,22 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
             default:
                 break;
         }
+
+        _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
+        _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
+        _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
+        _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
+
+        _window.Draw(_sideWall, new RenderStates(_wallTex));
+
+        Color c = new Color(180, 180, 180);
+
+        _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
+        _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
+        _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
+        _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
+
+        _window.Draw(_sideWall, new RenderStates(_wallTex));
     }
 
     private void HighlightSelectedTile()
@@ -420,11 +445,12 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         return result;
     }
 
-    private static Texture LoadTexture(string path)
+    private static Texture LoadTexture(string path, bool repeated = false)
     {
         Texture result = new(path);
         result.GenerateMipmap();
         result.Smooth = false;
+        result.Repeated = repeated;
 
         return result;
     }

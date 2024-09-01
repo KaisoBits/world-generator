@@ -26,10 +26,15 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png", _topWallColor);
     private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png", _topWallColor);
     private readonly Texture _wallTex = LoadTexture("Resources/stone_wall.png", true);
+    private readonly Texture _grassTex = LoadTexture("Resources/grass2.png", true);
+
+    private const float _floorDepth = 10;
+
+    private readonly float _perspectiveMultiplier = (float)Math.Sqrt(2);
 
     private readonly RectangleShape _fog = new(new Vector2f(64, 64))
     {
-        FillColor = new Color(135, 206, 235, 150),
+        FillColor = new Color(135, 206, 235, 90),
         Origin = new Vector2f(32, 32)
     };
 
@@ -90,11 +95,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
             if (_ctrlPressed)
             {
                 int newZ = Math.Clamp(_currentZ + (int)e.Delta, 0, _world.Depth - 1);
-                if (_currentZ != newZ)
-                {
-                    _currentZ = newZ;
-                    Console.WriteLine("Z-Level is: {0}", _currentZ);
-                }
+                _currentZ = newZ;
                 return;
             }
 
@@ -110,7 +111,6 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
             if (e.Button == Mouse.Button.Left)
             {
                 Vector2f worldPos = Map2DCoordsToIsometric(_window.MapPixelToCoords(new Vector2i(e.X, e.Y)));
-                Console.WriteLine(worldPos);
                 SelectTileAt(worldPos);
                 _consoleInterface.RunCommand("mine");
             }
@@ -201,11 +201,14 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
         int size = Math.Max(_world.Size.X * 2, _world.Size.Y * 2);
 
-        const int offset = 3;
-        int renderedZLevel = Math.Max(_currentZ - offset, 0);
+        const int maxZOffset = 4;
+        int renderedZLevel = Math.Max(_currentZ - maxZOffset, 0);
 
         while (renderedZLevel <= _currentZ)
         {
+            int zOffset = (_currentZ - renderedZLevel);
+            float pixelZOffset = (zOffset * 64.0f * _perspectiveMultiplier * 0.5f) + _floorDepth * zOffset;
+
             for (int i = 0; i < size; i++)
             {
                 for (int drawingIndex = 0; drawingIndex <= i; drawingIndex++)
@@ -217,6 +220,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
                     ITileView tile = _world[currentPos];
 
                     Transform t = Transform.Identity;
+                    t.Translate(new Vector2f(0, pixelZOffset));
                     t.Scale(new Vector2f(1, 0.5f));
                     t.Rotate(45);
                     t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
@@ -270,22 +274,17 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private void DrawTile(ITileView tile, RenderStates renderStates)
     {
+        if (tile.HasFloor)
+            DrawFloor(tile, renderStates);
         if (tile.HasWall)
             DrawWall(tile, renderStates);
-        else if (tile.HasFloor)
-            DrawFloor(tile, renderStates);
 
-        Transform t = Transform.Identity;
-        t.Scale(new Vector2f(1, 0.5f));
-        t.Rotate(45);
-        t.Translate(new Vector2f(tile.Position.X * 64, tile.Position.Y * 64));
-        t.Rotate(-45);
-        t.Scale(1, 2.0f);
-
-        RenderStates newRS = new(t);
+        renderStates.Transform.Translate(new Vector2f(-32, -32));
+        renderStates.Transform.Rotate(-45);
+        renderStates.Transform.Scale(new Vector2f(1, 2));
 
         foreach (IEntity entity in tile.Contents)
-            _renders[entity.EntityType.FullIdentifier](entity, newRS);
+            _renders[entity.EntityType.FullIdentifier](entity, renderStates);
     }
 
     private void SelectTileAt(Vector2f? position)
@@ -318,28 +317,49 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         return (t1, t2);
     }
 
+    private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
+
     private void DrawFloor(ITileView tile, RenderStates rs)
     {
-        RenderStates newRS = new();
-        newRS.Transform.Scale(new Vector2f(1, 0.5f));
-        newRS.Transform.Rotate(45);
-        newRS.Transform.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
+        float height = -_floorDepth;
+
+        Vector2f middlePoint = rs.Transform.TransformPoint(new Vector2f(32, 32));
+        Vector2f leftPoint = rs.Transform.TransformPoint(new Vector2f(-32, 32));
+        Vector2f rightPoint = rs.Transform.TransformPoint(new Vector2f(32, -32));
 
         _window.Draw(_grass, rs);
+
+        if (!_world.TryGetTile(tile.Position + new Vector(0, 1, 0), out ITileView? leftTile) || (!leftTile.HasWall && !leftTile.HasFloor))
+        {
+            _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
+            _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
+            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+
+            _window.Draw(_sideWall, new RenderStates(_grassTex));
+        }
+
+        if (!_world.TryGetTile(tile.Position + new Vector(1, 0, 0), out ITileView? rightTile) || (!rightTile.HasWall && !rightTile.HasFloor))
+        {
+            Color c = new Color(180, 180, 180);
+
+            _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
+            _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
+            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+
+            _window.Draw(_sideWall, new RenderStates(_grassTex));
+        }
     }
 
-
-    private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        float height = -64 / 1.2f;
+        float height = -64 * _perspectiveMultiplier * 0.5f;
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));
-        t.Scale(new Vector2f(1, 0.5f));
-        t.Rotate(45);
-        t.Translate(new Vector2f(tile.Position.X * 64 + 32, tile.Position.Y * 64 + 32));
-        rs = new(t);
+        t.Combine(rs.Transform);
+        rs.Transform = t;
 
         Vector2f middlePoint = t.TransformPoint(new Vector2f(32, 32));
         Vector2f leftPoint = t.TransformPoint(new Vector2f(-32, 32));
@@ -410,8 +430,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         {
             _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
             _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
-            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
+            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_wallTex));
         }
@@ -422,8 +442,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
             _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
             _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
-            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
+            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_wallTex));
         }

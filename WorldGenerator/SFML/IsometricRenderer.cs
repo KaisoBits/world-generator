@@ -11,18 +11,20 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly RenderWindow _window;
     private readonly View _view;
 
-    private readonly Sprite _grass = LoadSprite("Resources/grass2.png");
+    private static readonly Color _topWallColor = new Color(220, 220, 220);
+
+    private readonly Sprite _grass = LoadSprite("Resources/grass2.png", _topWallColor);
     private readonly Sprite _castle = LoadSprite("Resources/village.png");
     private readonly Sprite _dwarf = LoadSprite("Resources/dwarf.png");
     private readonly Sprite _mountain = LoadSprite("Resources/mountain.png");
     private readonly Sprite _smallMountain = LoadSprite("Resources/stone.png");
     private readonly Sprite _field = LoadSprite("Resources/field.png");
-    private readonly Sprite _wall0 = LoadSprite("Resources/wall-0.png");
-    private readonly Sprite _wall1 = LoadSprite("Resources/wall-1.png");
-    private readonly Sprite _wall21 = LoadSprite("Resources/wall-2-1.png");
-    private readonly Sprite _wall22 = LoadSprite("Resources/wall-2-2.png");
-    private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png");
-    private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png");
+    private readonly Sprite _wall0 = LoadSprite("Resources/wall-0.png", _topWallColor);
+    private readonly Sprite _wall1 = LoadSprite("Resources/wall-1.png", _topWallColor);
+    private readonly Sprite _wall21 = LoadSprite("Resources/wall-2-1.png", _topWallColor);
+    private readonly Sprite _wall22 = LoadSprite("Resources/wall-2-2.png", _topWallColor);
+    private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png", _topWallColor);
+    private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png", _topWallColor);
     private readonly Texture _wallTex = LoadTexture("Resources/stone_wall.png", true);
 
     private readonly RectangleShape _fog = new(new Vector2f(64, 64))
@@ -209,7 +211,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
                 for (int drawingIndex = 0; drawingIndex <= i; drawingIndex++)
                 {
                     Vector currentPos = new(drawingIndex, i - drawingIndex, renderedZLevel);
-                    if (!_worldFacade.IsWithinBounds(currentPos))
+                    if (!_world.IsWithinBounds(currentPos))
                         continue;
 
                     ITileView tile = _world[currentPos];
@@ -330,7 +332,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        int height = -64;
+        float height = -64 / 1.41f;
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));
@@ -404,21 +406,27 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
                 break;
         }
 
-        _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
-        _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
-        _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
-        _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
+        if (!_world.TryGetTile(tile.Position + new Vector(0, 1, 0), out ITileView? leftTile) || !leftTile.HasWall)
+        {
+            _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
+            _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
+            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
 
-        _window.Draw(_sideWall, new RenderStates(_wallTex));
+            _window.Draw(_sideWall, new RenderStates(_wallTex));
+        }
 
-        Color c = new Color(180, 180, 180);
+        if (!_world.TryGetTile(tile.Position + new Vector(1, 0, 0), out ITileView? rightTile) || !rightTile.HasWall)
+        {
+            Color c = new Color(180, 180, 180);
 
-        _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
-        _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
-        _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
-        _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
+            _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
+            _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
+            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * 1.41f * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * 1.41f * (height / 64.0f)));
 
-        _window.Draw(_sideWall, new RenderStates(_wallTex));
+            _window.Draw(_sideWall, new RenderStates(_wallTex));
+        }
     }
 
     private void HighlightSelectedTile()
@@ -443,10 +451,16 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private static Sprite LoadSprite(string path)
     {
+        return LoadSprite(path, Color.White);
+    }
+
+    private static Sprite LoadSprite(string path, Color color)
+    {
         Texture tex = LoadTexture(path);
 
         Sprite result = new(tex);
         result.Origin = (Vector2f)tex.Size / 2;
+        result.Color = color;
 
         return result;
     }

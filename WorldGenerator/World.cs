@@ -1,4 +1,6 @@
-﻿namespace WorldGenerator;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace WorldGenerator;
 
 public class World
 {
@@ -31,11 +33,15 @@ public class World
         _tiles = Enumerable.Range(0, z)
             .Select(zIndex =>
                 Enumerable.Range(0, len)
-                .Select(i => new Tile(i % Width, i / Width, zIndex) 
-                    { 
-                        HasFloor = zIndex == 0,
-                        HasWall = (zIndex == 0 ? false : Random.Shared.Next(0, 100) < 50) 
-                    })
+                .Select(i =>
+                {
+                    bool hasWall = (zIndex == 0 ? false : Random.Shared.Next(0, 100) < 50);
+                    return new Tile(i % Width, i / Width, zIndex)
+                    {
+                        HasFloor = zIndex == 0 || !hasWall,
+                        HasWall = hasWall
+                    };
+                })
                 .ToArray())
             .ToArray();
 
@@ -97,6 +103,30 @@ public class World
     public IEnumerable<ITileView> GetTilesAtLevel(int zLevel)
     {
         return _tiles[zLevel];
+    }
+
+    public bool IsWithinBounds(Vector position)
+    {
+        return position.X >= 0 && position.Y >= 0 && position.Z >= 0 &&
+            position.X < Width && position.Y < Height && position.Z < Depth;
+    }
+
+    public bool TryGetTile(int x, int y, int z, [NotNullWhen(true)] out ITileView? tile)
+    {
+        return TryGetTile(new Vector(x, y, z), out tile);
+    }
+
+    public bool TryGetTile(Vector position, [NotNullWhen(true)] out ITileView? tile)
+    {
+        if (!IsWithinBounds(position))
+        {
+            tile = null;
+            return false;
+        }
+
+        tile = GetTileAt(position);
+
+        return true;
     }
 
     private Tile GetTileAt(Vector position)

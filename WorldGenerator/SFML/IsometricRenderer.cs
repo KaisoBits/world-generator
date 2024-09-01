@@ -332,7 +332,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly VertexArray _sideWall = new(PrimitiveType.Quads, 4);
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        float height = -64 / 1.41f;
+        float height = -64 / 1.2f;
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));

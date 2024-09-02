@@ -59,12 +59,16 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private float _zoom = 1.0f;
 
     private int _currentZ = 0;
+    private float _currentZSmooth = 0;
 
     private bool _ctrlPressed = false;
 
     private ITileView? _lastSelectedTile = null;
 
     private bool _lowerWalls = false;
+
+    private readonly Clock _clock = new();
+    private float _lastTickTime = 0;
 
     public IsometricRenderer(
         World world,
@@ -97,7 +101,10 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
             if (_ctrlPressed)
             {
                 int newZ = Math.Clamp(_currentZ + (int)e.Delta, 0, _world.Depth - 1);
-                _currentZ = newZ;
+                if (newZ != _currentZ)
+                {
+                    _currentZ = newZ;
+                }
                 return;
             }
 
@@ -189,6 +196,23 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     public void Render()
     {
+        float currentTime = _clock.ElapsedTime.AsSeconds();
+        float deltaTime = currentTime - _lastTickTime;
+
+        if (Math.Abs(_currentZSmooth - _currentZ) < 0.01)
+        {
+            _currentZSmooth = _currentZ;
+        }
+        else
+        {
+            float diff = _currentZ - _currentZSmooth;
+            float change = diff * 30 * deltaTime;
+            if (Math.Abs(diff) <= Math.Abs(change))
+                _currentZSmooth = _currentZ;
+            else
+                _currentZSmooth += change;
+        }
+
         _window.Clear(new Color(135, 206, 235));
 
         _window.DispatchEvents();
@@ -206,12 +230,12 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
         int size = Math.Max(_world.Size.X * 2, _world.Size.Y * 2);
 
-        const int maxZOffset = 4;
+        const int maxZOffset = 2;
         int renderedZLevel = Math.Max(_currentZ - maxZOffset, 0);
 
         while (renderedZLevel <= _currentZ)
         {
-            int zOffset = (_currentZ - renderedZLevel);
+            float zOffset = (_currentZSmooth - renderedZLevel);
             float pixelZOffset = (zOffset * 64.0f * _perspectiveMultiplier * 0.5f) + _floorDepth * zOffset;
 
             for (int i = 0; i < size; i++)
@@ -250,7 +274,11 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
         foreach (Highlight highlights in _debug.TileHighlights.Where(th => th.Position.Z == _currentZ))
         {
+            float zOffset = (_currentZSmooth - _currentZ);
+            float pixelZOffset = (zOffset * 64.0f * _perspectiveMultiplier * 0.5f) + _floorDepth * zOffset;
+
             Transform t = Transform.Identity;
+            t.Translate(new Vector2f(0, pixelZOffset));
             t.Scale(new Vector2f(1, 0.5f));
             t.Rotate(45);
             t.Translate(new Vector2f(highlights.Position.X * 64, highlights.Position.Y * 64));
@@ -261,6 +289,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         }
 
         _window.Display();
+
+        _lastTickTime = currentTime;
     }
 
     private Vector2f Map2DCoordsToIsometric(Vector2f coords)

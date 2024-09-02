@@ -13,7 +13,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private static readonly Color _topWallColor = new Color(220, 220, 220);
 
-    private readonly Sprite _grass = LoadSprite("Resources/grass2.png", _topWallColor);
+    private readonly Sprite _grass = LoadSprite("Resources/stone_wall.png", _topWallColor);
     private readonly Sprite _castle = LoadSprite("Resources/village.png");
     private readonly Sprite _dwarf = LoadSprite("Resources/dwarf.png");
     private readonly Sprite _mountain = LoadSprite("Resources/mountain.png");
@@ -26,7 +26,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly Sprite _wall3 = LoadSprite("Resources/wall-3.png", _topWallColor);
     private readonly Sprite _wall4 = LoadSprite("Resources/wall-4.png", _topWallColor);
     private readonly Texture _wallTex = LoadTexture("Resources/stone_wall.png", true);
-    private readonly Texture _grassTex = LoadTexture("Resources/grass2.png", true);
+    private readonly Texture _grassTex = LoadTexture("Resources/stone_wall.png", true);
 
     private const float _floorDepth = 10;
 
@@ -361,8 +361,10 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     {
         float height = -64 * _perspectiveMultiplier * 0.5f;
 
-        if (_lowerWalls)
-            height *= 0.1f;
+        if (tile.Position.Z == _currentZ)
+        {
+            height *= (_lowerWalls ? 0.1f : 0.9f);
+        }
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));

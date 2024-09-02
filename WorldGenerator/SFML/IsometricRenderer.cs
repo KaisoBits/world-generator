@@ -64,6 +64,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private ITileView? _lastSelectedTile = null;
 
+    private bool _lowerWalls = false;
+
     public IsometricRenderer(
         World world,
         WorldFacade worldFacade,
@@ -152,6 +154,9 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         {
             if (e.Code == Keyboard.Key.Space)
                 _world.Paused = !world.Paused;
+
+            if (e.Code == Keyboard.Key.F5)
+                _lowerWalls = !_lowerWalls;
 
             if (e.Code == Keyboard.Key.LControl)
                 _ctrlPressed = true;
@@ -329,7 +334,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
         _window.Draw(_grass, rs);
 
-        if (!_world.TryGetTile(tile.Position + new Vector(0, 1, 0), out ITileView? leftTile) || (!leftTile.HasWall && !leftTile.HasFloor))
+        if (!_world.TryGetTile(tile.Position + new Vector(0, 1, 0), out ITileView? leftTile) || !leftTile.HasFloor)
         {
             _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
             _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
@@ -339,7 +344,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
             _window.Draw(_sideWall, new RenderStates(_grassTex));
         }
 
-        if (!_world.TryGetTile(tile.Position + new Vector(1, 0, 0), out ITileView? rightTile) || (!rightTile.HasWall && !rightTile.HasFloor))
+        if (!_world.TryGetTile(tile.Position + new Vector(1, 0, 0), out ITileView? rightTile) || !rightTile.HasFloor)
         {
             Color c = new Color(180, 180, 180);
 
@@ -355,6 +360,9 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private void DrawWall(ITileView tile, RenderStates rs)
     {
         float height = -64 * _perspectiveMultiplier * 0.5f;
+
+        if (_lowerWalls)
+            height *= 0.1f;
 
         var t = Transform.Identity;
         t.Translate(new Vector2f(0, height));

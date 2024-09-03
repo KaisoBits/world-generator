@@ -356,7 +356,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private void DrawFloor(ITileView tile, RenderStates rs)
     {
-        float height = -_floorDepth;
+        float height = _floorDepth;
 
         Vector2f middlePoint = rs.Transform.TransformPoint(new Vector2f(32, 32));
         Vector2f leftPoint = rs.Transform.TransformPoint(new Vector2f(-32, 32));
@@ -368,8 +368,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         {
             _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
             _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
-            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[2] = new Vertex(leftPoint + new Vector2f(0, height), Color.White, new Vector2f(0, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint + new Vector2f(0, height), Color.White, new Vector2f(64, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_grassTex));
         }
@@ -380,8 +380,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
             _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
             _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
-            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[2] = new Vertex(rightPoint + new Vector2f(0, height), c, new Vector2f(64, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint + new Vector2f(0, height), c, new Vector2f(0, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_grassTex));
         }
@@ -389,7 +389,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
     private void DrawWall(ITileView tile, RenderStates rs)
     {
-        float height = -64 * _perspectiveMultiplier * 0.5f;
+        float height = 64 * _perspectiveMultiplier * 0.5f;
 
         if (tile.Position.Z == _currentZ)
         {
@@ -397,7 +397,7 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         }
 
         var t = Transform.Identity;
-        t.Translate(new Vector2f(0, height));
+        t.Translate(new Vector2f(0, -height));
         t.Combine(rs.Transform);
         rs.Transform = t;
 
@@ -470,8 +470,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
         {
             _sideWall[0] = new Vertex(middlePoint, Color.White, new Vector2f(64, 0));
             _sideWall[1] = new Vertex(leftPoint, Color.White, new Vector2f(0, 0));
-            _sideWall[2] = new Vertex(leftPoint - new Vector2f(0, height), Color.White, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), Color.White, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[2] = new Vertex(leftPoint + new Vector2f(0, height), Color.White, new Vector2f(0, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint + new Vector2f(0, height), Color.White, new Vector2f(64, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_wallTex));
         }
@@ -482,8 +482,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
 
             _sideWall[0] = new Vertex(middlePoint, c, new Vector2f(0, 0));
             _sideWall[1] = new Vertex(rightPoint, c, new Vector2f(64, 0));
-            _sideWall[2] = new Vertex(rightPoint - new Vector2f(0, height), c, new Vector2f(64, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
-            _sideWall[3] = new Vertex(middlePoint - new Vector2f(0, height), c, new Vector2f(0, 64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[2] = new Vertex(rightPoint + new Vector2f(0, height), c, new Vector2f(64, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
+            _sideWall[3] = new Vertex(middlePoint + new Vector2f(0, height), c, new Vector2f(0, -64.0f * _perspectiveMultiplier * (height / 64.0f)));
 
             _window.Draw(_sideWall, new RenderStates(_wallTex));
         }
@@ -518,19 +518,23 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     {
         Texture tex = LoadTexture(path);
 
-        Sprite result = new(tex);
-        result.Origin = (Vector2f)tex.Size / 2;
-        result.Color = color;
+        Sprite result = new(tex)
+        {
+            Origin = (Vector2f)tex.Size / 2,
+            Color = color
+        };
 
         return result;
     }
 
     private static Texture LoadTexture(string path, bool repeated = false)
     {
-        Texture result = new(path);
+        Texture result = new(path)
+        {
+            Smooth = false,
+            Repeated = repeated
+        };
         result.GenerateMipmap();
-        result.Smooth = false;
-        result.Repeated = repeated;
 
         return result;
     }

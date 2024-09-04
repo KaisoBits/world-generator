@@ -95,6 +95,23 @@ public class Terrain
             }
         }
     }
+    public void AddBushes()
+    {
+        Entity ent = _entityFactory.CreateFromName("stock.terrain.bush.empty");
+
+        for (int y = 0; y < _world.Height; y++)
+        {
+            for (int x = 0; x < _world.Width; x++)
+            {
+                ITileView Tile = _world[x, y, 0];
+                if (Random.Shared.Next(0, 10) < 3 && !Tile.IsOccupied) {
+                    _world.SpawnEntity(ent, new Vector(x, y, Tile.Position.Z));
+                }
+            }
+        }
+
+    }
+
 }
 
 

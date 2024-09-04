@@ -13,6 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\berries_empty.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\berries_full.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\dirt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

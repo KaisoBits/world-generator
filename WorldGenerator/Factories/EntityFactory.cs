@@ -48,6 +48,13 @@ public sealed class EntityFactory
             case "stock.terrain.field":
                 result.Layer = Layer.Ground;
                 break;
+            case "stock.terrain.berries.full":
+                result.Layer = Layer.Ground;
+                break;
+            case "stock.terrain.berries.empty":
+                result.Layer = Layer.Ground;
+                break;
+
             default:
                 throw new Exception("Unknown entity type " + name);
         }

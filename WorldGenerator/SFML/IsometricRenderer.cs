@@ -19,6 +19,8 @@ public sealed class IsometricRenderer : IRenderer, IDisposable
     private readonly Sprite _mountain = LoadSprite("Resources/mountain.png");
     private readonly Sprite _smallMountain = LoadSprite("Resources/stone.png");
     private readonly Sprite _field = LoadSprite("Resources/field.png");
+    private readonly Sprite _berries_full = LoadSprite("Resources/berries_full.png");
+    private readonly Sprite _berries_Empty = LoadSprite("Resources/berries_empty.png");
     private readonly Sprite _wall0 = LoadSprite("Resources/wall-0.png", _topWallColor);
     private readonly Sprite _wall1 = LoadSprite("Resources/wall-1.png", _topWallColor);
     private readonly Sprite _wall21 = LoadSprite("Resources/wall-2-1.png", _topWallColor);

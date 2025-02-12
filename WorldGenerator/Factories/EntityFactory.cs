@@ -48,10 +48,7 @@ public sealed class EntityFactory
             case "stock.terrain.field":
                 result.Layer = Layer.Ground;
                 break;
-            case "stock.terrain.berries.full":
-                result.Layer = Layer.Ground;
-                break;
-            case "stock.terrain.berries.empty":
+            case "stock.terrain.berries":
                 result.Layer = Layer.Ground;
                 break;
 

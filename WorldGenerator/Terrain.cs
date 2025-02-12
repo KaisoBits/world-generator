@@ -95,9 +95,9 @@ public class Terrain
             }
         }
     }
-    public void AddBushes()
+    public void AddBerries()
     {
-        Entity ent = _entityFactory.CreateFromName("stock.terrain.bush.empty");
+        Entity ent = _entityFactory.CreateFromName("stock.terrain.berries");
 
         for (int y = 0; y < _world.Height; y++)
         {

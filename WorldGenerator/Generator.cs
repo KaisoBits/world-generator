@@ -18,6 +18,7 @@ public class Generator
     public void PopulateWorld(int buildingCount, int citizenCount)
     {
         GenerateCitizens(citizenCount);
+        _terrain.AddBerries();
         return;
 
         GenerateBuildings(buildingCount);

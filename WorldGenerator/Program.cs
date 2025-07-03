@@ -30,6 +30,7 @@ builder.Services.AddScoped<SelectionService>();
 builder.Services.AddScoped<DebugOverlay>();
 
 builder.Services.AddHostedService<GameHostedService>();
+builder.Services.AddHostedService<HealthCheckService>();
 
 using IHost app = builder.Build();
 app.Run();
